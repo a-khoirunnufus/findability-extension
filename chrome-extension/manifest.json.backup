@@ -1,0 +1,20 @@
+{
+  "name": "GD Extension Test",
+  "description": "testing for gd extension",
+  "version": "1.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:3000/*", "https://drive.google.com/*"],
+      "run_at": "document_idle",
+      "js": ["content-script.js"]
+    }
+  ],
+  "permissions": ["activeTab", "scripting", "storage"]
+}

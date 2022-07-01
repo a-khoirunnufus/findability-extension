@@ -1,0 +1,14 @@
+{
+  "name": "GD Extension Test",
+  "description": "testing for gd extension",
+  "version": "1.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Quick Navigation"
+  },
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
+  "host_permissions": ["http://localhost:8080/*"]
+}
