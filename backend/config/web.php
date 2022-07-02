@@ -21,7 +21,7 @@ $config = [
         ],
         'user' => [
             'identityClass' => 'app\models\User',
-            'enableAutoLogin' => true,
+            // 'enableAutoLogin' => true,
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -44,18 +44,28 @@ $config = [
         ],
         'db' => $db,
         'urlManager' => [
+            'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
             'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
-				'GET auth/signin' => 'auth/signin',
-				'POST auth/signin-callback' => 'auth/signin-callback',
-				'GET auth/signout' => 'auth/signout',
-				'GET auth/oauth2' => 'auth/oauth',
-				'GET auth/oauth2-callback' => 'auth/oauth-callback',
-				'GET auth/post-signin' => 'auth/post-signin'
+                'signin' => 'auth/signin',
+                'signup' => 'auth/signup'
             ]
-		]
+        ]
+        // 'urlManager' => [
+        //     'enablePrettyUrl' => true,
+        //     'enableStrictParsing' => true,
+        //     'showScriptName' => false,
+        //     'rules' => [
+		// 		'GET auth/signin' => 'auth/signin',
+		// 		'POST auth/signin-callback' => 'auth/signin-callback',
+		// 		'GET auth/signout' => 'auth/signout',
+		// 		'GET auth/oauth2' => 'auth/oauth',
+		// 		'GET auth/oauth2-callback' => 'auth/oauth-callback',
+		// 		'GET auth/post-signin' => 'auth/post-signin'
+        //     ]
+		// ]
     ],
     'params' => $params,
 ];
