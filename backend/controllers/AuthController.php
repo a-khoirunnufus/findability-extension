@@ -1,39 +1,45 @@
 <?php
 
-namespace fex\controllers;
+namespace app\controllers;
 
 use Yii;
 use yii\helpers\Url;
 use yii\web\Controller;
-// use Google_Client;
 use Google\Client;
 use Google\Service\Drive;
 
 class AuthController extends Controller
 {
+  public function beforeAction($action)
+  {
+      if (in_array($action->id, ['signin-callback'])) {
+          $this->enableCsrfValidation = false;
+      }
+      return parent::beforeAction($action);
+  }
+
   public function actionSignin()
   {
-    session_start();
-
     // Set Content Security Policy response header to prevent cross-site scripting (XSS) attack
     Yii::$app->response->headers->set('Content-Security-Policy-Report-Only', 'script-src https://accounts.google.com/gsi/client; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/');
 
     return $this->render('signin');
   }
 
-  public function actionSignincallback()
+  public function actionSigninCallback()
   {
     $request = Yii::$app->request;
     $postBody = $request->post();
 
     // Verify CSRF
-    $csrf_cookie = Yii::$app->request->cookies->get('g_csrf_token');
+    // $csrf_cookie = Yii::$app->request->cookies->get('g_csrf_token');
+    $csrf_cookie = $_COOKIE['g_csrf_token'];
     $csrf_body = $postBody['g_csrf_token'];
     if($csrf_cookie == null or $csrf_cookie != $csrf_body) {
-      return "Failed to verify double submit cookie";
+      return "Failed to verify double submit cookie, $csrf_cookie, $csrf_body";
     }
 
-    $client_secret = Yii::getAlias('@fex/client_secret.json');    
+    $client_secret = Yii::getAlias('@app/client_secret.json');    
     $client = new Client();
     $client->setAuthConfig($client_secret);
 
@@ -51,29 +57,21 @@ class AuthController extends Controller
       'httpOnly' => false
     ]));
 
-    // check access token
-    // if (!$session->has('gapi_access_token')) {
-    //   return $this->redirect(Url::to('@web/auth/oauth2', true));
-    // }
-
-    // $client->setAccessToken($session->get('gapi_access_token'));
-    // check access token expired, if so refresh the token
-    // if ($client->isAccessTokenExpired()) {
-    //   return $this->redirect(Url::to('@web/auth/oauth2', true));
-    // }
+    // check access token in database
+    // check token expiration
+    // if expire refresh token
     
-    // return $this->redirect(Url::to(['/view/files/0']));
     return $this->redirect(Url::to(['/auth/post-signin']));
   }
 
   public function actionSignout()
   {
-    session_start();
-    session_unset();
+    Yii::$app->session->destroy();
+
     return 'destroys all data registered to a session.';
   }
 
-  public function actionOauth2()
+  public function actionOauth()
   {
     $email = Yii::$app->session->get('email');
     $redirect_uri = Url::to('@web/auth/oauth2callback', true);
@@ -92,7 +90,7 @@ class AuthController extends Controller
     return $this->redirect($auth_url);
   }
 
-  public function actionOauth2callback()
+  public function actionOauthCallback()
   {
     $redirect_uri = Url::to('@web/auth/oauth2callback', true);
     $client_secret = Yii::getAlias('@fex/client_secret.json');
