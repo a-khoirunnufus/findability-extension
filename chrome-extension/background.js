@@ -95,8 +95,9 @@ chrome.tabs.onUpdated.addListener(
 */
 
 /* DEBUGGER */
+const extensionId = "oakgackpgmmgefbcekhkfcjfaaionjlh"
 chrome.tabs.create(
-  {url: "chrome-extension://cagcfnklabmkbcbjjmkcbgglcldlgonm/debugger/index.html"}
+  {url: `chrome-extension://${extensionId}/debugger/index.html`}
 );
 
 /* LOGGING START */
