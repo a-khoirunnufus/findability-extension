@@ -10,7 +10,7 @@ use Google\Service\Drive;
 
 class AuthController extends Controller
 {
-  public $layout = false;
+  public $layout = 'public';
   
   public function beforeAction($action)
   {
@@ -23,7 +23,7 @@ class AuthController extends Controller
   public function actionSignup()
   {
     // Set Content Security Policy response header to prevent cross-site scripting (XSS) attack
-    Yii::$app->response->headers->set('Content-Security-Policy-Report-Only', 'script-src https://accounts.google.com/gsi/client; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/');
+    // Yii::$app->response->headers->set('Content-Security-Policy-Report-Only', 'script-src https://accounts.google.com/gsi/client; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/');
     
     return $this->render('signup');
   }
@@ -31,7 +31,7 @@ class AuthController extends Controller
   public function actionSignin()
   {
     // Set Content Security Policy response header to prevent cross-site scripting (XSS) attack
-    Yii::$app->response->headers->set('Content-Security-Policy-Report-Only', 'script-src https://accounts.google.com/gsi/client; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/');
+    // Yii::$app->response->headers->set('Content-Security-Policy-Report-Only', 'script-src https://accounts.google.com/gsi/client; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/');
 
     return $this->render('signin');
   }
