@@ -9,10 +9,33 @@ use Google\Client;
 use Google\Service\Drive;
 use app\models\SignupForm;
 use app\models\SigninForm;
+use yii\filters\AccessControl;
 
 class AuthController extends Controller
 {
   public $layout = 'public';
+
+  public function behaviors()
+  {
+    return [
+      'access' => [
+        'class' => AccessControl::class,
+        'only' => ['signin', 'signout', 'signup'],
+        'rules' => [
+          [
+            'allow' => true,
+            'actions' => ['signin', 'signup'],
+            'roles' => ['?'],
+          ],
+          [
+            'allow' => true,
+            'actions' => ['signout'],
+            'roles' => ['@'],
+          ],
+        ],
+      ],
+    ];
+  }
   
   public function beforeAction($action)
   {
@@ -52,7 +75,7 @@ class AuthController extends Controller
     if (Yii::$app->request->isPost) {
       $model->load(Yii::$app->request->post());
       if ($model->signin()) {
-        return $this->render('post_signin');
+        return $this->redirect(Url::toRoute('main/index'));
       }
     }
 
@@ -104,7 +127,7 @@ class AuthController extends Controller
   {
     Yii::$app->user->logout();
 
-    return $this->redirect(Url::toRoute('signin'));
+    return $this->redirect(Url::to(['signin']));
   }
 
   public function actionOauth()
