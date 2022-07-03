@@ -32,8 +32,8 @@ class SignupForm extends Model
   public function rules()
   {
     return [
-      [['name', 'email', 'password', 'password_repeat'], 'required'],
-      ['email', 'email'],
+      [['name', 'email', 'password', 'password_repeat'], 'required', 'message' => '{attribute} tidak boleh kosong.'],
+      ['email', 'email', 'message' => 'Format email salah.'],
       ['email', 'validateEmailNotExists'],
       ['password_repeat', 'compare', 'compareAttribute' => 'password']
     ];
