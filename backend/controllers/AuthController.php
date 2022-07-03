@@ -8,6 +8,7 @@ use yii\web\Controller;
 use Google\Client;
 use Google\Service\Drive;
 use app\models\SignupForm;
+use app\models\SigninForm;
 
 class AuthController extends Controller
 {
@@ -46,8 +47,19 @@ class AuthController extends Controller
   {
     // Set Content Security Policy response header to prevent cross-site scripting (XSS) attack
     // Yii::$app->response->headers->set('Content-Security-Policy-Report-Only', 'script-src https://accounts.google.com/gsi/client; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/');
+    
+    $model = new SigninForm();
+    if (Yii::$app->request->isPost) {
+      $model->load(Yii::$app->request->post());
+      if ($model->signin()) {
+        return $this->render('post_signin');
+      }
+    }
 
-    return $this->render('signin');
+    $model->password = '';
+    return $this->render('signin', [
+      'model' => $model
+    ]);
   }
 
   public function actionSigninCallback()
@@ -90,9 +102,9 @@ class AuthController extends Controller
 
   public function actionSignout()
   {
-    Yii::$app->session->destroy();
+    Yii::$app->user->logout();
 
-    return 'destroys all data registered to a session.';
+    return $this->redirect(Url::toRoute('signin'));
   }
 
   public function actionOauth()

@@ -1,7 +1,10 @@
 <?php
 
 /** @var yii\web\View $this */
+/** @var app\models\SigninForm $model */
 
+use yii\bootstrap4\ActiveForm;
+use yii\bootstrap4\Html;
 use yii\helpers\Url;
 
 $this->title = 'Masuk · File Fast';
@@ -18,7 +21,29 @@ $this->title = 'Masuk · File Fast';
   <div class="col-md-5 border-left">
     <div class="d-flex h-100 flex-column justify-content-center" style="margin: 0 auto; width: 100%; max-width: 300px">
       <h3 class="mb-3 text-center">Masuk</h3>
-      <form>
+
+      <?php $form = ActiveForm::begin([
+        'id' => 'signin-form',
+        'layout' => 'default',
+        'fieldConfig' => [
+          'template' => "{label}\n{input}\n{error}",
+          'labelOptions' => ['class' => ''],
+          'inputOptions' => ['class' => 'form-control'],
+          'errorOptions' => ['class' => 'invalid-feedback'],
+        ],
+      ]); ?>
+        <?= $form->field($model, 'email')->input('email') ?>
+        <?= $form->field($model, 'password')->passwordInput() ?>
+        <?= $form->field($model, 'remember_me')->checkbox([
+          'template' => "<div class=\"custom-control custom-checkbox\">{input} {label}</div>\n<div class=\"col-lg-8\">{error}</div>",
+        ]) ?>
+
+        <div class="form-group">
+          <?= Html::submitButton('Masuk', ['class' => 'btn btn-primary w-100', 'name' => 'signin-button']) ?>
+        </div>
+      <?php ActiveForm::end(); ?>
+
+      <!-- <form>
         <div class="form-group">
           <label for="exampleInputEmail1">Email</label>
           <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Masukkan email">
@@ -32,9 +57,9 @@ $this->title = 'Masuk · File Fast';
           <label class="form-check-label" for="exampleCheck1">Ingat saya</label>
         </div>
         <button type="submit" class="btn btn-primary w-100">Masuk</button>
-      </form>
+      </form> -->
 
-      <p class="mt-3">Belum punya akun? Daftar sekarang</p>
+      <p class="mt-3">Belum punya akun? <a href="<?= Url::toRoute('signup') ?>">Daftar sekarang</a></p>
 
       <div class="w-100 border-bottom mb-4"></div>
       <div id="g_id_onload"
