@@ -7,6 +7,7 @@ use yii\helpers\Url;
 use yii\web\Controller;
 use Google\Client;
 use Google\Service\Drive;
+use app\models\SignupForm;
 
 class AuthController extends Controller
 {
@@ -25,7 +26,19 @@ class AuthController extends Controller
     // Set Content Security Policy response header to prevent cross-site scripting (XSS) attack
     // Yii::$app->response->headers->set('Content-Security-Policy-Report-Only', 'script-src https://accounts.google.com/gsi/client; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/');
     
-    return $this->render('signup');
+    $model = new SignupForm();
+    if (Yii::$app->request->isPost) {
+      $model->load(Yii::$app->request->post());
+      if ($model->signup()) {
+        return $this->render('post_signup');
+      }
+    }
+
+    $model->password = '';
+    $model->password_repeat = '';
+    return $this->render('signup', [
+      'model' => $model
+    ]);
   }
 
   public function actionSignin()
