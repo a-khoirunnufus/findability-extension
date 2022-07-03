@@ -19,8 +19,8 @@ class m220702_045320_create_user_table extends Migration
             'is_email_verified' => $this->boolean()->defaultValue(false),
             'email_verification_code' => $this->string(),
             'password' => $this->string()->notNull(),
-            'authKey' => $this->string(),
-            'accessToken' => $this->string()
+            'auth_key' => $this->string(),
+            'access_token' => $this->string()
         ]);
     }
 
@@ -29,6 +29,6 @@ class m220702_045320_create_user_table extends Migration
      */
     public function safeDown()
     {
-        $this->dropTable('{{%user}}');
+        $this->dropTable('user');
     }
 }
