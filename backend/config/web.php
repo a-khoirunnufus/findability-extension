@@ -46,11 +46,12 @@ $config = [
         'urlManager' => [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
-            'enableStrictParsing' => true,
+            'enableStrictParsing' => false,
             'showScriptName' => false,
             'rules' => [
                 'signin' => 'auth/signin',
-                'signup' => 'auth/signup'
+                'signup' => 'auth/signup',
+                'index' => 'main/index'
             ]
         ]
         // 'urlManager' => [
