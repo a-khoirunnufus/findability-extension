@@ -30,8 +30,9 @@ class SigninForm extends Model
   public function rules()
   {
     return [
-      [['email', 'password'], 'required'],
-      ['remember_me', 'boolean'],
+      [['email', 'password'], 'required', 'message' => '{attribute} tidak boleh kosong.'],
+      ['email', 'email', 'message' => 'Format email salah.'],
+      ['remember_me', 'boolean', 'message' => 'Input salah.'],
       ['email', 'validateEmailExists'],
       ['password', 'validatePasswordCorrect'],
     ];
