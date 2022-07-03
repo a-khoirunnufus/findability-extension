@@ -1,81 +1,80 @@
 <?php
 
 /** @var yii\web\View $this */
-/** @var string $content */
 
 use app\assets\AppAsset;
-use app\widgets\Alert;
-use yii\bootstrap4\Breadcrumbs;
-use yii\bootstrap4\Html;
-use yii\bootstrap4\Nav;
-use yii\bootstrap4\NavBar;
+use yii\helpers\Url;
+use yii\helpers\Html;
 
 AppAsset::register($this);
 ?>
+
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
-<html lang="<?= Yii::$app->language ?>" class="h-100">
+<html lang="id">
 <head>
-    <meta charset="<?= Yii::$app->charset ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <?php $this->registerCsrfMetaTags() ?>
-    <title><?= Html::encode($this->title) ?></title>
-    <?php $this->head() ?>
+  <meta charset="<?= Yii::$app->charset ?>">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <?php $this->registerCsrfMetaTags() ?>
+  <title><?= Html::encode($this->title) ?></title>
+  <?php $this->head() ?>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
-<body class="d-flex flex-column h-100">
-<?php $this->beginBody() ?>
 
-<header>
-    <?php
-    NavBar::begin([
-        'brandLabel' => Yii::$app->name,
-        'brandUrl' => Yii::$app->homeUrl,
-        'options' => [
-            'class' => 'navbar navbar-expand-md navbar-dark bg-dark fixed-top',
-        ],
-    ]);
-    echo Nav::widget([
-        'options' => ['class' => 'navbar-nav'],
-        'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
-            Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/site/login']]
-            ) : (
-                '<li>'
-                . Html::beginForm(['/site/logout'], 'post', ['class' => 'form-inline'])
-                . Html::submitButton(
-                    'Logout (' . Yii::$app->user->identity->username . ')',
-                    ['class' => 'btn btn-link logout']
-                )
-                . Html::endForm()
-                . '</li>'
-            )
-        ],
-    ]);
-    NavBar::end();
-    ?>
-</header>
-
-<main role="main" class="flex-shrink-0">
+<body class="bg-light d-flex flex-column" style="min-height: 100vh">
+  <?php $this->beginBody() ?>
+  <header class="border-bottom shadow-sm py-3" style="position: fixed; width: 100%; z-index: 1; background-color: white;">
     <div class="container">
-        <?= Breadcrumbs::widget([
-            'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
-        ]) ?>
-        <?= Alert::widget() ?>
-        <?= $content ?>
+      <div class="d-flex align-items-center">
+        <h5 class="m-0"><i class="bi bi-file-earmark-text-fill"></i> File Fast</h5>
+        <div class="flex-grow-1"></div>
+        <!-- profile pic with name -->
+        <div>
+          <img src="<?= Url::to('@web/img/profile-default.png') ?>" style="height: 32px; width: 32px; margin-right: .5rem; object-fit: cover; border-radius: 50%; border: 1px solid gainsboro;">
+          Ahmad Khoirunnufus
+        </div>
+      </div>
     </div>
-</main>
+  </header>
 
-<footer class="footer mt-auto py-3 text-muted">
+  <div class="flex-grow-1">
+    <div class="container d-flex flex-row align-item-start" style="margin-top: 65px; padding-top: 1rem; padding-bottom: 1rem;">
+      <aside style="width: 250px">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <a role="button" href="<?= Url::toRoute('home/index') ?>" class="btn btn-light w-100 text-left mb-3"><i class="bi bi-house-fill mr-2"></i> Home</a>
+            <a role="button" href="<?= Url::toRoute('profile/index') ?>" class="btn btn-primary w-100 text-left mb-3"><i class="bi bi-person-fill mr-2"></i> Profil</a>
+            <a role="button" href="#" class="btn btn-light w-100 text-left mb-5"><i class="bi bi-list-task mr-2"></i> Pengujian</a>
+            <a role="button" href="<?= Url::toRoute('auth/signout') ?>" class="btn btn-light w-100 text-danger text-left"><i class="bi bi-box-arrow-left mr-2"></i> Keluar</a>
+          </div>
+        </div>
+      </aside>
+      <div class="w-100 pl-3">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Profil</li>
+          </ol>
+        </nav>
+        <main>
+          <?= $content ?>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-dark border-top py-2 text-white" style="font-size: .8rem;">
     <div class="container">
-        <p class="float-left">&copy; My Company <?= date('Y') ?></p>
-        <p class="float-right"><?= Yii::powered() ?></p>
+      <div class="d-flex" style="gap: 1rem">
+        <a href="<?= Url::toRoute('about') ?>" class="text-white">Tentang</a>
+        <div class="flex-grow-1"></div>
+        <div class="text-white">&copy; File Fast <?= date('Y') ?> · <?= Yii::powered() ?></div>
+      </div>
     </div>
-</footer>
-
-<?php $this->endBody() ?>
+  </footer>
+  <?php $this->endBody() ?>
 </body>
 </html>
 <?php $this->endPage() ?>

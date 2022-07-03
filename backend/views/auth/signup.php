@@ -10,34 +10,38 @@ $this->title = 'Daftar · File Fast';
 ?>
 
 <div class="row">
-  <div class="col-md-7">
-    <div class="d-flex h-100 flex-column justify-content-center" style="margin: 0 auto; width: 100%; max-width: 400px">
-      <h3 class="mb-3 text-center">Daftar</h3>
-      
-      <?php $form = ActiveForm::begin([
-        'id' => 'signup-form',
-        'layout' => 'default',
-        'fieldConfig' => [
-          'template' => "{label}\n{input}\n{error}",
-          'labelOptions' => ['class' => ''],
-          'inputOptions' => ['class' => 'form-control'],
-          'errorOptions' => ['class' => 'invalid-feedback'],
-        ],
-      ]); ?>
-        <?= $form->field($model, 'name')->textInput(['autofocus' => true]) ?>
-        <?= $form->field($model, 'email')->input('email') ?>
-        <?= $form->field($model, 'password')->passwordInput() ?>
-        <?= $form->field($model, 'password_repeat')->passwordInput() ?>
-        <div class="form-group">
-          <?= Html::submitButton('Daftar', ['class' => 'btn btn-primary w-100', 'name' => 'signup-button']) ?>
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex h-100 flex-column justify-content-center" style="margin: 0 auto;">
+        <h5 class="mb-4 text-center font-weight-bolder">Daftar</h5>
+          
+          <?php $form = ActiveForm::begin([
+            'id' => 'signup-form',
+            'layout' => 'default',
+            'fieldConfig' => [
+              'template' => "{label}\n{input}\n{error}",
+              'labelOptions' => ['class' => ''],
+              'inputOptions' => ['class' => 'form-control'],
+              'errorOptions' => ['class' => 'invalid-feedback'],
+            ],
+          ]); ?>
+            <?= $form->field($model, 'name')->textInput(['autofocus' => true]) ?>
+            <?= $form->field($model, 'email')->input('email') ?>
+            <?= $form->field($model, 'password')->passwordInput() ?>
+            <?= $form->field($model, 'password_repeat')->passwordInput() ?>
+            <div class="form-group">
+              <?= Html::submitButton('Daftar', ['class' => 'btn btn-primary w-100', 'name' => 'signup-button']) ?>
+            </div>
+          <?php ActiveForm::end(); ?>
+    
         </div>
-      <?php ActiveForm::end(); ?>
-
+      </div>
     </div>
   </div>
-  <div class="col-md-5 border-left">
+  <div class="col-md-7">
     <div class="d-flex h-100 flex-column justify-content-center text-center">
-      <p>atau lanjutkan dengan akun google</p>
+      <p>Atau lanjutkan dengan akun google.</p>
       <div id="g_id_onload"
         data-client_id="<?= CLIENT_ID ?>"
         data-login_uri="<?= SIGNIN_CALLBACK_URL ?>"
