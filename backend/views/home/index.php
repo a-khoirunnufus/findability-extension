@@ -1,5 +1,5 @@
 <?php
-$this->title = 'Home · File Fast';
+$this->title = 'Home';
 ?>
 
 <div class="card shadow-sm">

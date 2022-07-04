@@ -5,8 +5,13 @@
 use app\assets\AppAsset;
 use yii\helpers\Url;
 use yii\helpers\Html;
+// use yii\bootstrap4\Breadcrumbs;
+// use yii\bootstrap4\Nav;
+// use yii\bootstrap4\NavBar;
 
 AppAsset::register($this);
+
+$identity = Yii::$app->user->identity;
 ?>
 
 <?php $this->beginPage() ?>
@@ -17,7 +22,7 @@ AppAsset::register($this);
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <?php $this->registerCsrfMetaTags() ?>
-  <title><?= Html::encode($this->title) ?></title>
+  <title><?= Html::encode($this->title) ?> · File Fast</title>
   <?php $this->head() ?>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -32,7 +37,7 @@ AppAsset::register($this);
         <div class="flex-grow-1"></div>
         <div>
           <img src="<?= Url::to('@web/img/profile-default.png') ?>" style="height: 32px; width: 32px; margin-right: .5rem; object-fit: cover; border-radius: 50%; border: 1px solid gainsboro;">
-          Ahmad Khoirunnufus
+          <?= $identity->name ?>
         </div>
       </div>
     </div>
@@ -44,7 +49,7 @@ AppAsset::register($this);
         <div class="card shadow-sm">
           <div class="card-body">
             <a role="button" href="<?= Url::toRoute('home/index') ?>" class="btn btn-light w-100 text-left mb-3"><i class="bi bi-house-fill mr-2"></i> Home</a>
-            <a role="button" href="<?= Url::toRoute('profile/index') ?>" class="btn btn-primary w-100 text-left mb-3"><i class="bi bi-person-fill mr-2"></i> Profil</a>
+            <a role="button" href="<?= Url::toRoute('profile/index') ?>" class="btn btn-light w-100 text-left mb-3"><i class="bi bi-person-fill mr-2"></i> Profil</a>
             <a role="button" href="#" class="btn btn-light w-100 text-left mb-3"><i class="bi bi-info-circle-fill mr-2"></i> Panduan</a>
             <a role="button" href="#" class="btn btn-light w-100 text-left mb-5"><i class="bi bi-list-task mr-2"></i> Pengujian</a>
             <a role="button" href="<?= Url::toRoute('auth/signout') ?>" class="btn btn-light w-100 text-danger text-left"><i class="bi bi-box-arrow-left mr-2"></i> Keluar</a>
@@ -53,6 +58,7 @@ AppAsset::register($this);
       </aside>
       <div class="w-100 pl-3">
         <main>
+          <h3><?= $this->title ?></h3>
           <?= $content ?>
         </main>
       </div>
