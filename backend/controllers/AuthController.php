@@ -75,7 +75,7 @@ class AuthController extends Controller
     if (Yii::$app->request->isPost) {
       $model->load(Yii::$app->request->post());
       if ($model->signin()) {
-        return $this->redirect(Url::toRoute('main/index'));
+        return $this->redirect(Url::toRoute('home/index'));
       }
     }
 

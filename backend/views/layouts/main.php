@@ -25,12 +25,11 @@ AppAsset::register($this);
 
 <body class="bg-light d-flex flex-column" style="min-height: 100vh">
   <?php $this->beginBody() ?>
-  <header class="border-bottom shadow-sm py-3" style="position: fixed; width: 100%; z-index: 1; background-color: white;">
+  <header class="border-bottom shadow py-3" style="position: fixed; width: 100%; z-index: 1; background-color: white;">
     <div class="container">
       <div class="d-flex align-items-center">
         <h5 class="m-0"><i class="bi bi-file-earmark-text-fill"></i> File Fast</h5>
         <div class="flex-grow-1"></div>
-        <!-- profile pic with name -->
         <div>
           <img src="<?= Url::to('@web/img/profile-default.png') ?>" style="height: 32px; width: 32px; margin-right: .5rem; object-fit: cover; border-radius: 50%; border: 1px solid gainsboro;">
           Ahmad Khoirunnufus
@@ -40,24 +39,19 @@ AppAsset::register($this);
   </header>
 
   <div class="flex-grow-1">
-    <div class="container d-flex flex-row align-item-start" style="margin-top: 65px; padding-top: 1rem; padding-bottom: 1rem;">
+    <div class="container d-flex flex-row align-item-start" style="margin-top: 65px; padding-top: 2rem; padding-bottom: 2rem;">
       <aside style="width: 250px">
         <div class="card shadow-sm">
           <div class="card-body">
             <a role="button" href="<?= Url::toRoute('home/index') ?>" class="btn btn-light w-100 text-left mb-3"><i class="bi bi-house-fill mr-2"></i> Home</a>
             <a role="button" href="<?= Url::toRoute('profile/index') ?>" class="btn btn-primary w-100 text-left mb-3"><i class="bi bi-person-fill mr-2"></i> Profil</a>
+            <a role="button" href="#" class="btn btn-light w-100 text-left mb-3"><i class="bi bi-info-circle-fill mr-2"></i> Panduan</a>
             <a role="button" href="#" class="btn btn-light w-100 text-left mb-5"><i class="bi bi-list-task mr-2"></i> Pengujian</a>
             <a role="button" href="<?= Url::toRoute('auth/signout') ?>" class="btn btn-light w-100 text-danger text-left"><i class="bi bi-box-arrow-left mr-2"></i> Keluar</a>
           </div>
         </div>
       </aside>
       <div class="w-100 pl-3">
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Profil</li>
-          </ol>
-        </nav>
         <main>
           <?= $content ?>
         </main>

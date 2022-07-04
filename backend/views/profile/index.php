@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Url;
 
+$this->title = 'Profil · File Fast';
 ?>
 
 <style>
