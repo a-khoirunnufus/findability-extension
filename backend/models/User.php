@@ -8,15 +8,6 @@ use yii\web\IdentityInterface;
 
 class User extends ActiveRecord implements IdentityInterface
 {
-  // public $id;
-  // public $name;
-  // public $email;
-  // public $is_email_verified;
-  // public $email_verification_code;
-  // public $password;
-  // public $authKey;
-  // public $accessToken;
-
   public static function tableName()
   {
     return 'user';
@@ -41,7 +32,6 @@ class User extends ActiveRecord implements IdentityInterface
    */
   public static function findIdentityByAccessToken($token, $type = null)
   {
-    // return static::findOne(['access_token' => $token]);
   }
 
   /**
@@ -78,5 +68,17 @@ class User extends ActiveRecord implements IdentityInterface
       return true;
     }
     return false;
+  }
+
+  /**
+   * @return boolean Whether the saving succeeded (i.e. no validation errors occurred).
+   */
+  public static function registerWithGoogleAccount($payload)
+  {
+    $user = new self();
+    $user->name = $payload['name'];
+    $user->email = $payload['email'];
+    
+    return $user->save();
   }
 }

@@ -8,7 +8,6 @@ require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../vendor/yiisoft/yii2/Yii.php';
 
 define('CLIENT_ID', '94586557690-7drvlb839daj6oujqkvrkujdcsvlu8fv.apps.googleusercontent.com');
-define('SIGNIN_CALLBACK_URL', 'http://localhost:8080/auth/signin-callback');
 
 $config = require __DIR__ . '/../config/web.php';
 

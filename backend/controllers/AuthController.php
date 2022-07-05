@@ -7,8 +7,7 @@ use yii\helpers\Url;
 use yii\web\Controller;
 use Google\Client;
 use Google\Service\Drive;
-use app\models\SignupForm;
-use app\models\SigninForm;
+use app\models\User;
 use yii\filters\AccessControl;
 
 class AuthController extends Controller
@@ -20,16 +19,11 @@ class AuthController extends Controller
     return [
       'access' => [
         'class' => AccessControl::class,
-        'only' => ['signin', 'signout', 'signup'],
+        'only' => ['logout'],
         'rules' => [
           [
             'allow' => true,
-            'actions' => ['signin', 'signup'],
-            'roles' => ['?'],
-          ],
-          [
-            'allow' => true,
-            'actions' => ['signout'],
+            'actions' => ['logout'],
             'roles' => ['@'],
           ],
         ],
@@ -39,63 +33,39 @@ class AuthController extends Controller
   
   public function beforeAction($action)
   {
-      if (in_array($action->id, ['signin-callback'])) {
+      if (in_array($action->id, ['signin-with-google-callback'])) {
           $this->enableCsrfValidation = false;
       }
       return parent::beforeAction($action);
   }
 
-  public function actionSignup()
+  public function actionLogin()
   {
     // Set Content Security Policy response header to prevent cross-site scripting (XSS) attack
-    // Yii::$app->response->headers->set('Content-Security-Policy-Report-Only', 'script-src https://accounts.google.com/gsi/client; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/');
+    Yii::$app->response->headers->set(
+      'Content-Security-Policy-Report-Only', 
+      "script-src 'self' https://accounts.google.com/gsi/client 'unsafe-inline';"
+      ." frame-src 'self' https://accounts.google.com/gsi/;"
+      ." connect-src 'self' https://accounts.google.com/gsi/"
+    );
     
-    $model = new SignupForm();
-    if (Yii::$app->request->isPost) {
-      $model->load(Yii::$app->request->post());
-      if ($model->signup()) {
-        // return $this->render('post_signup');
-        return $this->render('post_verification');
-      }
-    }
-
-    $model->password = '';
-    $model->password_repeat = '';
-    return $this->render('signup', [
-      'model' => $model
-    ]);
+    return $this->render('login');
   }
 
-  public function actionSignin()
-  {
-    // Set Content Security Policy response header to prevent cross-site scripting (XSS) attack
-    // Yii::$app->response->headers->set('Content-Security-Policy-Report-Only', 'script-src https://accounts.google.com/gsi/client; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/');
-    
-    $model = new SigninForm();
-    if (Yii::$app->request->isPost) {
-      $model->load(Yii::$app->request->post());
-      if ($model->signin()) {
-        return $this->redirect(Url::toRoute('home/index'));
-      }
-    }
-
-    $model->password = '';
-    return $this->render('signin', [
-      'model' => $model
-    ]);
-  }
-
-  public function actionSigninCallback()
+  public function actionSigninWithGoogleCallback()
   {
     $request = Yii::$app->request;
     $postBody = $request->post();
 
     // Verify CSRF
-    // $csrf_cookie = Yii::$app->request->cookies->get('g_csrf_token');
     $csrf_cookie = $_COOKIE['g_csrf_token'];
     $csrf_body = $postBody['g_csrf_token'];
     if($csrf_cookie == null or $csrf_cookie != $csrf_body) {
-      return "Failed to verify double submit cookie, $csrf_cookie, $csrf_body";
+      Yii::$app->session->setFlash(
+        'signinFailed', 
+        'Terjadi kesalahan saat ingin membuat anda masuk ke sistem.'
+      ); 
+      return $this->render('signin_failed');
     }
 
     $client_secret = Yii::getAlias('@app/client_secret.json');    
@@ -106,28 +76,47 @@ class AuthController extends Controller
     $id_token = $postBody['credential'];
     $payload = $client->verifyIdToken($id_token);
     if (! boolval($payload)) {
-      return "Invalid ID Token";
+      Yii::$app->session->setFlash(
+        'signinFailed', 
+        'Terjadi kesalahan saat ingin membuat anda masuk ke sistem.'
+      ); 
+      return $this->render('signin_failed');
+    }
+    
+    $user = User::findOne(['email' => $payload['email']]);
+
+    if(! boolval($user)) {
+      try {
+        $res = User::registerWithGoogleAccount($payload);
+        if ($res) {
+          Yii::$app->session->setFlash(
+            'signupSuccess', 
+            'Akun anda berhasil dibuat, selamat datang '.$payload['name'].'.'
+          );
+        }
+      } catch (\yii\db\Exception $e) {
+        Yii::$app->session->setFlash(
+          'signinFailed', 
+          'Terjadi kesalahan saat ingin membuat anda masuk ke sistem.'
+        );
+        // show signup failed page
+        return $this->render('signin_failed');  
+      }
     }
 
-    $cookies = Yii::$app->response->cookies;
-    $cookies->add(new \yii\web\Cookie([
-      'name' => 'g_token',
-      'value' => $id_token,
-      'httpOnly' => false
-    ]));
+    // login a user
+    $identity = User::findOne(['email' => $payload['email']]);
+    Yii::$app->user->login($identity, 3600*24*3); // session expired after 3 days
 
-    // check access token in database
-    // check token expiration
-    // if expire refresh token
-    
-    return $this->redirect(Url::to(['/auth/post-signin']));
+    // redirect to home/index
+    return $this->redirect(Url::toRoute('home/index'));
   }
 
-  public function actionSignout()
+  public function actionLogout()
   {
     Yii::$app->user->logout();
 
-    return $this->redirect(Url::to(['signin']));
+    return $this->redirect(Url::toRoute(['auth/login']));
   }
 
   public function actionOauth()
@@ -166,11 +155,6 @@ class AuthController extends Controller
     Yii::$app->session->set('gapi_access_token', $token);
 
     // return $this->redirect(Url::to(['/view/files/0']));
-    return $this->render('post_signin');
-  }
-
-  public function actionPostSignin()
-  {
     return $this->render('post_signin');
   }
 }

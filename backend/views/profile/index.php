@@ -11,6 +11,7 @@ $identity = Yii::$app->user->identity;
   }
   #profile-table td {
     padding: .5rem;
+    vertical-align: top;
   }
   #profile-table tr td:nth-child(1) {
     text-align: right;
@@ -41,11 +42,14 @@ $identity = Yii::$app->user->identity;
           </tr>
           <tr>
             <td>Perizinan</td>
-            <td>N/A</td>
+            <td>
+              Aplikasi belum diizinkan. 
+              <a href="#">Izinkan Sekarang</a>
+            </td>
           </tr>
           <tr>
             <td></td>
-            <td><button class="btn btn-danger btn-sm disabled">Hapus Akun</button></td>
+            <td><button class="btn btn-outline-danger btn-sm disabled">Hapus Akun</button></td>
           </tr>
         </table>
       </div>
