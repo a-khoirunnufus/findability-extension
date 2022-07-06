@@ -43,13 +43,13 @@ $identity = Yii::$app->user->identity;
           <tr>
             <td>Perizinan</td>
             <td>
-              Aplikasi belum diizinkan. 
-              <a href="#">Izinkan Sekarang</a>
+              <?php if($identity->g_access_token == null): ?>
+                <p>Aplikasi tidak diizinkan untuk mengakses google drive anda.</p>
+                <a href="<?= Url::toRoute('auth/add-google-drive-access') ?>" class="btn btn-outline-primary btn-sm">Izinkan Akses Google Drive</a>
+              <?php else: ?>
+                <span>Aplikasi diizinkan untuk mengakses google drive anda.</span>
+              <?php endif; ?>
             </td>
-          </tr>
-          <tr>
-            <td></td>
-            <td><button class="btn btn-outline-danger btn-sm disabled">Hapus Akun</button></td>
           </tr>
         </table>
       </div>

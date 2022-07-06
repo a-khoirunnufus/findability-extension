@@ -17,6 +17,9 @@ class m220702_045320_create_user_table extends Migration
             'name' => $this->string()->notNull(),
             'email' => $this->string()->unique()->notNull(),
             'auth_key' => $this->string(),
+            'g_access_token' => $this->string(),
+            'g_access_token_created_at' => $this->timestamp(),
+            'g_refresh_token' => $this->string(),
         ]);
     }
 

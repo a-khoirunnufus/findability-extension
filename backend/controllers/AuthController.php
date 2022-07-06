@@ -19,11 +19,11 @@ class AuthController extends Controller
     return [
       'access' => [
         'class' => AccessControl::class,
-        'only' => ['logout'],
+        'only' => ['logout', 'add-google-drive-access'],
         'rules' => [
           [
             'allow' => true,
-            'actions' => ['logout'],
+            'actions' => ['logout', 'add-google-drive-access'],
             'roles' => ['@'],
           ],
         ],
@@ -61,10 +61,8 @@ class AuthController extends Controller
     $csrf_cookie = $_COOKIE['g_csrf_token'];
     $csrf_body = $postBody['g_csrf_token'];
     if($csrf_cookie == null or $csrf_cookie != $csrf_body) {
-      Yii::$app->session->setFlash(
-        'signinFailed', 
-        'Terjadi kesalahan saat ingin membuat anda masuk ke sistem.'
-      ); 
+      Yii::$app->session->setFlash('notification.type', 'error');
+      Yii::$app->session->setFlash('notification.message', 'Terjadi kesalahan saat ingin membuat anda masuk ke sistem.');
       return $this->render('signin_failed');
     }
 
@@ -76,10 +74,8 @@ class AuthController extends Controller
     $id_token = $postBody['credential'];
     $payload = $client->verifyIdToken($id_token);
     if (! boolval($payload)) {
-      Yii::$app->session->setFlash(
-        'signinFailed', 
-        'Terjadi kesalahan saat ingin membuat anda masuk ke sistem.'
-      ); 
+      Yii::$app->session->setFlash('notification.type', 'error');
+      Yii::$app->session->setFlash('notification.message', 'Terjadi kesalahan saat ingin membuat anda masuk ke sistem.'); 
       return $this->render('signin_failed');
     }
     
@@ -89,17 +85,12 @@ class AuthController extends Controller
       try {
         $res = User::registerWithGoogleAccount($payload);
         if ($res) {
-          Yii::$app->session->setFlash(
-            'signupSuccess', 
-            'Akun anda berhasil dibuat, selamat datang '.$payload['name'].'.'
-          );
+          Yii::$app->session->setFlash('notification.type', 'success');
+          Yii::$app->session->setFlash('notification.message', 'Akun anda berhasil dibuat, selamat datang '.$payload['name'].'.');
         }
       } catch (\yii\db\Exception $e) {
-        Yii::$app->session->setFlash(
-          'signinFailed', 
-          'Terjadi kesalahan saat ingin membuat anda masuk ke sistem.'
-        );
-        // show signup failed page
+        Yii::$app->session->setFlash('notification.type', 'error');
+        Yii::$app->session->setFlash('notification.message', 'Terjadi kesalahan saat ingin membuat anda masuk ke sistem.');
         return $this->render('signin_failed');  
       }
     }
@@ -119,42 +110,46 @@ class AuthController extends Controller
     return $this->redirect(Url::toRoute(['auth/login']));
   }
 
-  public function actionOauth()
+  public function actionOauth2Callback()
   {
-    $email = Yii::$app->session->get('email');
-    $redirect_uri = Url::to('@web/auth/oauth2callback', true);
-    $client_secret = Yii::getAlias('@fex/client_secret.json');
+    $client_secret = Yii::getAlias('@app/client_secret.json');
+
+    $client = new Client();
+    $client->setAuthConfig($client_secret);
+
+    // exchange access token
+    $request = Yii::$app->request;
+    $token = $client->fetchAccessTokenWithAuthCode($request->get('code'));
+
+    $email = Yii::$app->user->identity->email;
+    $user = User::findOne(['email' => $email]);
+    $user->g_access_token = $token['access_token'];
+    $user->g_access_token_created_at = date('Y-m-d H:i:s', $token['created']);
+    $user->g_refresh_token = $token['refresh_token'];
+    $user->save();
+
+    Yii::$app->session->setFlash('notification.type', 'success');
+    Yii::$app->session->setFlash('notification.message', 'Akses ke google drive telah diizinkan.');
+
+    return $this->redirect(Url::toRoute('profile/index'));
+  }
+
+  public function actionAddGoogleDriveAccess()
+  {
+    $email = Yii::$app->user->identity->email;
+    $redirect_uri = Url::toRoute('auth/oauth2-callback', true);
+    $client_secret = Yii::getAlias('@app/client_secret.json');
     
     $client = new Client();
     $client->setAuthConfig($client_secret);
     $client->setRedirectUri($redirect_uri);
     $client->addScope(Drive::DRIVE_METADATA_READONLY);
     $client->addScope(Drive::DRIVE_READONLY);
+    $client->setAccessType('offline');
     $client->setLoginHint($email);
 
     // redirect to OAuth2 server
-    $request = Yii::$app->request;
     $auth_url = $client->createAuthUrl();
     return $this->redirect($auth_url);
-  }
-
-  public function actionOauthCallback()
-  {
-    $redirect_uri = Url::to('@web/auth/oauth2callback', true);
-    $client_secret = Yii::getAlias('@fex/client_secret.json');
-
-    $client = new Client();
-    $client->setAuthConfig($client_secret);
-    $client->setRedirectUri($redirect_uri);
-    $client->addScope(Drive::DRIVE_METADATA_READONLY);
-    $client->addScope(Drive::DRIVE_READONLY);
-
-    // exchange access token
-    $request = Yii::$app->request;
-    $token = $client->fetchAccessTokenWithAuthCode($request->get('code'));
-    Yii::$app->session->set('gapi_access_token', $token);
-
-    // return $this->redirect(Url::to(['/view/files/0']));
-    return $this->render('post_signin');
   }
 }

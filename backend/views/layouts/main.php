@@ -39,13 +39,13 @@ $session = Yii::$app->session;
 
 <body class="bg-light d-flex flex-column" style="min-height: 100vh">
   <?php $this->beginBody() ?>
-  
-  <?php if($session->hasFlash('signupSuccess')): ?>
+
+  <?php if($session->hasFlash('notification.type') and $session->hasFlash('notification.message')): ?>
     <?= Alert::widget([
       'options' => [
-          'class' => 'alert-success custom-alert shadow fade show',
+          'class' => 'alert-'.$session->getFlash('notification.type').' custom-alert shadow fade show',
       ],
-      'body' => $session->getFlash('signupSuccess'),
+      'body' => $session->getFlash('notification.message'),
     ]); ?>
   <?php endif; ?>
 

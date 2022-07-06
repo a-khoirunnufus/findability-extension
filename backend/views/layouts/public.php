@@ -7,6 +7,7 @@ use yii\helpers\Url;
 use yii\helpers\Html;
 
 AppAsset::register($this);
+$session = Yii::$app->session;
 ?>
 
 <?php $this->beginPage() ?>
@@ -25,6 +26,16 @@ AppAsset::register($this);
 
 <body class="bg-light d-flex flex-column" style="min-height: 100vh">
   <?php $this->beginBody() ?>
+  
+  <?php if($session->hasFlash('notification.type') and $session->hasFlash('notification.message')): ?>
+    <?= Alert::widget([
+      'options' => [
+          'class' => 'alert-'.$session->getFlash('notification.type').' custom-alert shadow fade show',
+      ],
+      'body' => $session->getFlash('notification.message'),
+    ]); ?>
+  <?php endif; ?>
+
   <main class="flex-grow-1">
     <div class="container d-flex flex-column justify-content-center" style="padding-top: 5rem; padding-bottom: 5rem;">
       <?= $content ?>
