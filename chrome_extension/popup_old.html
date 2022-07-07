@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-size: 14px;
+      text-align: left;
+    }
+    .container {
+      width: 300px;
+      margin: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p>Storage Data</p>
+    <p id="storage-data"></p>
+    <button id="empty-storage-btn">Empty Storage</button>
+    <hr>
+
+    <p>Registered Script (<span id="script-count"></span>) <button id="refresh-script-data">refresh</button></p>
+    <p id="script-data"></p>
+    <button id="register-cs-btn">Register Content Script</button> 
+    <button id="unregister-cs-btn">Unregister Content Script</button> 
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -4,11 +4,13 @@
   "version": "1.0",
   "manifest_version": 3,
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background/index.js",
+    "type": "module"
   },
   "action": {
-    "default_title": "Quick Navigation"
+    "default_title": "Quick Navigation",
+    "default_popup": "popup.html"
   },
-  "permissions": ["activeTab", "scripting", "storage", "tabs"],
-  "host_permissions": ["http://localhost:8080/*"]
+  "permissions": ["activeTab", "scripting", "storage", "tabs", "declarativeContent"],
+  "host_permissions": ["http://localhost:8080/", "https://drive.google.com/"]
 }

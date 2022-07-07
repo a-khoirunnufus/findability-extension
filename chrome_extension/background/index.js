@@ -1,37 +1,34 @@
-/* INIT ACTION RELATED
-// console.log('BACKGROUND START AT:', new Date().getSeconds());
+import setup from './setup.js';
 
-// init storage
-// chrome.storage.local.set({ CSInjected: false });
-*/
+setup();
 
 // check if the user is logged in
   // check the storage, is fex_token exist in storage
-chrome.storage.local.get(['g_token'], function(result) {
-  // if not exists, show auth popup, in auth popup user can login using signin button
-  if (result.g_token == undefined) {
-    chrome.action.setPopup(
-      { popup: 'auth/auth_popup.html' },
-    );
-  // if exist show main popup
-  } else {
-    chrome.action.setPopup(
-      { popup: 'popup.html' },
-    );
-  }
-});
+// chrome.storage.local.get(['g_token'], function(result) {
+//   // if not exists, show auth popup, in auth popup user can login using signin button
+//   if (result.g_token == undefined) {
+//     chrome.action.setPopup(
+//       { popup: 'auth/auth_popup.html' },
+//     );
+//   // if exist show main popup
+//   } else {
+//     chrome.action.setPopup(
+//       { popup: 'popup.html' },
+//     );
+//   }
+// });
 
-chrome.storage.onChanged.addListener(function (changes, namespace) {
-  if (changes.g_token.newValue) {
-    chrome.action.setPopup(
-      { popup: 'popup.html' },
-    );
-  } else {
-    chrome.action.setPopup(
-      { popup: 'auth/auth_popup.html' },
-    );
-  }
-});
+// chrome.storage.onChanged.addListener(function (changes, namespace) {
+//   if (changes.g_token.newValue) {
+//     chrome.action.setPopup(
+//       { popup: 'popup.html' },
+//     );
+//   } else {
+//     chrome.action.setPopup(
+//       { popup: 'auth/auth_popup.html' },
+//     );
+//   }
+// });
 
 
 // check database, is access_token exist
@@ -95,18 +92,17 @@ chrome.tabs.onUpdated.addListener(
 */
 
 /* DEBUGGER */
-const extensionId = "oakgackpgmmgefbcekhkfcjfaaionjlh"
+const extensionId = "bimmbnifpklehmnbcnkfkgmanckjceea"
 chrome.tabs.create(
   {url: `chrome-extension://${extensionId}/debugger/index.html`}
 );
 
 /* LOGGING START */
 chrome.storage.onChanged.addListener(function (changes, namespace) {
-  console.log(changes);
   for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
     console.log(
       `Storage key "${key}" in namespace "${namespace}" changed.`
-      // ,`Old value was "${oldValue}", new value is "${newValue}".`
+      ,`Old value was "${oldValue}", new value is "${newValue}".`
     );
   }
 });
