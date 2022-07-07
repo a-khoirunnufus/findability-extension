@@ -78,7 +78,7 @@ class AuthController extends Controller
       Yii::$app->session->setFlash('notification.message', 'Terjadi kesalahan saat ingin membuat anda masuk ke sistem.'); 
       return $this->render('signin_failed');
     }
-    
+
     $user = User::findOne(['email' => $payload['email']]);
 
     if(! boolval($user)) {
@@ -99,6 +99,12 @@ class AuthController extends Controller
     $identity = User::findOne(['email' => $payload['email']]);
     Yii::$app->user->login($identity, 3600*24*3); // session expired after 3 days
 
+    // set cookie
+    Yii::$app->response->cookies->add(new \yii\web\Cookie([
+      'name' => 'g_token',
+      'value' => $id_token,
+    ]));
+    
     // redirect to home/index
     return $this->redirect(Url::toRoute('home/index'));
   }
@@ -151,5 +157,17 @@ class AuthController extends Controller
     // redirect to OAuth2 server
     $auth_url = $client->createAuthUrl();
     return $this->redirect($auth_url);
+  }
+
+  public function actionGetGToken()
+  {
+    $request = Yii::$app->request;    
+    $g_token = $request->cookies->get('g_token');
+    
+    if(boolval($g_token)) {
+      return $this->asJson(['g_token' => $g_token->value]);
+    }
+
+    return null;
   }
 }
