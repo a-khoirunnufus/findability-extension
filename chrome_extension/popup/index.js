@@ -5,57 +5,79 @@ import {
 
 window.addEventListener('DOMContentLoaded', async function(e) {
   
-  const g_token =  await chrome.storage.local.get(['g_token']);
-  const isUserLoggedIn = g_token.g_token !== undefined;
+  const {
+    showSuggestion, showQuicknav, gToken
+  } =  await chrome.storage.local.get([
+    'showSuggestion', 'showQuicknav', 'gToken',
+  ]);
+
+  // user verified if gToken value exist and not expired
+  const isUserVerified = gToken.value && gToken.expiredAt && gToken.expiredAt > Math.floor(Date.now() / 1000);
   const tab = await getActiveTab();
 
-  // setup dom listener
+  /**
+   * INIT VIEW START
+   */
+
+  const suggestionElm = document.querySelector('#suggestion-elm-toggle');
+  if (showSuggestion) { suggestionElm.setAttribute('checked', true) } 
+  else { suggestionElm.removeAttribute('checked') }
+
+  const quicknavElm = document.querySelector('#quicknav-elm-toggle');
+  if (showQuicknav) { quicknavElm.setAttribute('checked', true) }
+  else { quicknavElm.removeAttribute('checked') }
+  
+  /**
+   * INIT VIEW END
+   */
+
+  /**
+   * SETUP DOM LISTENER START
+   */
+  
   listenDOMEvent('#btn-login', 'click', loginBtnClickHandlerCreator(tab.id, () => {
     showSection('up-ready');
   }));
 
-  // suggestion element
-  const show_suggestion = await chrome.storage.local.get(['show_suggestion']);
-  const suggestionElm = document.querySelector('#suggestion-elm-toggle');
-  if (show_suggestion.show_suggestion) {
-    suggestionElm.setAttribute('checked', true);
-  } else {
-    suggestionElm.removeAttribute('checked');
-  }
   suggestionElm.addEventListener('change', function(e) {
     if (e.target.checked) {
-      chrome.storage.local.set({'show_suggestion': true});
+      // unregister content script: hide suggestion
+      // register and execute content script: show suggestion
+      chrome.storage.local.set({'showSuggestion': true});
     } else {
-      chrome.storage.local.set({'show_suggestion': false});
+      // unregister content script: show suggestion
+      // register and execute content script: hide suggestion
+      chrome.storage.local.set({'showSuggestion': false});
     }
   });
 
-  // suggestion element
-  const show_quicknav = await chrome.storage.local.get(['show_quicknav']);
-  const quicknavElm = document.querySelector('#quicknav-elm-toggle');
-  if (show_quicknav.show_quicknav) {
-    quicknavElm.setAttribute('checked', true);
-  } else {
-    quicknavElm.removeAttribute('checked');
-  }
   quicknavElm.addEventListener('change', function(e) {
     if (e.target.checked) {
+      // unregister content script: hide quicknav
+      // register and execute content script: show quicknav
       chrome.storage.local.set({'show_quicknav': true});
     } else {
+      // unregister content script: show quicknav
+      // register and execute content script: hide quicknav
       chrome.storage.local.set({'show_quicknav': false});
     }
   });
 
+  /**
+   * SETUP DOM LISTENER END
+   */
+
+  /**
+   * POPUP PAGE ROUTING START
+   */
+  
   let page = undefined;
   if(tab.url.match("http://localhost:8080/*")) { page = 'USER_PORTAL' }
   else if(tab.url.match("https://drive.google.com/*")) { page = 'GOOGLE_DRIVE' }
 
-  console.log('page:', page);
-  console.log('is user logged in:', isUserLoggedIn);
-
   switch (page) {
     case 'USER_PORTAL':
-      if(!isUserLoggedIn) {
+      if(!isUserVerified) {
         showSection('up-login');
         break;
       }
@@ -63,7 +85,7 @@ window.addEventListener('DOMContentLoaded', async function(e) {
       break;
     
     case 'GOOGLE_DRIVE':
-      if(!isUserLoggedIn) {
+      if(!isUserVerified) {
         showSection('gd-login');
         break;
       }
@@ -74,56 +96,9 @@ window.addEventListener('DOMContentLoaded', async function(e) {
       break;
   }
   
-  // chrome.storage.local.get(['g_token'], function(result) {
-  //   // if g_token not exist
-  //   if(result.g_token === undefined) {
-  //     getActiveTab()
-  //       .then(tab => {
-  //         // if url == 'http://localhost:8080', show login button
-  //         if(tab.url.match('http://localhost:8080/*')) {
-  //           main.innerHTML = `<button id="btn-login">Login</button>`;
-  //           document.querySelector('#btn-login').addEventListener('click', () => {
-  //             chrome.scripting.executeScript(
-  //               {
-  //                 target: {tabId: tab.id},
-  //                 files: ['content_scripts/store_g_token.js'],
-  //               },
-  //               () => {
-  //                 // finish execute script
-  //                 main.innerHTML = '<p>Berhasil login</p>';    
-  //               }
-  //             );
-  //           });
-  //         }
-
-  //         // if url == 'https://drive.google.com', show instruction for login in user_portal
-  //         else if(tab.url.match('https://drive.google.com/*')) {
-  //           main.innerHTML = '<p>Silahkah login pada halaman user portal.</p>';
-  //         }
-  //       });
-
-  //     return;
-  //   }
-
-  //   // if g_token exist, show information about user already logged in
-  //   getActiveTab()
-  //     .then(tab => {
-  //       // if url == 'http://localhost:8080', show login button
-  //       if(tab.url.match('http://localhost:8080/*')) {
-  //         main.innerHTML = '<p>Ekstensi siap digunakan.</p>';
-  //       }
-    
-  //       // if url == 'https://drive.google.com', show instruction for login in user_portal
-  //       else if(tab.url.match('https://drive.google.com/*')) {
-  //         chrome.scripting.executeScript({
-  //             target: {tabId: tab.id},
-  //             func: testFetch,
-  //         });
-
-  //         main.innerHTML = `<p>Siap untuk melakukan navigasi</p>`;
-  //       }
-  //     })
-  // });
+  /**
+   * POPUP PAGE ROUTING END
+   */
 
 });
 

@@ -2,95 +2,67 @@ import setup from './setup.js';
 import {hideSuggestionElm, showSuggestionElm} from '../content_scripts/suggestion_elm.js';
 import {hideQuicknavElm, showQuicknavElm, addQuicknavElm} from '../content_scripts/quicknav_elm.js';
 
-chrome.storage.local.set({
-  'show_suggestion': false,
-  'show_quicknav': true,
-});
+// when extension first installed / reloaded
+chrome.runtime.onInstalled.addListener(() => {
+  // set starting storage data
+  chrome.storage.local.set({
+    'showSuggestion': true,
+    'showQuicknav': false,
+    'gToken': {
+      'value': undefined,
+      'expiredAt': undefined   
+    }
+  });
 
-setup();
-
-chrome.tabs.query({url: "https://drive.google.com/*"}, (tabs) => {
-  const tabId = tabs[0].id;
-  // SETUP SUGGESTION ELEMENT
-  chrome.scripting.executeScript(
-    {target: {tabId: tabId}, func: hideSuggestionElm}
+  // register content script
+  chrome.scripting.registerContentScript(
+    [
+      {
+        id: 'quicknav-main',
+        js: [ 'content_scripts/quicknav.js' ],
+        matches: [ 'https://drive.google.com/*' ],
+      }
+    ]
   );
-
-  // INIT QUICKNAV ELEMENT
-  chrome.scripting.executeScript(
-    {target: {tabId: tabId}, func: addQuicknavElm}
-  )
 });
 
+// setup();
 
+// !! MOVE THIS TO POPUP PAGE
 // UPDATE GOOGLE DRIVE PAGE
-chrome.storage.onChanged.addListener(function (changes, namespace) {
-  if (changes.show_suggestion) {
-    chrome.tabs.query({url: "https://drive.google.com/*"}, (tabs) => {
-      const tabId = tabs[0].id;
-      if (changes.show_suggestion.newValue == true) {
-        chrome.scripting.executeScript(
-          {target: {tabId: tabId}, func: showSuggestionElm}
-        );
-      } else {
-        chrome.scripting.executeScript(
-          {target: {tabId: tabId}, func: hideSuggestionElm}
-        );
-      }
-    });
-    return;
-  }
-
-  if(changes.show_quicknav) {
-    chrome.tabs.query({url: "https://drive.google.com/*"}, (tabs) => {
-      const tabId = tabs[0].id;
-      if (changes.show_quicknav.newValue == true) {
-        chrome.scripting.executeScript(
-          {target: {tabId: tabId}, func: showQuicknavElm}
-        );
-      } else {
-        chrome.scripting.executeScript(
-          {target: {tabId: tabId}, func: hideQuicknavElm}
-        );
-      }
-    });
-  }
-});
-
-// check if the user is logged in
-  // check the storage, is fex_token exist in storage
-// chrome.storage.local.get(['g_token'], function(result) {
-//   // if not exists, show auth popup, in auth popup user can login using signin button
-//   if (result.g_token == undefined) {
-//     chrome.action.setPopup(
-//       { popup: 'auth/auth_popup.html' },
-//     );
-//   // if exist show main popup
-//   } else {
-//     chrome.action.setPopup(
-//       { popup: 'popup.html' },
-//     );
-//   }
-// });
-
 // chrome.storage.onChanged.addListener(function (changes, namespace) {
-//   if (changes.g_token.newValue) {
-//     chrome.action.setPopup(
-//       { popup: 'popup.html' },
-//     );
-//   } else {
-//     chrome.action.setPopup(
-//       { popup: 'auth/auth_popup.html' },
-//     );
+//   if (changes.show_suggestion) {
+//     chrome.tabs.query({url: "https://drive.google.com/*"}, (tabs) => {
+//       const tabId = tabs[0].id;
+//       if (changes.show_suggestion.newValue == true) {
+//         chrome.scripting.executeScript(
+//           {target: {tabId: tabId}, func: showSuggestionElm}
+//         );
+//       } else {
+//         chrome.scripting.executeScript(
+//           {target: {tabId: tabId}, func: hideSuggestionElm}
+//         );
+//       }
+//     });
+//     return;
+//   }
+
+//   if(changes.show_quicknav) {
+//     chrome.tabs.query({url: "https://drive.google.com/*"}, (tabs) => {
+//       const tabId = tabs[0].id;
+//       if (changes.show_quicknav.newValue == true) {
+//         chrome.scripting.executeScript(
+//           {target: {tabId: tabId}, func: showQuicknavElm}
+//         );
+//       } else {
+//         chrome.scripting.executeScript(
+//           {target: {tabId: tabId}, func: hideQuicknavElm}
+//         );
+//       }
+//     });
 //   }
 // });
 
-
-// check database, is access_token exist
-// if not, open a new (small) window to viewing oauth user consent
-
-// because fex_token exist in storage and access_token exist in database
-// show a main popup (popup that viewed when user do navigation)
 
 /* TEMPORARY COMMENT
 // LISTEN MESSAGE

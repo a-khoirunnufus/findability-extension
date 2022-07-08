@@ -14,8 +14,13 @@ function loginBtnClickHandlerCreator(tabId, cb) {
 function storeGToken() {
   fetch('http://localhost:8080/auth/get-g-token')
     .then(res => res.json())
-    .then(data => {
-      chrome.storage.local.set({g_token: data.g_token});
+    .then(({g_token}) => {
+      chrome.storage.local.set({
+        gToken: {
+          value: g_token.value,
+          expiredAt: g_token.expired_at,
+        }
+      });
     });
 }
 
