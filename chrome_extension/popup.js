@@ -1,20 +1,37 @@
-import {loginHtml, loginInstructionHtml} from './popup_pages/login.js';
+import {loginBtnClickHandler} from './dom_event_handler';
 
-const main = document.querySelector('main');
+window.addEventListener('DOMContentLoaded', async function(e) {
+  
+  const g_token =  await chrome.storage.local.get(['g_token']);
+  const tab = await getActiveTab();
 
-const getActiveTab = () => {
-  return new Promise((resolve, reject) => {
-    chrome.tabs.query({active: true}, (tabs) => {
-      if(tabs.length == 1) {
-        resolve(tabs[0]);
-      } else {
-        reject(false);
-      }
-    });
-  })
-}
+  // setup dom listener 
+  document.querySelector('#btn-login')
+    .addEventListener('click', loginBtnClickHandler(tab.id));
 
-window.addEventListener('DOMContentLoaded', function(e) {
+  if (g_token === undefined) {
+    if (tab.url.match('http://localhost:8080/*')) {
+      // view login button
+      return;
+    }
+
+    if (tab.url.match('https://drive.google.com/*')) {
+      // view login instruction
+      return;
+    }
+  }
+  // g_token exists
+  else {
+    if (tab.url.match('http://localhost:8080/*')) {
+      // view ready message
+      return;
+    }
+    
+    if (tab.url.match('https://drive.google.com/*')) {
+      // view quicknav page
+      return;
+    }
+  }
   
   chrome.storage.local.get(['g_token'], function(result) {
     // if g_token not exist
@@ -68,6 +85,18 @@ window.addEventListener('DOMContentLoaded', function(e) {
   });
 
 });
+
+function getActiveTab() {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.query({active: true}, (tabs) => {
+      if(tabs.length == 1) {
+        resolve(tabs[0]);
+      } else {
+        reject(false);
+      }
+    });
+  })
+}
 
 function testFetch() {
   chrome.storage.local.get(['g_token'], function(result) {

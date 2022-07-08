@@ -9,7 +9,7 @@
   },
   "action": {
     "default_title": "Quick Navigation",
-    "default_popup": "popup.html"
+    "default_popup": "popup/index.html"
   },
   "permissions": ["activeTab", "scripting", "storage", "tabs", "declarativeContent"],
   "host_permissions": ["http://localhost:8080/", "https://drive.google.com/"]
