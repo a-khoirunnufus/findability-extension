@@ -112,6 +112,7 @@ class AuthController extends Controller
   public function actionLogout()
   {
     Yii::$app->user->logout();
+    Yii::$app->response->cookies->remove('g_token');
 
     return $this->redirect(Url::toRoute(['auth/login']));
   }
