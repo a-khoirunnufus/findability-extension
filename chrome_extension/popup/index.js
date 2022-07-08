@@ -12,7 +12,24 @@ window.addEventListener('DOMContentLoaded', async function(e) {
   // setup dom listener
   listenDOMEvent('#btn-login', 'click', loginBtnClickHandlerCreator(tab.id, () => {
     showSection('up-ready');
-  })); 
+  }));
+
+  // suggestion element
+  const show_suggestion = await chrome.storage.local.get(['show_suggestion']);
+  const suggestionElm = document.querySelector('#suggestion-elm-toggle');
+  if (show_suggestion.show_suggestion) {
+    suggestionElm.setAttribute('checked', true);
+  } else {
+    suggestionElm.removeAttribute('checked');
+  }
+
+  suggestionElm.addEventListener('change', function(e) {
+    if (e.target.checked) {
+      chrome.storage.local.set({'show_suggestion': true});
+    } else {
+      chrome.storage.local.set({'show_suggestion': false});
+    }
+  })
 
   let page = undefined;
   if(tab.url.match("http://localhost:8080/*")) { page = 'USER_PORTAL' }

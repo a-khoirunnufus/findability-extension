@@ -1,6 +1,29 @@
 import setup from './setup.js';
+import {hideSuggestionElm, showSuggestionElm} from '../content_scripts/suggestion_elm.js';
+
+chrome.storage.local.set({
+  'show_suggestion': false
+});
 
 setup();
+
+// UPDATE GOOGLE DRIVE PAGE
+chrome.storage.onChanged.addListener(function (changes, namespace) {
+  if (changes.show_suggestion) {
+    chrome.tabs.query({url: "https://drive.google.com/*"}, (tabs) => {
+      const tabId = tabs[0].id;
+      if (changes.show_suggestion.newValue == true) {
+        chrome.scripting.executeScript(
+          {target: {tabId: tabId}, func: showSuggestionElm}
+        );
+      } else {
+        chrome.scripting.executeScript(
+          {target: {tabId: tabId}, func: hideSuggestionElm}
+        );
+      }
+    });
+  }
+});
 
 // check if the user is logged in
   // check the storage, is fex_token exist in storage
@@ -106,4 +129,15 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
     );
   }
 });
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    if(request.type == 'BACKGROUND_LOG') {
+      const time = request.time;
+      const from = sender.tab ? `content_script(${sender.tab.url})` : 'extension';
+      const message = request.message;
+      console.log('LOG:', `[${time}]`, from, message);
+    }
+  }
+);
 /* LOGGING END */
