@@ -57,10 +57,27 @@ window.addEventListener('DOMContentLoaded', function(e) {
     
         // if url == 'https://drive.google.com', show instruction for login in user_portal
         else if(tab.url.match('https://drive.google.com/*')) {
-          main.innerHTML = '<p>Siap untuk melakukan navigasi.</p>';
+          chrome.scripting.executeScript({
+              target: {tabId: tab.id},
+              func: testFetch,
+          });
+
+          main.innerHTML = `<p>Siap untuk melakukan navigasi</p>`;
         }
       })
   });
 
 });
+
+function testFetch() {
+  chrome.storage.local.get(['g_token'], function(result) {
+    fetch('http://localhost:8081/file/index', {
+      headers: { 'Authorization': 'Bearer '+result.g_token }
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data.data);
+      });
+  });
+}
 
