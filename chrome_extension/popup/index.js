@@ -22,14 +22,29 @@ window.addEventListener('DOMContentLoaded', async function(e) {
   } else {
     suggestionElm.removeAttribute('checked');
   }
-
   suggestionElm.addEventListener('change', function(e) {
     if (e.target.checked) {
       chrome.storage.local.set({'show_suggestion': true});
     } else {
       chrome.storage.local.set({'show_suggestion': false});
     }
-  })
+  });
+
+  // suggestion element
+  const show_quicknav = await chrome.storage.local.get(['show_quicknav']);
+  const quicknavElm = document.querySelector('#quicknav-elm-toggle');
+  if (show_quicknav.show_quicknav) {
+    quicknavElm.setAttribute('checked', true);
+  } else {
+    quicknavElm.removeAttribute('checked');
+  }
+  quicknavElm.addEventListener('change', function(e) {
+    if (e.target.checked) {
+      chrome.storage.local.set({'show_quicknav': true});
+    } else {
+      chrome.storage.local.set({'show_quicknav': false});
+    }
+  });
 
   let page = undefined;
   if(tab.url.match("http://localhost:8080/*")) { page = 'USER_PORTAL' }

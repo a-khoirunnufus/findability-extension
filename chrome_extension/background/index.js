@@ -1,11 +1,27 @@
 import setup from './setup.js';
 import {hideSuggestionElm, showSuggestionElm} from '../content_scripts/suggestion_elm.js';
+import {hideQuicknavElm, showQuicknavElm, addQuicknavElm} from '../content_scripts/quicknav_elm.js';
 
 chrome.storage.local.set({
-  'show_suggestion': false
+  'show_suggestion': false,
+  'show_quicknav': true,
 });
 
 setup();
+
+chrome.tabs.query({url: "https://drive.google.com/*"}, (tabs) => {
+  const tabId = tabs[0].id;
+  // SETUP SUGGESTION ELEMENT
+  chrome.scripting.executeScript(
+    {target: {tabId: tabId}, func: hideSuggestionElm}
+  );
+
+  // INIT QUICKNAV ELEMENT
+  chrome.scripting.executeScript(
+    {target: {tabId: tabId}, func: addQuicknavElm}
+  )
+});
+
 
 // UPDATE GOOGLE DRIVE PAGE
 chrome.storage.onChanged.addListener(function (changes, namespace) {
@@ -19,6 +35,22 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
       } else {
         chrome.scripting.executeScript(
           {target: {tabId: tabId}, func: hideSuggestionElm}
+        );
+      }
+    });
+    return;
+  }
+
+  if(changes.show_quicknav) {
+    chrome.tabs.query({url: "https://drive.google.com/*"}, (tabs) => {
+      const tabId = tabs[0].id;
+      if (changes.show_quicknav.newValue == true) {
+        chrome.scripting.executeScript(
+          {target: {tabId: tabId}, func: showQuicknavElm}
+        );
+      } else {
+        chrome.scripting.executeScript(
+          {target: {tabId: tabId}, func: hideQuicknavElm}
         );
       }
     });
