@@ -100,9 +100,14 @@ class AuthController extends Controller
     Yii::$app->user->login($identity, 3600*24*3); // session expired after 3 days
 
     // set cookie
-    Yii::$app->response->cookies->add(new \yii\web\Cookie([
-      'name' => 'g_token',
+    $cookies = Yii::$app->response->cookies;
+    $cookies->add(new \yii\web\Cookie([
+      'name' => 'g_token_value',
       'value' => $id_token,
+    ]));
+    $cookies->add(new \yii\web\Cookie([
+      'name' => 'g_token_expired_at',
+      'value' => $payload['exp'],
     ]));
     
     // redirect to home/index
@@ -112,7 +117,9 @@ class AuthController extends Controller
   public function actionLogout()
   {
     Yii::$app->user->logout();
-    Yii::$app->response->cookies->remove('g_token');
+    $cookies = Yii::$app->response->cookies;
+    $cookies->remove('g_token_value');
+    $cookies->remove('g_token_expired_at');
 
     return $this->redirect(Url::toRoute(['auth/login']));
   }
@@ -162,13 +169,15 @@ class AuthController extends Controller
 
   public function actionGetGToken()
   {
-    $request = Yii::$app->request;    
-    $g_token = $request->cookies->get('g_token');
-    
-    if(boolval($g_token)) {
-      return $this->asJson(['g_token' => $g_token->value]);
-    }
+    $cookies = Yii::$app->request->cookies;
+    $value = $cookies->get('g_token_value')->value;
+    $expired_at = $cookies->get('g_token_expired_at')->value;
 
-    return null;
+    return $this->asJson([
+      'g_token' => [
+        'value' => $value,
+        'expired_at' => $expired_at,
+      ]
+    ]);
   }
 }
