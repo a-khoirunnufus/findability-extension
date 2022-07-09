@@ -16,15 +16,16 @@ class FileController extends Controller
     $behaviors['corsFilter'] = [
         'class' => \yii\filters\Cors::className(),
         'cors' => [
-            'Origin'                           => ["https://drive.google.com"],
-            'Access-Control-Request-Method'    => ['POST', 'GET'],
+            'Origin'                           => ['https://drive.google.com'],
+            'Access-Control-Request-Method'    => ['GET', 'OPTIONS'],
             'Access-Control-Request-Headers' => ['*'],
             'Access-Control-Allow-Credentials' => true,
             'Access-Control-Max-Age'           => 3600,
         ],
     ];
     $behaviors['authenticator'] = [
-      'class' => HttpBearerAuth::class
+      'class' => HttpBearerAuth::class,
+      'except' => ['options'],
     ];
     return $behaviors;
   }
