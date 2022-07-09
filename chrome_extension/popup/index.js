@@ -39,29 +39,67 @@ window.addEventListener('DOMContentLoaded', async function(e) {
     showSection('up-ready');
   }));
 
-  suggestionElm.addEventListener('change', function(e) {
+  // handle suggestion checkbox toggle
+  suggestionElm.addEventListener('change', async function(e) {
     if (e.target.checked) {
       // unregister content script: hide suggestion
+      const hideScripts = await chrome.scripting.getRegisteredContentScripts({ids: ['suggestion-hide']});
+      const ids = hideScripts.map(item => item.id);
+      ids.length > 0 && await chrome.scripting.unregisterContentScripts({ids: [...ids]});
+      console.log('done unregister suggestion-hide');
+
       // register and execute content script: show suggestion
+      await chrome.scripting.registerContentScripts([{
+        id: 'suggestion-show',
+        js: ['content_scripts/suggestion/event_show.js'],
+        matches: ['https://drive.google.com/*']
+      }]);
+      console.log('done register suggestion-show');
+
+      await chrome.scripting.executeScript({
+        target: {tabId: tab.id},
+        files: ['content_scripts/suggestion/event_show.js']
+      });
+      console.log('done execute suggestion-show');
+
       chrome.storage.local.set({'showSuggestion': true});
+
     } else {
       // unregister content script: show suggestion
+      const hideScripts = await chrome.scripting.getRegisteredContentScripts({ids: ['suggestion-show']});
+      const ids = hideScripts.map(item => item.id);
+      ids.length > 0 && await chrome.scripting.unregisterContentScripts({ids: [...ids]});
+      console.log('done unregister suggestion-show');
+
       // register and execute content script: hide suggestion
+      await chrome.scripting.registerContentScripts([{
+        id: 'suggestion-hide',
+        js: ['content_scripts/suggestion/event_hide.js'],
+        matches: ['https://drive.google.com/*']
+      }]);
+      console.log('done register suggestion-hide');
+
+      await chrome.scripting.executeScript({
+        target: {tabId: tab.id},
+        files: ['content_scripts/suggestion/event_hide.js']
+      });
+      console.log('done execute suggestion-hide');
+
       chrome.storage.local.set({'showSuggestion': false});
     }
   });
 
-  quicknavElm.addEventListener('change', function(e) {
-    if (e.target.checked) {
-      // unregister content script: hide quicknav
-      // register and execute content script: show quicknav
-      chrome.storage.local.set({'show_quicknav': true});
-    } else {
-      // unregister content script: show quicknav
-      // register and execute content script: hide quicknav
-      chrome.storage.local.set({'show_quicknav': false});
-    }
-  });
+  // quicknavElm.addEventListener('change', function(e) {
+  //   if (e.target.checked) {
+  //     // unregister content script: hide quicknav
+  //     // register and execute content script: show quicknav
+  //     chrome.storage.local.set({'show_quicknav': true});
+  //   } else {
+  //     // unregister content script: show quicknav
+  //     // register and execute content script: hide quicknav
+  //     chrome.storage.local.set({'show_quicknav': false});
+  //   }
+  // });
 
   /**
    * SETUP DOM LISTENER END
