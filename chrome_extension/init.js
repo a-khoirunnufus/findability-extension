@@ -1,6 +1,0 @@
-
-/**
- * THIS FILE INITILIZE CONSTANT OR PREDEFINED FUNCTION
- */
-
-const GD_SUG_SECTION_SEL = 'div[jsname=bJy2od]';
