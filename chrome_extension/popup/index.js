@@ -89,17 +89,55 @@ window.addEventListener('DOMContentLoaded', async function(e) {
     }
   });
 
-  // quicknavElm.addEventListener('change', function(e) {
-  //   if (e.target.checked) {
-  //     // unregister content script: hide quicknav
-  //     // register and execute content script: show quicknav
-  //     chrome.storage.local.set({'show_quicknav': true});
-  //   } else {
-  //     // unregister content script: show quicknav
-  //     // register and execute content script: hide quicknav
-  //     chrome.storage.local.set({'show_quicknav': false});
-  //   }
-  // });
+  // handle quickanv checkbox toggle
+  quicknavElm.addEventListener('change', async function(e) {
+    if (e.target.checked) {
+      // unregister content script: hide quicknav
+      const hideScripts = await chrome.scripting.getRegisteredContentScripts({ids: ['quicknav-hide']});
+      const ids = hideScripts.map(item => item.id);
+      ids.length > 0 && await chrome.scripting.unregisterContentScripts({ids: [...ids]});
+      console.log('done unregister quicknav-hide');
+
+      // register and execute content script: show quicknav
+      await chrome.scripting.registerContentScripts([{
+        id: 'quicknav-show',
+        js: ['content_scripts/quicknav/event_show.js'],
+        matches: ['https://drive.google.com/*']
+      }]);
+      console.log('done register quicknav-show');
+
+      await chrome.scripting.executeScript({
+        target: {tabId: tab.id},
+        files: ['content_scripts/quicknav/event_show.js']
+      });
+      console.log('done execute quicknav-show');
+
+      chrome.storage.local.set({'showQuicknav': true});
+
+    } else {
+      // unregister content script: show quicknav
+      const hideScripts = await chrome.scripting.getRegisteredContentScripts({ids: ['quicknav-show']});
+      const ids = hideScripts.map(item => item.id);
+      ids.length > 0 && await chrome.scripting.unregisterContentScripts({ids: [...ids]});
+      console.log('done unregister quicknav-show');
+
+      // register and execute content script: hide quicknav
+      await chrome.scripting.registerContentScripts([{
+        id: 'quicknav-hide',
+        js: ['content_scripts/quicknav/event_hide.js'],
+        matches: ['https://drive.google.com/*']
+      }]);
+      console.log('done register quicknav-hide');
+
+      await chrome.scripting.executeScript({
+        target: {tabId: tab.id},
+        files: ['content_scripts/quicknav/event_hide.js']
+      });
+      console.log('done execute quicknav-hide');
+
+      chrome.storage.local.set({'showQuicknav': false});
+    }
+  });
 
   /**
    * SETUP DOM LISTENER END

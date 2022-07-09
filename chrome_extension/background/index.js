@@ -17,7 +17,7 @@ chrome.runtime.onInstalled.addListener(() => {
     [
       {
         id: 'quicknav-main',
-        js: [ 'content_scripts/quicknav.js' ],
+        js: [ 'content_scripts/quicknav/main.js' ],
         matches: [ 'https://drive.google.com/*' ],
       },
       {
