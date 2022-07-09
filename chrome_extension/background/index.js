@@ -1,6 +1,4 @@
-import setup from './setup.js';
-import {hideSuggestionElm, showSuggestionElm} from '../content_scripts/suggestion_elm.js';
-import {hideQuicknavElm, showQuicknavElm, addQuicknavElm} from '../content_scripts/quicknav_elm.js';
+// import setup from './setup.js';
 
 // when extension first installed / reloaded
 chrome.runtime.onInstalled.addListener(() => {
@@ -15,13 +13,18 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 
   // register content script
-  chrome.scripting.registerContentScript(
+  chrome.scripting.registerContentScripts(
     [
       {
         id: 'quicknav-main',
         js: [ 'content_scripts/quicknav.js' ],
         matches: [ 'https://drive.google.com/*' ],
-      }
+      },
+      {
+        id: 'suggestion-main',
+        js: [ 'content_scripts/suggestion/main.js' ],
+        matches: [ 'https://drive.google.com/*' ],
+      },
     ]
   );
 });
@@ -120,9 +123,10 @@ chrome.tabs.onUpdated.addListener(
 
 /* DEBUGGER */
 const extensionId = "bimmbnifpklehmnbcnkfkgmanckjceea"
-chrome.tabs.create(
-  {url: `chrome-extension://${extensionId}/debugger/index.html`}
-);
+chrome.tabs.create({
+  active: false,
+  url: `chrome-extension://${extensionId}/debugger/index.html`,
+});
 
 /* LOGGING START */
 chrome.storage.onChanged.addListener(function (changes, namespace) {
