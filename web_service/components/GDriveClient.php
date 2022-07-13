@@ -43,6 +43,26 @@ class GDriveClient {
     return $files;
   }
 
+  public function file($id)
+  {
+    $res = $this->_drive->files->get($id);
+    return $res;    
+  }
+
+  public function listFilesByParent($parent_id)
+  {
+    $res = $this->_drive->files->listFiles([
+      'fields' => 'files(id,name,parents,viewedByMeTime)',
+      'pageSize' => 1000,
+      'q' => "'$parent_id' in parents",
+    ]);
+    
+    $files = array_map([static::class, 'mapFiles'], $res->files);
+    ArrayHelper::multisort($files, ['viewedByMeEpoch'], [SORT_DESC]);
+
+    return $files;
+  }
+
   private function mapFiles($file)
   {
     return [

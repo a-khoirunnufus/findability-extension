@@ -5,6 +5,7 @@ namespace quicknav\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\filters\auth\HttpBearerAuth;
+use quicknav\components\GDriveClient;
 
 class FileController extends Controller
 {
@@ -30,9 +31,26 @@ class FileController extends Controller
     return $behaviors;
   }
 
-  public function actionIndex()
+  public function actionListFiles()
   {
-    return $this->asJson(['data' => 'Hello '.Yii::$app->user->identity->name]);
+    $keyword = Yii::$app->request->get('keyword');
+    $client = new GDriveClient();
+    $files = $client->listFiles($keyword);
+
+    // var_dump($files); exit;
+    // $files = array_map( function($file) { return $file['id']; }, $files );
+    return $this->asJson($files);
+  }
+
+  public function actionListFilesByParent()
+  {
+    $parent_id = Yii::$app->request->get('parent_id');
+    $client = new GDriveClient();
+    $files = $client->listFilesByParent($parent_id);
+
+    // var_dump($files); exit;
+    $files = array_map( function($file) { return $file['id']; }, $files );
+    return $this->asJson($files);
   }
 }
 
