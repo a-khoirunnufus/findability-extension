@@ -8,6 +8,7 @@ use yii\filters\auth\HttpBearerAuth;
 use Google\Client;
 use Google\Service\Drive;
 use quicknav\components\GDriveClient;
+use quicknav\components\BIGFile;
 
 class QuicknavController extends Controller
 {
@@ -44,38 +45,27 @@ class QuicknavController extends Controller
 
     $client = new GDriveClient();
     $files = $client->listFiles($keyword);
+    
+    $bigfile = new BIGFile();
+    $bigfile->targets = $files;
+    
+    // index 0 - 5 -> static (root folder)
+    // index 6 -> adaptive (one from keyword: networking)
+    $view = [
+      "1ZDUmXo7wsZIxZPvrtxmTUWVhYbLjS_js",
+      "1s3ahx1P9UpyUaXcA_6_MOAOGqdJbk98f",
+      "1HPkeY9eyj7RTDjiAwuDyFIqfjBLviR_3",
+      "12nvO4BlOPB3qGZJ5iMhzV51nwrUjwU5M",
+      "1wn1X7ClFpE7J9E5CALcDcq40JXfja8Bx",
+      "1US9oId4FN2SqIC8fcl7_0O2oL-mPEVD8",
+      "1Z3jUS_M4TKNX3Hv6UrML3m_WymzUGzoO", // this adaptive
+    ];
+    $ig = $bigfile->ig($view);
 
-    return $this->renderPartial('navigation', [
-      'files' => $files,
-    ]);
-  }
+    return $this->asJson($ig);
 
-  public function actionNavigationOld()
-  {
-    $keyword = Yii::$app->request->get('keyword');
-    $identity = Yii::$app->user->identity;
-
-    // get user google drive files (and folders)
-    $access_token = $identity->g_access_token;
-    $access_token = json_decode($access_token, true);
-    $client_secret = Yii::getAlias('@app/client_secret.json');    
-    $client = new Client();
-    $client->setAuthConfig($client_secret);
-    $client->setAccessToken($access_token);
-
-    // only get field: id, name, parent, viewedByMeTime
-    $drive = new Drive($client);
-    $files = $drive->files->listFiles([
-      'fields' => 'files(id,name,parents,viewedByMeTime)',
-      'pageSize' => 1000,
-      'q' => "name contains '$keyword' or fullText contains '$keyword'",
-      // 'orderBy' => 'viewedByMeTime desc' // not supported
-    ]);
-
-    // sort $files->files by viewedByMeTime
-
-    return $this->renderPartial('navigation', [
-      'files' => $files->files,
-    ]);
+    // return $this->renderPartial('navigation', [
+    //   'files' => $files,
+    // ]);
   }
 }
