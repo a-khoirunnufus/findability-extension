@@ -1,0 +1,10 @@
+#qn-root {
+  position: relative;
+}
+
+#qn-root iframe {
+  border: 1px solid gainsboro;
+  border-radius: 10px;
+  width: 100%;
+  height: max-content;
+}

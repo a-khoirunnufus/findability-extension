@@ -4,8 +4,8 @@
 chrome.runtime.onInstalled.addListener(() => {
   // set starting storage data
   chrome.storage.local.set({
-    'showSuggestion': true,
-    'showQuicknav': false,
+    'showSuggestion': false,
+    'showQuicknav': true,
     'gToken': {
       'value': undefined,
       'expiredAt': undefined   
@@ -17,12 +17,24 @@ chrome.runtime.onInstalled.addListener(() => {
     [
       {
         id: 'quicknav-main',
+        css: [ 'content_scripts/quicknav/main.css' ],
         js: [ 'content_scripts/quicknav/main.js' ],
         matches: [ 'https://drive.google.com/*' ],
       },
       {
         id: 'suggestion-main',
         js: [ 'content_scripts/suggestion/main.js' ],
+        matches: [ 'https://drive.google.com/*' ],
+      },
+      // development purpose
+      {
+        id: 'suggestion-hide',
+        js: [ 'content_scripts/suggestion/event_hide.js' ],
+        matches: [ 'https://drive.google.com/*' ],
+      },
+      {
+        id: 'quicknav-show',
+        js: [ 'content_scripts/quicknav/event_show.js' ],
         matches: [ 'https://drive.google.com/*' ],
       },
     ]
