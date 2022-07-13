@@ -137,9 +137,7 @@ class AuthController extends Controller
 
     $email = Yii::$app->user->identity->email;
     $user = User::findOne(['email' => $email]);
-    $user->g_access_token = $token['access_token'];
-    $user->g_access_token_created_at = date('Y-m-d H:i:s', $token['created']);
-    $user->g_refresh_token = $token['refresh_token'];
+    $user->g_access_token = json_encode($token);
     $user->save();
 
     Yii::$app->session->setFlash('notification.type', 'success');
