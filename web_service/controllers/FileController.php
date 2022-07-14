@@ -31,6 +31,24 @@ class FileController extends Controller
     return $behaviors;
   }
 
+  public function actionFile()
+  {
+    $id = Yii::$app->request->get('id');
+    $client = new GDriveClient();
+    $file = $client->file($id);
+    
+    $files = array_map(function($item) { 
+      return [
+        'id' => $item->id,
+        'name' => $item->name,
+        'parents' => [],
+        'viewedByMeTime' => '',
+      ]; 
+    }, [$file]);
+
+    var_dump($files); exit;
+  }
+
   public function actionListFiles()
   {
     $keyword = Yii::$app->request->get('keyword');
