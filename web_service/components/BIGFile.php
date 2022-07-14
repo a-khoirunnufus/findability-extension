@@ -6,32 +6,102 @@ use yii\base\BaseObject;
 
 class BIGFile extends BaseObject {
 
-  private $_ySets = ['select', 'back'];
-
+  private $_files;
+  private $_fileHierarchy;
   private $_targets;
+  private $_targetHierarchy;
+  private $_compressedTargetHierarchy;
+  private $_probableTargetIds;
+  
+  private $_ySets = ['select', 'back'];
   private $_view;
   private $_initialView;
   private $_input;
-  // private $_behaviour;
   private $_igMax = 0;
 
-  private $_temp_prob;
+  private $_tempSumProbability = 0;
 
   /**
-   * SETTER START
+   * GETTER & SETTER START
    */
 
   public function setTargets($value)
   {
-    $this->_temp_prob = 1 / count($value);
+    $targets = array_map(function ($item) {
+      $probability = pow( 1/2, 0.00001 * ( time() - strtotime($item['viewedByMeTime']) ) );
+      $this->_tempSumProbability += $probability;
+      return [
+        'id' => $item['id'],
+        'parent' => $item['parent'],
+        'probability' => $probability,
+      ];
+    }, $value);
 
-    $targets = array_map([static::class, 'mapFiles'], $value);
-    $this->_targets = $targets;
+    // normalize probability
+    $targetsNormalize = array_map(function ($item) {
+      $newProbability = round($item['probability'] / $this->_tempSumProbability, 4);
+      return [
+        'id' => $item['id'],
+        'parent' => $item['parent'],
+        'probability' => $newProbability,
+      ];
+    }, $targets);
+
+    $this->_targets = $targetsNormalize;
   }
 
   public function getTargets()
   {
     return $this->_targets;
+  }
+
+  public function setTargetHierarchy($targets, $parentId)
+  {
+    $this->_targetHierarchy = $this->buildTree($targets, $parentId);
+  }
+
+  public function getTargetHierarchy()
+  {
+    return $this->_targetHierarchy;
+  }
+
+  public function setProbableTargetIds($value)
+  {
+    $ids = array_map(function($item) {
+      return $item['id'];
+    }, $value);
+    $this->_probableTargetIds = $ids;
+  }
+
+  public function getProbableTargetIds()
+  {
+    return $this->_probableTargetIds;
+  }
+
+  public function setCompressedTargetHierarchy($value)
+  {
+    $targets = $value['targets'];
+    $parentId = $value['parentId'];
+
+    // mark target
+    $targetsMarked = array_map(function($item) {
+      $item['selectedTarget'] = false;
+      if (in_array($item['id'], $this->_probableTargetIds)) {
+        $item['selectedTarget'] = true;
+      }
+      return $item;
+    }, $targets);
+    
+    // build tree
+    $tree = $this->buildTree($targetsMarked, $parentId);
+
+    // build compressed tree
+    $this->_compressedTargetHierarchy = $this->buildCompressedTree($tree);
+  }
+
+  public function getCompressedTargetHierarchy()
+  {
+    return $this->_compressedTargetHierarchy;
   }
 
   public function setView($value)
@@ -49,28 +119,81 @@ class BIGFile extends BaseObject {
     $this->_input = $value;
   }
 
-  // public function setBehaviour($value)
-  // {
-  //   $this->_behaviour = $value;
-  // }
-
-  private function mapFiles($file)
+  public function setFiles($value)
   {
-    return [
-      'id' => $file['id'],
-      'name' => $file['name'],
-      'parents' => $file['parents'],
-      'viewedByMeTime' => $file['viewedByMeTime'],
-      'viewedByMeEpoch' => $file['viewedByMeEpoch'],
-      'probability' => $this->_temp_prob,
-    ];
+    $this->_files = $value;
+  }
+
+  public function getFiles()
+  {
+    return $this->_files;
+  }
+
+  public function setFileHierarchy($files, $parentId)
+  {
+    $this->_fileHierarchy = $this->buildTree($files, $parentId);
+  }
+
+  public function getFileHierarchy($files, $parentId)
+  {
+    return $this->_fileHierarchy;
   }
 
   /**
-   * SETTER END
+   * GETTER & SETTER END
+   */
+
+
+  /**
+   * SETTER UTILITY START
+   */
+
+  private function buildTree(array $elements, $parentId) {
+    $branch = array();
+    foreach ($elements as $element) {
+      if ( $element['parent'] === $parentId ) {
+        $children = $this->buildTree($elements, $element['id']);
+        if ($children) {
+          $element['children'] = $children;
+        }
+        $branch[] = $element;
+      }
+    }
+    return $branch;
+  }
+
+  private function buildCompressedTree($elements) 
+  {
+    $branch = [];
+    foreach ($elements as $element) {
+      if ($element['selectedTarget']) {
+        unset($element['selectedTarget']);
+        $branch[] = $element;
+      }
+      if (isset($element['children'])) {
+        $children = $this->buildCompressedTree($element['children']);
+        if (count($children) === 1) {
+          $branch[] = $children[0];
+        }
+        elseif (count($children) > 1) {
+          $element['children'] = $children;
+          unset($element['selectedTarget']);
+          $branch[] = $element;
+        }
+      }
+    }
+    return $branch;
+  }
+
+  /**
+   * SETTER UTILITY END
    */
 
   
+  /**
+   * MAIN LOGIC
+   */
+
    /**
    * Implementation of P(Y=y∣Θ=θ,X=x)
    * 

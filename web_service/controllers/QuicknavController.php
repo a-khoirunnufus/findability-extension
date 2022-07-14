@@ -41,15 +41,36 @@ class QuicknavController extends Controller
 
   public function actionNavigation()
   {
-    $keyword = Yii::$app->request->get('keyword');
-
+    $keyword = Yii::$app->request->get('keyword'); // NULL if not set
     $client = new GDriveClient();
-    $files = $client->listFiles($keyword);
-    
     $bigfile = new BIGFile();
+    $root = $client->root();
+
+    $files = $client->listFiles();
+    
+    // $bigfile->files = array_merge([$root], $files);
+    // $bigfile->files = $files;
+    // $fileHierarchy = $bigfile->setFileHierarchy($files, $root['id']);
+    
     $bigfile->targets = $files;
+    $bigfile->setTargetHierarchy($bigfile->targets, $root['id']); // $bigfile->targets already mapped
+
+    // this is probable targets, based on keyword
+    $bigfile->probableTargetIds = $client->listFilesByKeyword($keyword);
+
+    // create minimal compressed tree
+    $bigfile->compressedTargetHierarchy = [
+      'targets' => $bigfile->targets, 
+      'parentId' => $root['id']
+    ];
+    
+    return $this->asJson($bigfile->compressedTargetHierarchy);
+
+    
+    exit;
     
     // files at root folder
+    $staticView = $client->listFilesByParent($root['id']);
     $staticView = [
       "1ZDUmXo7wsZIxZPvrtxmTUWVhYbLjS_js",
       "1s3ahx1P9UpyUaXcA_6_MOAOGqdJbk98f",
