@@ -10,8 +10,9 @@ class BIGFile extends BaseObject {
 
   private $_targets;
   private $_view;
+  private $_initialView;
   private $_input;
-  private $_behaviour;
+  // private $_behaviour;
   private $_igMax = 0;
 
   private $_temp_prob;
@@ -38,15 +39,20 @@ class BIGFile extends BaseObject {
     $this->_view = $value;
   }
 
+  public function setInitialView($value)
+  {
+    $this->_initialView = $value;
+  }
+
   public function setInput($value)
   {
     $this->_input = $value;
   }
 
-  public function setBehaviour($value)
-  {
-    $this->_behaviour = $value;
-  }
+  // public function setBehaviour($value)
+  // {
+  //   $this->_behaviour = $value;
+  // }
 
   private function mapFiles($file)
   {
@@ -54,7 +60,7 @@ class BIGFile extends BaseObject {
       'id' => $file['id'],
       'name' => $file['name'],
       'parents' => $file['parents'],
-      // 'viewedByMeTime' => $file['viewedByMeTime'],
+      'viewedByMeTime' => $file['viewedByMeTime'],
       'viewedByMeEpoch' => $file['viewedByMeEpoch'],
       'probability' => $this->_temp_prob,
     ];
@@ -153,6 +159,27 @@ class BIGFile extends BaseObject {
     if($ig < 0) $ig *= -1; // always positive
 
     return $ig;
+  }
+
+  public function getAMax()
+  {
+    $targetMax = null;
+
+    // for all combination of A on N notes in targets
+    // and that are below the current folder
+    // $this->_initialView; // static view
+    // $this->_targets is already sorted by viewedByMeTime Descending
+
+    foreach($this->_targets as $target) {
+      $view = array_merge([$target['id']], $this->_initialView);
+      $ig = $this->ig($view);
+      if ($ig > $this->_igMax) {
+        $this->_igMax = $ig;
+        $targetMax = $target;
+      }
+    }
+
+    return $targetMax;
   }
 
   

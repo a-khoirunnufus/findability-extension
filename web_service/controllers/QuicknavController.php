@@ -49,23 +49,22 @@ class QuicknavController extends Controller
     $bigfile = new BIGFile();
     $bigfile->targets = $files;
     
-    // index 0 - 5 -> static (root folder)
-    // index 6 -> adaptive (one from keyword: networking)
-    $view = [
+    // files at root folder
+    $staticView = [
       "1ZDUmXo7wsZIxZPvrtxmTUWVhYbLjS_js",
       "1s3ahx1P9UpyUaXcA_6_MOAOGqdJbk98f",
       "1HPkeY9eyj7RTDjiAwuDyFIqfjBLviR_3",
       "12nvO4BlOPB3qGZJ5iMhzV51nwrUjwU5M",
       "1wn1X7ClFpE7J9E5CALcDcq40JXfja8Bx",
       "1US9oId4FN2SqIC8fcl7_0O2oL-mPEVD8",
-      "1Z3jUS_M4TKNX3Hv6UrML3m_WymzUGzoO", // this adaptive
     ];
-    $ig = $bigfile->ig($view);
 
-    return $this->asJson($ig);
+    $bigfile->initialView = $staticView;
+    $shortcut = $bigfile->getAMax();
+    // var_dump($shortcut); exit;
 
-    // return $this->renderPartial('navigation', [
-    //   'files' => $files,
-    // ]);
+    return $this->renderPartial('navigation', [
+      'shortcut' => $shortcut,
+    ]);
   }
 }

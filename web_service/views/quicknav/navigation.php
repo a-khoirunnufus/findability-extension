@@ -7,10 +7,8 @@
   <title>Document</title>
 </head>
 <body>
-  <ul>
-  <?php foreach($files as $file): ?>
-    <li><?= $file['name'] ?> - <?= $file['viewedByMeTime'] ?></li>
-  <?php endforeach; ?>
-  </ul>
+  <?php if ($shortcut != null): ?>
+    <p><?= $shortcut['name'] ?> - <?= $shortcut['viewedByMeTime'] ?></p>
+  <?php endif; ?>
 </body>
 </html>
