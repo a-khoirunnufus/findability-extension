@@ -70,7 +70,7 @@ class GDriveClient {
     ]);
     
     $files = array_map([static::class, 'mapFiles'], $res->files);
-    ArrayHelper::multisort($files, ['viewedByMeEpoch'], [SORT_DESC]);
+    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
 
     return $files;
   }
@@ -81,10 +81,11 @@ class GDriveClient {
       'fields' => 'files(id,name,parents,viewedByMeTime)',
       'pageSize' => 1000,
       'q' => "'$parent_id' in parents",
+      'orderBy' => 'viewedByMeTime desc',
     ]);
     
     $files = array_map([static::class, 'mapFiles'], $res->files);
-    ArrayHelper::multisort($files, ['viewedByMeEpoch'], [SORT_DESC]);
+    // ArrayHelper::multisort($files, ['viewedByMeEpoch'], [SORT_DESC]);
 
     return $files;
   }

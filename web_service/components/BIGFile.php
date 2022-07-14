@@ -20,6 +20,8 @@ class BIGFile extends BaseObject {
   private $_igMax = 0;
 
   private $_tempSumProbability = 0;
+  public $_tempSumNumber = 0;
+
 
   /**
    * GETTER & SETTER START
@@ -55,8 +57,10 @@ class BIGFile extends BaseObject {
     return $this->_targets;
   }
 
-  public function setTargetHierarchy($targets, $parentId)
+  public function setTargetHierarchy($value)
   {
+    $targets = $value['targets'];
+    $parentId = $value['parentId'];
     $this->_targetHierarchy = $this->buildTree($targets, $parentId);
   }
 
@@ -148,7 +152,8 @@ class BIGFile extends BaseObject {
    * SETTER UTILITY START
    */
 
-  private function buildTree(array $elements, $parentId) {
+  private function buildTree(array $elements, $parentId) 
+  {
     $branch = array();
     foreach ($elements as $element) {
       if ( $element['parent'] === $parentId ) {
@@ -183,6 +188,40 @@ class BIGFile extends BaseObject {
       }
     }
     return $branch;
+  }
+
+  public function getViewSetFromTree($tree)
+  {
+    $n = 4;
+    $setA = [];
+    $counter = 0;
+    // var_dump($tree); exit;
+    while ($n > 0) {
+      $length = count($tree);
+      $limit = $length <= $n ? $length : $n;
+      for ($i=0; $i < $limit; $i++) { 
+        $setA[] = $tree[$i]['id'];
+        $children = isset($tree[$i]['children']) ? $tree[$i]['children'] : null;
+        unset($tree[$i]);
+        if ($children) {
+          foreach ($children as $file) {
+            $tree[] = $file;
+          }
+        }
+        $n--;
+      }
+      // reindexing array
+      $tree = array_values($tree);
+    }
+    return [
+      'setA' => $setA,
+      'updatedTree' => $tree,
+    ];
+  }
+
+  private function testRecursive()
+  {
+
   }
 
   /**
@@ -284,27 +323,50 @@ class BIGFile extends BaseObject {
     return $ig;
   }
 
-  public function getAMax()
+  public function getAdaptiveView($staticView)
   {
-    $targetMax = null;
+    $setA = null;
+    $tree = null;
 
-    // for all combination of A on N notes in targets
-    // and that are below the current folder
-    // $this->_initialView; // static view
-    // $this->_targets is already sorted by viewedByMeTime Descending
-
-    foreach($this->_targets as $target) {
-      $view = array_merge([$target['id']], $this->_initialView);
+    // calculate initial IG Max
+    ['setA' => $setA, 'updatedTree' => $tree] = $this->getViewSetFromTree($this->_compressedTargetHierarchy);
+    $staticViewIds = array_map(function($item) {
+      return $item['id'];
+    }, $staticView);
+    $view = array_merge($setA, $staticViewIds);
+    $igMax = $this->ig($view);
+    
+    // while (count($tree) > 0) {
+      $oldTree = $tree;
       $ig = $this->ig($view);
-      if ($ig > $this->_igMax) {
-        $this->_igMax = $ig;
-        $targetMax = $target;
-      }
-    }
 
-    return $targetMax;
+      ['setA' => $setA, 'updatedTree' => $tree] = $this->getViewSetFromTree($tree);
+      $staticViewIds = array_map(function($item) {
+        return $item['id'];
+      }, $staticView);
+      $view = array_merge($setA, $staticViewIds);
+      $igPrime = $this->ig($view);
+
+
+    // }
+
+    var_dump([$ig, $igPrime]); exit;
+
   }
 
-  
+  public function searchFileFromTree($fileId, $tree)
+  {
+    foreach ($tree as $node) {
+      // var_dump($node); exit;
+      if (isset($node['children'])) {
+        $this->searchFileFromTree($fileId, $node['children']);  
+      }
+      if($node['id'] == $fileId) {
+        // unset($node['children']);
+        var_dump($node); exit;
+        return $node;
+      }
+    }
+  }
 
 }

@@ -53,7 +53,10 @@ class QuicknavController extends Controller
     // $fileHierarchy = $bigfile->setFileHierarchy($files, $root['id']);
     
     $bigfile->targets = $files;
-    $bigfile->setTargetHierarchy($bigfile->targets, $root['id']); // $bigfile->targets already mapped
+    // $bigfile->targetHierarchy = [
+    //   'targets' => $bigfile->targets, 
+    //   'parentId' => $root['id']
+    // ];
 
     // this is probable targets, based on keyword
     $bigfile->probableTargetIds = $client->listFilesByKeyword($keyword);
@@ -63,26 +66,17 @@ class QuicknavController extends Controller
       'targets' => $bigfile->targets, 
       'parentId' => $root['id']
     ];
-    
-    return $this->asJson($bigfile->compressedTargetHierarchy);
 
+    // testing start
+    $bigfile->searchFileFromTree("11qbc9W6uNMAxCwjadIWZpuTjS1LndJ9D", $bigfile->compressedTargetHierarchy); 
+    // testing end
     
+    $staticView = $client->listFilesByParent($root['id']);
+    $adaptiveView = $bigfile->getAdaptiveView($staticView); 
+
     exit;
     
     // files at root folder
-    $staticView = $client->listFilesByParent($root['id']);
-    $staticView = [
-      "1ZDUmXo7wsZIxZPvrtxmTUWVhYbLjS_js",
-      "1s3ahx1P9UpyUaXcA_6_MOAOGqdJbk98f",
-      "1HPkeY9eyj7RTDjiAwuDyFIqfjBLviR_3",
-      "12nvO4BlOPB3qGZJ5iMhzV51nwrUjwU5M",
-      "1wn1X7ClFpE7J9E5CALcDcq40JXfja8Bx",
-      "1US9oId4FN2SqIC8fcl7_0O2oL-mPEVD8",
-    ];
-
-    $bigfile->initialView = $staticView;
-    $shortcut = $bigfile->getAMax();
-    // var_dump($shortcut); exit;
 
     return $this->renderPartial('navigation', [
       'shortcut' => $shortcut,
