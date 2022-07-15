@@ -66,13 +66,12 @@ class QuicknavController extends Controller
       'targets' => $bigfile->targets, 
       'parentId' => $root['id']
     ];
-
-    // testing start
-    $bigfile->searchFileFromTree("11qbc9W6uNMAxCwjadIWZpuTjS1LndJ9D", $bigfile->compressedTargetHierarchy); 
-    // testing end
     
     $staticView = $client->listFilesByParent($root['id']);
-    $adaptiveView = $bigfile->getAdaptiveView($staticView); 
+    // $adaptiveView = $bigfile->getAdaptiveView($staticView); 
+    $adaptiveView = $bigfile->testGetAdaptiveView($staticView);
+
+    return $this->asJson($adaptiveView);
 
     exit;
     

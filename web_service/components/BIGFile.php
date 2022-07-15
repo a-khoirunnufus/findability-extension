@@ -325,46 +325,352 @@ class BIGFile extends BaseObject {
 
   public function getAdaptiveView($staticView)
   {
-    $setA = null;
-    $tree = null;
+    $setA = [];
+    $setAPrime = [];
+    $tree = $this->_compressedTargetHierarchy;
+    $treePrime = [];
+    $view = [];
+    $viewPrime = [];
+    $ig = 0;
+    $igPrime = 0;
 
-    // calculate initial IG Max
-    ['setA' => $setA, 'updatedTree' => $tree] = $this->getViewSetFromTree($this->_compressedTargetHierarchy);
     $staticViewIds = array_map(function($item) {
       return $item['id'];
     }, $staticView);
-    $view = array_merge($setA, $staticViewIds);
-    $igMax = $this->ig($view);
-    
-    // while (count($tree) > 0) {
-      $oldTree = $tree;
-      $ig = $this->ig($view);
 
-      ['setA' => $setA, 'updatedTree' => $tree] = $this->getViewSetFromTree($tree);
-      $staticViewIds = array_map(function($item) {
-        return $item['id'];
-      }, $staticView);
-      $view = array_merge($setA, $staticViewIds);
-      $igPrime = $this->ig($view);
+    // set setA and treePrime
+    ['setA' => $setA, 'updatedTree' => $treePrime] = $this->getViewSetFromTree($tree);
+    
+    // set view
+    $view = array_merge($setA, $staticViewIds);
+    
+    // calculate IGmax = IG(S⋃A)
+    $ig = $this->ig($view);
+    $igMax = $ig;
+
+    $aMax = [];
+
+    $stop = false;
+
+    // empty tree means no sets to explore
+
+
+    // while there are more sets to explore
+    while (! $stop) {
+      $prunedTree = $tree;
+      $res = $this->getChildOnSet($setA, $prunedTree);
+      // Node a ∈ A has child a′, and not yet explored
+      if ($res) {
+        $setAPrime = $setA;
+        $parentIdx = array_search($res['parent'], $setAPrime);
+        $setAPrime[$parentIdx] = $res['child'];
+
+        // Compute IG′(S⋃A′)
+        $viewPrime = array_merge($setAPrime, $staticViewIds);
+        $igPrime = $this->ig($viewPrime);
+        if ($ig > $igPrime) {
+          // Skip the subtree rooted at a′ 
+          $tree = $prunedTree;
+        } else {
+          $ig = $igPrime;
+          $setA = $setAPrime;
+        }
+      }
+      // Node a ∈ A has not child a′
+      else {
+        // A = A − a  + the root of the next branch
+        // $setA = 
+        break;
+      }
+
+      if($ig > $igMax) {
+        $igMax = $ig;
+        $aMax = $setA;
+      }
+    }
+
+    return $aMax;
+
+      // foreach element in $setA, check if it is have children
+      // if have, replace that element with one children (of that element)
+      
+    //   foreach ($setA as $key => $nodeId) {
+    //     $break = false;
+
+    //     $children; $this->getChildrenByNodeId($nodeId, $tree, $children);
+    //     if($children) {
+    //       $setAPrime = $setA;
+    //       foreach($children as $cId) {
+    //         if (! in_array($cId, $setA)) {
+    //           $setAPrime[$key] = $children[0];
+    //           $break = true;
+    //           break;
+    //         }
+    //       }
+    //       if($break) {
+    //         $viewPrime = array_merge($setAPrime, $staticViewIds);
+    //         $igPrime = $this->ig($viewPrime);
+    //         if ($ig > $igPrime) {
+    //           // Skip the subtree rooted at a′ 
+    //         } else {
+    //           $ig = $igPrime;
+    //           $setA = $setAPrime;
+    //         }
+    //         break;
+    //       }
+    //     }
+    //   }
+
+    //   if($ig > $igMax) {
+    //     $igMax = $ig;
+    //     $aMax = $setA;
+    //   }
+
+    // // }
+
+    // return $aMax;
+
+    //   exit;
+
+
+    //   return $setA;
+    //   exit;
+
+    //     // node a in A has a child a' and not yet explored
+    //     // check is it have a chilren
+    //     $children = $this->getOneChildren($nodeId);
+    //     if($children) {
+    //       $setAPrime[$key] = $children['id'];
+    //       $replacedA[] = ['parent' => $nodeId, 'children' => $children['id']];
+    //     }
+    //   // }
+
+    //   // compute igPrime (using setAPrime)
+    //   $viewPrime = array_merge($setAPrime, $staticViewIds);
+    //   $igPrime = $this->ig($viewPrime);
+
+    //   $newSetA = $setA;
+    //   $newTree = $tree;
+    //   // $ig = $this->ig($view);
+
+    //   ['setA' => $newSetA, 'updatedTree' => $newTree] = $this->getViewSetFromTree($newTree);
+    //   $staticViewIds = array_map(function($item) {
+    //     return $item['id'];
+    //   }, $staticView);
+    //   $view = array_merge($newSetA, $staticViewIds);
+    //   $igPrime = $this->ig($view);
+      
+    //   if ($ig > $igPrime) {
+    //     // prune every node a' in A' (and delete children in these node)
+    //     foreach ($newSetA as $nodeId) {
+    //       $this->deleteNode($nodeId, $tree);
+    //     }
+    //     // convert assosiative to indexed array
+    //     $tree = array_values($tree);
+    //     $newTree = $tree;
+    //   } else {
+    //     $ig = $igPrime;
+    //     $setA = $newSetA;
+    //     // $tree = $newTree;
+    //   }
 
 
     // }
 
-    var_dump([$ig, $igPrime]); exit;
+    // var_dump([$ig, $igPrime]); exit;
 
   }
 
-  public function searchFileFromTree($fileId, $tree)
+  public function testGetAdaptiveView($staticView)
+  {
+    $setA = [];
+    $setAPrime = [];
+    $staticViewIds = array_map(
+      function($item) { return $item['id']; }, 
+      $staticView
+    );
+
+    $tree = $this->_compressedTargetHierarchy;
+
+    // initial explore
+    ['set' => $setA, 'updatedTree' => $tree] 
+      = $this->exploreTree($tree);
+    $aMax = $setA;
+
+    $view = array_merge($setA, $staticViewIds);
+    $ig = $this->ig($view);
+    $igMax = $ig;
+
+    while (count($tree) > 0) {
+      // Node a ∈ A has child a′ and not yet explored
+      foreach ($setA as $key => $a) {
+        if ($this->hasChildInTree($a, $tree)) {
+          $setAPrime = $setA;
+          // TODO: getPrimeSetWithReplacedParent()
+
+          break; // this break is necessary
+        } else {
+          ['set' => $setA, 'updatedTree' => $tree] 
+            = $this->getSetWithNextBranch($a, $tree);
+          $view = array_merge($setA, $staticViewIds);
+          $ig = $this->ig($view);
+
+          break;
+        }
+      }
+
+      if($ig > $igMax) {
+        $igMax = $ig;
+        $aMax = $setA;
+      }
+      break;
+    }
+
+    return $aMax;
+  }
+  
+  // berguna
+  private function exploreTree($tree, $n = 4)
+  {    
+    while (count($tree) < $n) { 
+      foreach ($tree as $key => $branch) {
+        if (isset($branch['children'])) {
+          array_splice($tree, $key, 1, $branch['children']);
+          break;
+        }
+      }
+    }
+
+    $set = [];
+    for ($i=0; $i < $n; $i++) { 
+      $set[] = $tree[$i]['id'];
+    }
+
+    return [
+      'set' => $set,
+      'updatedTree' => $tree,
+    ];
+  }
+
+  private function hasChildInTree($a, $tree)
   {
     foreach ($tree as $node) {
-      // var_dump($node); exit;
+      if ($node['id'] === $a and isset($node['children'])) {
+        return $node['children'][0]['id'];
+      }
+    }
+    return false;
+  }
+
+  private function getSetWithNextBranch($nodeId, $tree)
+  {
+    foreach($tree as $key => $node) {
+      if ($node['id'] == $nodeId) {
+        unset($tree[$key]);
+        break;
+      }
+    }
+    $tree = array_values($tree);
+    return $this->exploreTree($tree);
+  }
+
+
+  private function getChildOnSet($setA, &$tree)
+  {
+    $res = null;
+    foreach ($setA as $a) {
+      $child = null;
+      $this->getChildOnSetRecursive($setA, $a, $tree, $child);
+      if($child) {
+        $res = [
+          'parent' => $a,
+          'child' => $child['id'],
+        ];
+        break;
+      }
+    }
+    return $res;
+  }
+
+  private function getChildOnSetRecursive($setA, $nodeId, &$tree, &$outChild)
+  {
+    foreach ($tree as &$node) {
       if (isset($node['children'])) {
-        $this->searchFileFromTree($fileId, $node['children']);  
+        $this->getChildOnSetRecursive($setA, $nodeId, $node['children'], $outChild);
+      }
+      if ($node['id'] == $nodeId) {
+        $outChild = null;
+        if (isset($node['children'])) {
+          $children = $node['children'];
+          $child = end($children);
+          if (! in_array($child['id'], $setA)) {
+            $child = array_pop($children);
+            if (isset($child['children'])) {
+              unset($child['children']);
+            }
+            $children[] = $child;
+            $node['children'] = $children;
+            $outChild = $child;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  public function getChildrenByNodeId($nodeId, $tree, &$outChildren)
+  {
+    foreach ($tree as $node) {
+      if (isset($node['children'])) {
+        $this->getChildrenByNodeId($nodeId, $node['children'], $outChildren);
+      }
+      if($node['id'] == $nodeId) {
+        $outChildren = null;
+        if (isset($node['children'])) {
+          $outChildren = [];
+          foreach($node['children'] as $children) {
+            $outChildren[] = $children['id'];
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  public function exploreTreeRecursive($tree)
+  {
+    foreach ($tree as $node) {
+      echo $node['id'] . "<br>";
+      if(isset($node['children'])) {
+        $this->exploreTreeRecursive($node['children']);
+      }
+    }
+  }
+
+  private function deleteNode($nodeId, &$tree)
+  {
+    foreach ($tree as $key => $node) {
+      if (isset($node['children'])) {
+        $this->deleteNode($nodeId, $node['children']);  
+      }
+      if($node['id'] == $nodeId) {
+        unset($tree[$key]);
+        // unset($node['children']);
+        break;
+      }
+    }
+  }
+
+  public function searchFileFromTree($fileId, &$tree, &$fileOut)
+  {
+    foreach ($tree as &$node) {
+      if (isset($node['children'])) {
+        $this->searchFileFromTree($fileId, $node['children'], $fileOut);  
       }
       if($node['id'] == $fileId) {
-        // unset($node['children']);
-        var_dump($node); exit;
-        return $node;
+        $node['explored'] = true;
+        $fileOut = $node;
+        break;
       }
     }
   }
