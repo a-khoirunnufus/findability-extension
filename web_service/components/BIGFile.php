@@ -507,20 +507,39 @@ class BIGFile extends BaseObject {
     $ig = $this->ig($view);
     $igMax = $ig;
 
+    // log purpose
+    // $this->logSetAndIG($setA, $ig, $igMax);
+    // dev purpose
+    // $count = 0;
+
     while ($this->isTreeExplorable($tree)) {
       $a = $setA[0];
 
       // Node a ∈ A has child a′ and not yet explored
       if ($this->hasChildInTree($a, $tree)) {
-        $setAPrime = $setA;
-        // TODO: getPrimeSetWithReplacedParent()
+        // remove node a from set
+        unset($setA[0]); $setA = array_values($setA);
+        // replace node a with its children
+        $tree = $this->replaceNodeWithItsChildren($a, $tree);
+        // add node to setA, replacing the previous node
+        [ 'newSet' => $setA, 'addedNodes' => $addedNodes
+          ] = $this->addNextNode($setA, $tree, 0);
+          
+        $view = array_merge($setA, $staticViewIds);
+        $igPrime = $this->ig($view);
+                
+        if ($ig > $igPrime) {
+          // remove node's children
+          $tree = $this->deleteChildren($addedNodes[0], $tree);
+        } else {
+          $ig = $igPrime;
+        }
       }
 
       // node a hasn't children
       else {
         // remove node a from setA
-        unset($setA[array_search($a, $setA)]);
-        $setA = array_values($setA);
+        unset($setA[0]); $setA = array_values($setA);
         // remove node a from tree
         $tree = $this->deleteNode($a, $tree);
 
@@ -528,13 +547,31 @@ class BIGFile extends BaseObject {
           // check for all remaining node (three) in setA weather its have children
           $replaceNodeId = $this->getReplaceableNodeId($setA, $tree);
           // remove this replaceable node from setA
-          unset($setA[array_search($replaceNodeId, $setA)]);
+          unset($setA[array_search($replaceNodeId, $setA)]); $setA = array_values($setA);
           // replace this node (replaceable) with its children
           $tree = $this->replaceNodeWithItsChildren($replaceNodeId, $tree);
         }
-
-        // add node to setA, replacing the previous unset (one or more node)
-        $setA = $this->addNextNode($setA, $tree);
+        
+        if(count($tree) == 4) {
+          $match = true;
+          foreach($setA as $key => $a) {
+            if($tree[$key]['id'] != $a) {
+              $match = false;
+              break;
+            }
+          }
+          if ($match) {
+            // add node to setA, replacing the previous unset (one or more node)
+            ['newSet' => $setA] = $this->addNextNode($setA, $tree, -1);
+          } else {
+            // masukkan node baru setelah node terakhir yang tidak mempunyai children
+            // biasanya berurutan, setelah node ini seharusnya mempunyai children semua
+            $idx = $this->getLastNodeIdxWithoutChildren($setA, $tree);
+            ['newSet' => $setA] = $this->addNextNode($setA, $tree, $idx);
+          }
+        } elseif(count($tree) > 4) {
+          ['newSet' => $setA] = $this->addNextNode($setA, $tree, 0);
+        }
         
         $view = array_merge($setA, $staticViewIds);
         $ig = $this->ig($view);
@@ -544,9 +581,13 @@ class BIGFile extends BaseObject {
         $igMax = $ig;
         $aMax = $setA;
       }
-      break;
-    }
 
+      // log purpose
+      // $this->logSetAndIG($setA, $ig, $igMax);      
+      // dev purpose
+      // $count++;
+      // if ($count > 14) break;
+    }
     return $aMax;
   }
   
@@ -595,25 +636,47 @@ class BIGFile extends BaseObject {
     return array_values($tree);
   }
 
-  // add one or mode node to setA
-  private function addNextNode($setA, $tree)
+  private function deleteChildren($nodeId, $tree)
   {
-    while(count($setA) < 4) {
+    foreach ($tree as $key => $node) {
+      if ($node['id'] == $nodeId) {
+        unset($tree[$key]['children']);
+        break;
+      }
+    }
+    return array_values($tree);
+  }
+
+  // add one or mode node to setA
+  // default: insert at beginning of array
+  private function addNextNode($setA, $tree, $pos = 0)
+  {
+    $newNodes = [];
+    while(count($setA) + count($newNodes) < 4) {
       foreach($tree as $node) {
-        if(! in_array($node['id'], $setA)) {
-          $setA[] = $node['id'];
+        if(!in_array($node['id'], $setA) and !in_array($node['id'], $newNodes)) {
+          $newNodes[] = $node['id'];
           break;
         }
       }
     }
-    return $setA;
+    // insert as first element of array
+    if($pos == 0) { $setA = array_merge($newNodes, $setA); } 
+    // insert as last element of array
+    elseif($pos == -1) { $setA = array_merge($setA, $newNodes); }
+    else { array_splice($setA, $pos, 0, $newNodes); }
+
+    return [
+      'newSet' => $setA,
+      'addedNodes' => $newNodes,
+    ];
   }
 
   private function getReplaceableNodeId($setA, $tree)
   {
     foreach($setA as $a2) {
       if ($this->hasChildInTree($a2, $tree)) {
-        return $a2['id'];
+        return $a2;
       }
     }
     return null;
@@ -628,6 +691,23 @@ class BIGFile extends BaseObject {
         return $tree;
       }
     }
+  }
+
+  private function getLastNodeIdxWithoutChildren($setA, $tree)
+  {
+    // echo "TRACING = [ <br>";
+    // foreach($setA as $key => $a) {
+    //   echo " $key => $a, <br>";
+    // }
+    // echo "] <br>";
+    foreach($setA as $key => $a) {
+      // check node a, is it have a children
+      if($this->hasChildInTree($a, $tree)) {
+        // echo "<br><br>$key<br><br>";
+        return intval($key); 
+      }
+    }
+    return -1;
   }
 
 
@@ -744,6 +824,20 @@ class BIGFile extends BaseObject {
         break;
       }
     }
+  }
+
+  /**
+   * DEVELOPMENT UTILITY
+   */
+
+  private function logSetAndIG($setA, $ig, $igMax)
+  {
+    echo "A = [ <br>";
+    foreach($setA as $a) {
+      echo " $a, <br>";
+    }
+    echo "] <br>";
+    echo "ig = $ig, igmax = $igMax <br><br><br>";
   }
 
 }
