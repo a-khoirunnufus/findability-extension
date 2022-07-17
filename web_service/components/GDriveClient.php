@@ -49,11 +49,11 @@ class GDriveClient {
     return $res;    
   }
 
-  public function listFiles()
+  public function listFiles($size = 1000)
   {
     $res = $this->_drive->files->listFiles([
       'fields' => 'files(id,name,parents,viewedByMeTime)',
-      'pageSize' => 1000,
+      'pageSize' => $size,
       'orderBy' => 'viewedByMeTime desc'
     ]);
     

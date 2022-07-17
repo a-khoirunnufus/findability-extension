@@ -6,7 +6,7 @@ use yii\base\BaseObject;
 
 class BIGFile extends BaseObject {
 
-  private $_files;                      
+  private $_allFiles;                      
   private $_fileHierarchy;              // OPTIONAL PROPERTY
   private $_targets;
   private $_targetHierarchy;            // OPTIONAL PROPERTY
@@ -92,24 +92,26 @@ class BIGFile extends BaseObject {
     return $this->_compressedTargetHierarchy;
   }
 
-  public function setFiles($value)
+  public function setAllFiles($value)
   {
-    $this->_files = $value;
+    $this->_allFiles = $value;
   }
 
-  public function getFiles()
+  public function getAllFiles()
   {
-    return $this->_files;
+    return $this->_allFiles;
   }
 
   // OPTIONAL
-  public function setFileHierarchy($files, $parentId)
+  public function setFileHierarchy($value)
   {
+    $files = $value['files'];
+    $parentId = $value['parentId'];
     $this->_fileHierarchy = $this->buildTree($files, $parentId);
   }
 
   // OPTIONAL
-  public function getFileHierarchy($files, $parentId)
+  public function getFileHierarchy()
   {
     return $this->_fileHierarchy;
   }
@@ -123,7 +125,7 @@ class BIGFile extends BaseObject {
    * SETTER UTILITY START
    */
 
-  public function getIdsFromArray($array)
+  private function getIdsFromArray($array)
   {
     $ids = array_map(function($item) {
       return $item['id'];
@@ -131,7 +133,7 @@ class BIGFile extends BaseObject {
     return $ids;
   }
 
-  private function buildTree(array $elements, $parentId) 
+  public function buildTree(array $elements, $parentId) 
   {
     $branch = array();
     foreach ($elements as $element) {
@@ -505,13 +507,26 @@ class BIGFile extends BaseObject {
   {
     $files = [];
     foreach($ids as $id) {
-      foreach($this->_files as $file) {
+      foreach($this->_allFiles as $file) {
         if($file['id'] == $id) {
           $files[] = $file;
         }
       }
     }
     return $files;
+  }
+
+  public function getChildrenFromTree($parentId, $tree, &$outChildren)
+  {
+    foreach ($tree as $node) {
+      if(isset($node['children'])) {
+        if ($node['id'] === $parentId) {
+          $outChildren = $node['children'];
+          break;
+        }
+        $this->getChildrenFromTree($parentId, $node['children'], $outChildren);
+      }
+    }
   }
 
 

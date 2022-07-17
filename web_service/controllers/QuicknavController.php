@@ -50,24 +50,47 @@ class QuicknavController extends Controller
     
     $client = new GDriveClient();
     $bigfile = new BIGFile();
+    $driveRoot = $client->file('root');
+
+    $allFile = $client->listFiles();
+    $allFileHierarchy = $bigfile->buildTree($allFile, $driveRoot->id);
 
     $rootId;
     if($paramFolderId === null) {
       // TODO: status code 401
       return 'folder_id parameter must include';
     } elseif($paramFolderId == 'root') {
-      $root = $client->file('root');
-      $rootId = $root->id;
+      $rootId = $driveRoot->id;
     } else {
       $rootId = $paramFolderId;
     }
 
-    $files = $client->listFiles();
-    $bigfile->files = $files;
-    $bigfile->targets = $files;
+    // tree with root = rootId
+    $fileHierarchy = [];
+
+    if($paramFolderId == 'root') {
+      $fileHierarchy = $allFileHierarchy;
+    } else {
+      $bigfile->getChildrenFromTree(
+        $paramFolderId,     // parent id
+        $allFileHierarchy,
+        $fileHierarchy,     // children of node with id = parent id
+      );
+    }
+
+    return $this->asJson($fileHierarchy);
+
+    $bigfile->allFiles = $allFile;
+    $bigfile->targets = $allFile;
+
     
-    // this is probable targets, based on keyword
-    $probableTargets = $client->listFilesByKeyword($paramKeyword, $n);
+    $probableTargets;
+    if ($paramKeyword) {
+      // this is probable targets, based on keyword
+      $probableTargets = $client->listFilesByKeyword($paramKeyword, $n);
+    } else {
+      $probableTargets = $client->listFiles($n);
+    }
 
     // create minimal compressed tree
     $bigfile->compressedTargetHierarchy = [
