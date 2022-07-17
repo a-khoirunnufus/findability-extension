@@ -5,6 +5,7 @@ namespace quicknav\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\filters\auth\HttpBearerAuth;
+use yii\helpers\ArrayHelper;
 use Google\Client;
 use Google\Service\Drive;
 use quicknav\components\GDriveClient;
@@ -78,16 +79,16 @@ class QuicknavController extends Controller
       );
     }
 
-    return $this->asJson($fileHierarchy);
-
-    $bigfile->allFiles = $allFile;
-    $bigfile->targets = $allFile;
-
+    $files;
+    $bigfile->convertTreeToArray($fileHierarchy, $files);
+    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
+    
+    $bigfile->files = $files;
+    $bigfile->targets = $files;
     
     $probableTargets;
     if ($paramKeyword) {
-      // this is probable targets, based on keyword
-      $probableTargets = $client->listFilesByKeyword($paramKeyword, $n);
+      $probableTargets = $client->listFilesByKeyword($paramKeyword);
     } else {
       $probableTargets = $client->listFiles($n);
     }
@@ -97,7 +98,7 @@ class QuicknavController extends Controller
       'targets' => $bigfile->targets, 
       'parentId' => $rootId,
       'probableTargets' => $probableTargets,
-    ];    
+    ];
 
     $staticView = $client->listFilesByParent($rootId);
     $adaptiveView = $bigfile->getAdaptiveView($staticView);

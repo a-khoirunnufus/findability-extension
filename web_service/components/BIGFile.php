@@ -6,7 +6,7 @@ use yii\base\BaseObject;
 
 class BIGFile extends BaseObject {
 
-  private $_allFiles;                      
+  private $_files;                      
   private $_fileHierarchy;              // OPTIONAL PROPERTY
   private $_targets;
   private $_targetHierarchy;            // OPTIONAL PROPERTY
@@ -16,6 +16,7 @@ class BIGFile extends BaseObject {
   // EXECUTION PROPERTY
   private $_QN_SUM_PROBABILITY = 0;
   private $_QN_PROBABLE_TARGET_IDS = [];
+  private $_QN_MARKED_COUNT = 0;
 
   /**
    * GETTER & SETTER START
@@ -70,12 +71,17 @@ class BIGFile extends BaseObject {
     $targets = $value['targets'];
     $parentId = $value['parentId'];
     $this->_QN_PROBABLE_TARGET_IDS = $this->getIdsFromArray($value['probableTargets']);
+    $this->_QN_MARKED_COUNT = 0;
     
     // Mark target as probable target
     $targetsMarked = array_map(function($item) {
       $item['selectedTarget'] = false;
-      if (in_array($item['id'], $this->_QN_PROBABLE_TARGET_IDS)) {
+      if (
+        $this->_QN_MARKED_COUNT < 6
+        and in_array($item['id'], $this->_QN_PROBABLE_TARGET_IDS)
+      ) {
         $item['selectedTarget'] = true;
+        $this->_QN_MARKED_COUNT ++;
       }
       return $item;
     }, $targets);
@@ -92,14 +98,14 @@ class BIGFile extends BaseObject {
     return $this->_compressedTargetHierarchy;
   }
 
-  public function setAllFiles($value)
+  public function setFiles($value)
   {
-    $this->_allFiles = $value;
+    $this->_files = $value;
   }
 
-  public function getAllFiles()
+  public function getFiles()
   {
-    return $this->_allFiles;
+    return $this->_files;
   }
 
   // OPTIONAL
@@ -125,7 +131,7 @@ class BIGFile extends BaseObject {
    * SETTER UTILITY START
    */
 
-  private function getIdsFromArray($array)
+  public function getIdsFromArray($array)
   {
     $ids = array_map(function($item) {
       return $item['id'];
@@ -507,7 +513,7 @@ class BIGFile extends BaseObject {
   {
     $files = [];
     foreach($ids as $id) {
-      foreach($this->_allFiles as $file) {
+      foreach($this->_files as $file) {
         if($file['id'] == $id) {
           $files[] = $file;
         }
@@ -526,6 +532,17 @@ class BIGFile extends BaseObject {
         }
         $this->getChildrenFromTree($parentId, $node['children'], $outChildren);
       }
+    }
+  }
+
+  public function convertTreetoArray($tree, &$outArray)
+  {
+    foreach($tree as $node) {
+      if(isset($node['children'])) {
+        $this->convertTreetoArray($node['children'], $outArray);
+        unset($node['children']);
+      }
+      $outArray[] = $node;
     }
   }
 

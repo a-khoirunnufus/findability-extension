@@ -64,13 +64,19 @@ class GDriveClient {
 
   public function listFilesByKeyword($keyword, $size = 1000)
   {
+    // Sorting is not supported for queries with fullText terms.
     $res = $this->_drive->files->listFiles([
-      'fields' => 'files(id,name,parents,viewedByMeTime)',
+      'fields' => 'files(id,viewedByMeTime)',
       'pageSize' => $size,
       'q' => "name contains '$keyword' or fullText contains '$keyword'",
     ]);
     
-    $files = array_map([static::class, 'mapFiles'], $res->files);
+    $files = array_map(
+      function($item) {
+        return ['id' => $item->id, 'viewedByMeTime' => $item->viewedByMeTime];
+      }, 
+      $res->files
+    );
     ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
 
     return $files;
