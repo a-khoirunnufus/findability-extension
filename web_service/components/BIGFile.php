@@ -12,7 +12,7 @@ class BIGFile extends BaseObject {
   private $_targets;
   private $_targetHierarchy;            // OPTIONAL PROPERTY
   private $_compressedTargetHierarchy;
-  private $_ySets = ['select', 'back'];
+  private $_ySets = ['select'];
 
   // EXECUTION PROPERTY
   private $_QN_SUM_PROBABILITY = 0;
