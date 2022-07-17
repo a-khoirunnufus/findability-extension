@@ -49,13 +49,19 @@ class GDriveClient {
     return $res;    
   }
 
-  public function listFiles($size = 1000)
+  public function listFiles($includeFolder = true, $size = 1000)
   {
-    $res = $this->_drive->files->listFiles([
+    $optParams = [
       'fields' => 'files(id,name,parents,viewedByMeTime)',
       'pageSize' => $size,
       'orderBy' => 'viewedByMeTime desc'
-    ]);
+    ];
+
+    if(!$includeFolder) {
+      $optParams['q'] = "mimeType != 'application/vnd.google-apps.folder'";
+    } 
+
+    $res = $this->_drive->files->listFiles($optParams);
     
     $files = array_map([static::class, 'mapFiles'], $res->files);
 

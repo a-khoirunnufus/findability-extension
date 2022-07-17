@@ -164,7 +164,7 @@ class BIGFile extends BaseObject {
       }
       if (isset($element['children'])) {
         $children = $this->buildCompressedTree($element['children']);
-        if (count($children) === 1) {
+        if (count($children) == 1) {
           $branch[] = $children[0];
         }
         elseif (count($children) > 1) {
@@ -176,6 +176,37 @@ class BIGFile extends BaseObject {
     }
     return $branch;
   }
+
+  // private function buildCompressedTreeNoKeywordBackup($elements) 
+  // {
+  //   $branch = [];
+  //   foreach ($elements as $element) {
+  //     if(isset($element['children'])) {
+  //       $reserveParent = null;
+  //       if($element['selectedTarget']) {
+  //         $reserveParent = $element;
+  //         unset($reserveParent['children']);
+  //       }
+  //       $children = $this->buildCompressedTreeNoKeyword($element['children']);
+  //       if($element['selectedTarget']) {
+  //         if(count($children) > 0) {
+  //           $reserveParent['children'] = $children;
+  //         }
+  //         $branch[] = $reserveParent;
+  //       } else {
+  //         if(count($children) == 1) {
+  //           $branch[] = $children[0];
+  //         } elseif(count($children) > 1) {
+  //           $branch = $children;
+  //         }
+  //       }
+  //     } 
+  //     elseif($element['selectedTarget']) {
+  //       $branch[] = $element;
+  //     }
+  //   }
+  //   return $branch;
+  // }
 
   /**
    * SETTER UTILITY END

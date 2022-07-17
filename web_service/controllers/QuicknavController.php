@@ -90,16 +90,16 @@ class QuicknavController extends Controller
     if ($paramKeyword) {
       $probableTargets = $client->listFilesByKeyword($paramKeyword);
     } else {
-      $probableTargets = $client->listFiles($n);
+      $probableTargets = $client->listFiles(false);
     }
-
+    
     // create minimal compressed tree
     $bigfile->compressedTargetHierarchy = [
       'targets' => $bigfile->targets, 
       'parentId' => $rootId,
       'probableTargets' => $probableTargets,
     ];
-
+    
     $staticView = $client->listFilesByParent($rootId);
     $adaptiveView = $bigfile->getAdaptiveView($staticView);
 
