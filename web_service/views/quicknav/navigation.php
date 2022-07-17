@@ -7,8 +7,13 @@
   <title>Document</title>
 </head>
 <body>
-  <?php if ($shortcut != null): ?>
-    <p><?= $shortcut['name'] ?> - <?= $shortcut['viewedByMeTime'] ?></p>
-  <?php endif; ?>
+  <table>
+    <?php foreach($shortcuts as $shortcut): ?>
+      <tr>
+        <td><?= $shortcut['name'] ?></td>
+        <td><?= $shortcut['viewedByMeTime'] ?></td>
+      </tr>
+    <?php endforeach; ?>
+  </table>
 </body>
 </html>

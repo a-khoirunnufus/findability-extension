@@ -6,22 +6,16 @@ use yii\base\BaseObject;
 
 class BIGFile extends BaseObject {
 
-  private $_files;
-  private $_fileHierarchy;
+  private $_files;                      
+  private $_fileHierarchy;              // OPTIONAL PROPERTY
   private $_targets;
-  private $_targetHierarchy;
+  private $_targetHierarchy;            // OPTIONAL PROPERTY
   private $_compressedTargetHierarchy;
-  private $_probableTargetIds;
-  
   private $_ySets = ['select', 'back'];
-  private $_view;
-  private $_initialView;
-  private $_input;
-  private $_igMax = 0;
 
-  private $_tempSumProbability = 0;
-  public $_tempSumNumber = 0;
-
+  // EXECUTION PROPERTY
+  private $_QN_SUM_PROBABILITY = 0;
+  private $_QN_PROBABLE_TARGET_IDS = [];
 
   /**
    * GETTER & SETTER START
@@ -31,7 +25,7 @@ class BIGFile extends BaseObject {
   {
     $targets = array_map(function ($item) {
       $probability = pow( 1/2, 0.00001 * ( time() - strtotime($item['viewedByMeTime']) ) );
-      $this->_tempSumProbability += $probability;
+      $this->_QN_SUM_PROBABILITY += $probability;
       return [
         'id' => $item['id'],
         'parent' => $item['parent'],
@@ -39,9 +33,9 @@ class BIGFile extends BaseObject {
       ];
     }, $value);
 
-    // normalize probability
+    // normalizing probability
     $targetsNormalize = array_map(function ($item) {
-      $newProbability = round($item['probability'] / $this->_tempSumProbability, 4);
+      $newProbability = round($item['probability'] / $this->_QN_SUM_PROBABILITY, 8);
       return [
         'id' => $item['id'],
         'parent' => $item['parent'],
@@ -57,6 +51,7 @@ class BIGFile extends BaseObject {
     return $this->_targets;
   }
 
+  // OPTIONAL
   public function setTargetHierarchy($value)
   {
     $targets = $value['targets'];
@@ -64,63 +59,37 @@ class BIGFile extends BaseObject {
     $this->_targetHierarchy = $this->buildTree($targets, $parentId);
   }
 
+  // OPTIONAL
   public function getTargetHierarchy()
   {
     return $this->_targetHierarchy;
-  }
-
-  public function setProbableTargetIds($value)
-  {
-    $ids = array_map(function($item) {
-      return $item['id'];
-    }, $value);
-    $this->_probableTargetIds = $ids;
-  }
-
-  public function getProbableTargetIds()
-  {
-    return $this->_probableTargetIds;
-  }
+  }  
 
   public function setCompressedTargetHierarchy($value)
   {
     $targets = $value['targets'];
     $parentId = $value['parentId'];
-
-    // mark target
+    $this->_QN_PROBABLE_TARGET_IDS = $this->getIdsFromArray($value['probableTargets']);
+    
+    // Mark target as probable target
     $targetsMarked = array_map(function($item) {
       $item['selectedTarget'] = false;
-      if (in_array($item['id'], $this->_probableTargetIds)) {
+      if (in_array($item['id'], $this->_QN_PROBABLE_TARGET_IDS)) {
         $item['selectedTarget'] = true;
       }
       return $item;
     }, $targets);
     
     // build tree
-    $tree = $this->buildTree($targetsMarked, $parentId);
+    $treeWithProbableTargets = $this->buildTree($targetsMarked, $parentId);
 
     // build compressed tree
-    $this->_compressedTargetHierarchy = $this->buildCompressedTree($tree);
+    $this->_compressedTargetHierarchy = $this->buildCompressedTree($treeWithProbableTargets);
   }
 
   public function getCompressedTargetHierarchy()
   {
     return $this->_compressedTargetHierarchy;
-  }
-
-  public function setView($value)
-  {
-    $this->_view = $value;
-  }
-
-  public function setInitialView($value)
-  {
-    $this->_initialView = $value;
-  }
-
-  public function setInput($value)
-  {
-    $this->_input = $value;
   }
 
   public function setFiles($value)
@@ -133,11 +102,13 @@ class BIGFile extends BaseObject {
     return $this->_files;
   }
 
+  // OPTIONAL
   public function setFileHierarchy($files, $parentId)
   {
     $this->_fileHierarchy = $this->buildTree($files, $parentId);
   }
 
+  // OPTIONAL
   public function getFileHierarchy($files, $parentId)
   {
     return $this->_fileHierarchy;
@@ -151,6 +122,14 @@ class BIGFile extends BaseObject {
   /**
    * SETTER UTILITY START
    */
+
+  public function getIdsFromArray($array)
+  {
+    $ids = array_map(function($item) {
+      return $item['id'];
+    }, $array);
+    return $ids;
+  }
 
   private function buildTree(array $elements, $parentId) 
   {
@@ -188,40 +167,6 @@ class BIGFile extends BaseObject {
       }
     }
     return $branch;
-  }
-
-  public function getViewSetFromTree($tree)
-  {
-    $n = 4;
-    $setA = [];
-    $counter = 0;
-    // var_dump($tree); exit;
-    while ($n > 0) {
-      $length = count($tree);
-      $limit = $length <= $n ? $length : $n;
-      for ($i=0; $i < $limit; $i++) { 
-        $setA[] = $tree[$i]['id'];
-        $children = isset($tree[$i]['children']) ? $tree[$i]['children'] : null;
-        unset($tree[$i]);
-        if ($children) {
-          foreach ($children as $file) {
-            $tree[] = $file;
-          }
-        }
-        $n--;
-      }
-      // reindexing array
-      $tree = array_values($tree);
-    }
-    return [
-      'setA' => $setA,
-      'updatedTree' => $tree,
-    ];
-  }
-
-  private function testRecursive()
-  {
-
   }
 
   /**
@@ -327,168 +272,7 @@ class BIGFile extends BaseObject {
   {
     $setA = [];
     $setAPrime = [];
-    $tree = $this->_compressedTargetHierarchy;
-    $treePrime = [];
-    $view = [];
-    $viewPrime = [];
-    $ig = 0;
-    $igPrime = 0;
-
-    $staticViewIds = array_map(function($item) {
-      return $item['id'];
-    }, $staticView);
-
-    // set setA and treePrime
-    ['setA' => $setA, 'updatedTree' => $treePrime] = $this->getViewSetFromTree($tree);
-    
-    // set view
-    $view = array_merge($setA, $staticViewIds);
-    
-    // calculate IGmax = IG(S⋃A)
-    $ig = $this->ig($view);
-    $igMax = $ig;
-
-    $aMax = [];
-
-    $stop = false;
-
-    // empty tree means no sets to explore
-
-
-    // while there are more sets to explore
-    while (! $stop) {
-      $prunedTree = $tree;
-      $res = $this->getChildOnSet($setA, $prunedTree);
-      // Node a ∈ A has child a′, and not yet explored
-      if ($res) {
-        $setAPrime = $setA;
-        $parentIdx = array_search($res['parent'], $setAPrime);
-        $setAPrime[$parentIdx] = $res['child'];
-
-        // Compute IG′(S⋃A′)
-        $viewPrime = array_merge($setAPrime, $staticViewIds);
-        $igPrime = $this->ig($viewPrime);
-        if ($ig > $igPrime) {
-          // Skip the subtree rooted at a′ 
-          $tree = $prunedTree;
-        } else {
-          $ig = $igPrime;
-          $setA = $setAPrime;
-        }
-      }
-      // Node a ∈ A has not child a′
-      else {
-        // A = A − a  + the root of the next branch
-        // $setA = 
-        break;
-      }
-
-      if($ig > $igMax) {
-        $igMax = $ig;
-        $aMax = $setA;
-      }
-    }
-
-    return $aMax;
-
-      // foreach element in $setA, check if it is have children
-      // if have, replace that element with one children (of that element)
-      
-    //   foreach ($setA as $key => $nodeId) {
-    //     $break = false;
-
-    //     $children; $this->getChildrenByNodeId($nodeId, $tree, $children);
-    //     if($children) {
-    //       $setAPrime = $setA;
-    //       foreach($children as $cId) {
-    //         if (! in_array($cId, $setA)) {
-    //           $setAPrime[$key] = $children[0];
-    //           $break = true;
-    //           break;
-    //         }
-    //       }
-    //       if($break) {
-    //         $viewPrime = array_merge($setAPrime, $staticViewIds);
-    //         $igPrime = $this->ig($viewPrime);
-    //         if ($ig > $igPrime) {
-    //           // Skip the subtree rooted at a′ 
-    //         } else {
-    //           $ig = $igPrime;
-    //           $setA = $setAPrime;
-    //         }
-    //         break;
-    //       }
-    //     }
-    //   }
-
-    //   if($ig > $igMax) {
-    //     $igMax = $ig;
-    //     $aMax = $setA;
-    //   }
-
-    // // }
-
-    // return $aMax;
-
-    //   exit;
-
-
-    //   return $setA;
-    //   exit;
-
-    //     // node a in A has a child a' and not yet explored
-    //     // check is it have a chilren
-    //     $children = $this->getOneChildren($nodeId);
-    //     if($children) {
-    //       $setAPrime[$key] = $children['id'];
-    //       $replacedA[] = ['parent' => $nodeId, 'children' => $children['id']];
-    //     }
-    //   // }
-
-    //   // compute igPrime (using setAPrime)
-    //   $viewPrime = array_merge($setAPrime, $staticViewIds);
-    //   $igPrime = $this->ig($viewPrime);
-
-    //   $newSetA = $setA;
-    //   $newTree = $tree;
-    //   // $ig = $this->ig($view);
-
-    //   ['setA' => $newSetA, 'updatedTree' => $newTree] = $this->getViewSetFromTree($newTree);
-    //   $staticViewIds = array_map(function($item) {
-    //     return $item['id'];
-    //   }, $staticView);
-    //   $view = array_merge($newSetA, $staticViewIds);
-    //   $igPrime = $this->ig($view);
-      
-    //   if ($ig > $igPrime) {
-    //     // prune every node a' in A' (and delete children in these node)
-    //     foreach ($newSetA as $nodeId) {
-    //       $this->deleteNode($nodeId, $tree);
-    //     }
-    //     // convert assosiative to indexed array
-    //     $tree = array_values($tree);
-    //     $newTree = $tree;
-    //   } else {
-    //     $ig = $igPrime;
-    //     $setA = $newSetA;
-    //     // $tree = $newTree;
-    //   }
-
-
-    // }
-
-    // var_dump([$ig, $igPrime]); exit;
-
-  }
-
-  public function testGetAdaptiveView($staticView)
-  {
-    $setA = [];
-    $setAPrime = [];
-    $staticViewIds = array_map(
-      function($item) { return $item['id']; }, 
-      $staticView
-    );
+    $staticViewIds = $this->getIdsFromArray($staticView);
 
     $tree = $this->_compressedTargetHierarchy;
     // membuat node level 1 minimal berjumlah 4
@@ -588,9 +372,16 @@ class BIGFile extends BaseObject {
       // $count++;
       // if ($count > 14) break;
     }
-    return $aMax;
+
+    // Amax is available
+    return $this->getFilesFromFileIds($aMax);
   }
   
+
+  /**
+   * BIGFILE UTILITY
+   */
+
   // make tree level 1 nodes atleast $n or higher
   private function convertTreeToNBranch($tree, $n = 4)
   {    
@@ -710,121 +501,19 @@ class BIGFile extends BaseObject {
     return -1;
   }
 
-
-
-
-
-  private function getSetWithNextBranch($nodeId, $tree)
+  private function getFilesFromFileIds($ids)
   {
-    foreach($tree as $key => $node) {
-      if ($node['id'] == $nodeId) {
-        unset($tree[$key]);
-        break;
-      }
-    }
-    $tree = array_values($tree);
-    return $this->exploreTree($tree);
-  }
-
-  private function getChildOnSet($setA, &$tree)
-  {
-    $res = null;
-    foreach ($setA as $a) {
-      $child = null;
-      $this->getChildOnSetRecursive($setA, $a, $tree, $child);
-      if($child) {
-        $res = [
-          'parent' => $a,
-          'child' => $child['id'],
-        ];
-        break;
-      }
-    }
-    return $res;
-  }
-
-  private function getChildOnSetRecursive($setA, $nodeId, &$tree, &$outChild)
-  {
-    foreach ($tree as &$node) {
-      if (isset($node['children'])) {
-        $this->getChildOnSetRecursive($setA, $nodeId, $node['children'], $outChild);
-      }
-      if ($node['id'] == $nodeId) {
-        $outChild = null;
-        if (isset($node['children'])) {
-          $children = $node['children'];
-          $child = end($children);
-          if (! in_array($child['id'], $setA)) {
-            $child = array_pop($children);
-            if (isset($child['children'])) {
-              unset($child['children']);
-            }
-            $children[] = $child;
-            $node['children'] = $children;
-            $outChild = $child;
-            break;
-          }
+    $files = [];
+    foreach($ids as $id) {
+      foreach($this->_files as $file) {
+        if($file['id'] == $id) {
+          $files[] = $file;
         }
       }
     }
+    return $files;
   }
 
-  public function getChildrenByNodeId($nodeId, $tree, &$outChildren)
-  {
-    foreach ($tree as $node) {
-      if (isset($node['children'])) {
-        $this->getChildrenByNodeId($nodeId, $node['children'], $outChildren);
-      }
-      if($node['id'] == $nodeId) {
-        $outChildren = null;
-        if (isset($node['children'])) {
-          $outChildren = [];
-          foreach($node['children'] as $children) {
-            $outChildren[] = $children['id'];
-          }
-        }
-        break;
-      }
-    }
-  }
-
-  public function exploreTreeRecursive($tree)
-  {
-    foreach ($tree as $node) {
-      echo $node['id'] . "<br>";
-      if(isset($node['children'])) {
-        $this->exploreTreeRecursive($node['children']);
-      }
-    }
-  }
-
-  // private function deleteNode($nodeId, &$tree)
-  // {
-  //   foreach ($tree as $key => $node) {
-  //     if (isset($node['children'])) {
-  //       $this->deleteNode($nodeId, $node['children']);  
-  //     }
-  //     if($node['id'] == $nodeId) {
-  //       unset($tree[$key]);
-  //       // unset($node['children']);
-  //       break;
-  //     }
-  //   }
-  // }
-
-  public function searchFileFromTree($fileId, &$tree, &$fileOut)
-  {
-    foreach ($tree as &$node) {
-      if (isset($node['children'])) {
-        $this->searchFileFromTree($fileId, $node['children'], $fileOut);  
-      }
-      if($node['id'] == $fileId) {
-        $node['explored'] = true;
-        $fileOut = $node;
-        break;
-      }
-    }
-  }
 
   /**
    * DEVELOPMENT UTILITY
@@ -839,5 +528,4 @@ class BIGFile extends BaseObject {
     echo "] <br>";
     echo "ig = $ig, igmax = $igMax <br><br><br>";
   }
-
 }

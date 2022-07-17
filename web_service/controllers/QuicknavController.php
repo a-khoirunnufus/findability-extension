@@ -41,44 +41,46 @@ class QuicknavController extends Controller
 
   public function actionNavigation()
   {
-    $keyword = Yii::$app->request->get('keyword'); // NULL if not set
+    // PARAMETERS
+    $N = 4; // number of shorcut
+    $n = 6; // number of leaves in tree
+
+    $paramFolderId = Yii::$app->request->get('folder_id'); // parent folder currently viewed
+    $paramKeyword = Yii::$app->request->get('keyword'); // NULL if not set
+    
     $client = new GDriveClient();
     $bigfile = new BIGFile();
-    $root = $client->root();
+
+    $rootId;
+    if($paramFolderId === null) {
+      // TODO: status code 401
+      return 'folder_id parameter must include';
+    } elseif($paramFolderId == 'root') {
+      $root = $client->file('root');
+      $rootId = $root->id;
+    } else {
+      $rootId = $paramFolderId;
+    }
 
     $files = $client->listFiles();
-    
-    // $bigfile->files = array_merge([$root], $files);
-    // $bigfile->files = $files;
-    // $fileHierarchy = $bigfile->setFileHierarchy($files, $root['id']);
-    
+    $bigfile->files = $files;
     $bigfile->targets = $files;
-    // $bigfile->targetHierarchy = [
-    //   'targets' => $bigfile->targets, 
-    //   'parentId' => $root['id']
-    // ];
-
+    
     // this is probable targets, based on keyword
-    $bigfile->probableTargetIds = $client->listFilesByKeyword($keyword);
+    $probableTargets = $client->listFilesByKeyword($paramKeyword, $n);
 
     // create minimal compressed tree
     $bigfile->compressedTargetHierarchy = [
       'targets' => $bigfile->targets, 
-      'parentId' => $root['id']
-    ];
-    
-    $staticView = $client->listFilesByParent($root['id']);
-    // $adaptiveView = $bigfile->getAdaptiveView($staticView); 
-    $adaptiveView = $bigfile->testGetAdaptiveView($staticView);
+      'parentId' => $rootId,
+      'probableTargets' => $probableTargets,
+    ];    
 
-    return $this->asJson($adaptiveView);
-
-    exit;
-    
-    // files at root folder
+    $staticView = $client->listFilesByParent($rootId);
+    $adaptiveView = $bigfile->getAdaptiveView($staticView);
 
     return $this->renderPartial('navigation', [
-      'shortcut' => $shortcut,
+      'shortcuts' => $adaptiveView,
     ]);
   }
 }

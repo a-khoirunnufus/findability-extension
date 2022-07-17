@@ -44,6 +44,7 @@ class GDriveClient {
 
   public function file($id)
   {
+    // client api not support filter by fields
     $res = $this->_drive->files->get($id);
     return $res;    
   }
@@ -61,11 +62,11 @@ class GDriveClient {
     return $files;
   }
 
-  public function listFilesByKeyword($keyword)
+  public function listFilesByKeyword($keyword, $size = 1000)
   {
     $res = $this->_drive->files->listFiles([
       'fields' => 'files(id,name,parents,viewedByMeTime)',
-      'pageSize' => 1000,
+      'pageSize' => $size,
       'q' => "name contains '$keyword' or fullText contains '$keyword'",
     ]);
     
@@ -97,7 +98,6 @@ class GDriveClient {
       'name' => $file->name,
       'parent' => isset($file->parents[0]) ? $file->parents[0] : null,
       'viewedByMeTime' => $file->viewedByMeTime,
-      // 'viewedByMeEpoch' => strtotime($file->viewedByMeTime),
     ];
   }
 
