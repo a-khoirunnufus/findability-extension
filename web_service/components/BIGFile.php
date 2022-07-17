@@ -3,6 +3,7 @@
 namespace quicknav\components;
 
 use yii\base\BaseObject;
+use yii\helpers\ArrayHelper;
 
 class BIGFile extends BaseObject {
 
@@ -550,6 +551,7 @@ class BIGFile extends BaseObject {
         }
       }
     }
+    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
     return $files;
   }
 
