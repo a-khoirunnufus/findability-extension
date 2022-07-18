@@ -1,1 +1,0 @@
-document.querySelector('div[id="qn-root"]').style.display = "none";
