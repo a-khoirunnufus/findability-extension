@@ -5,7 +5,10 @@ chrome.runtime.onInstalled.addListener(() => {
   // set starting storage data
   chrome.storage.local.set({
     'showSuggestion': false,
-    'showQuicknav': true,
+    'showGDFileList': false,
+    'showGDSearchBar': false,
+    'showQNFileList': true,
+    'showQuicknav': false,
     'gToken': {
       'value': undefined,
       'expiredAt': undefined   
@@ -21,21 +24,23 @@ chrome.runtime.onInstalled.addListener(() => {
         js: [ 'content_scripts/quicknav/main.js' ],
         matches: [ 'https://drive.google.com/*' ],
       },
-      {
-        id: 'suggestion-main',
-        js: [ 'content_scripts/suggestion/main.js' ],
-        matches: [ 'https://drive.google.com/*' ],
-      },
+      // {
+      //   id: 'suggestion-main',
+      //   js: [ 'content_scripts/suggestion/main.js' ],
+      //   matches: [ 'https://drive.google.com/*' ],
+      // },
       // development purpose
       {
-        id: 'suggestion-hide',
-        js: [ 'content_scripts/suggestion/event_hide.js' ],
+        id: 'gdfilelist-hide',
+        js: [ 'content_scripts/googledrive/filelist_hide.js' ],
         matches: [ 'https://drive.google.com/*' ],
+        runAt: 'document_end',
       },
       {
-        id: 'quicknav-show',
-        js: [ 'content_scripts/quicknav/event_show.js' ],
+        id: 'gdsearchbar-hide',
+        js: [ 'content_scripts/googledrive/searchbar_hide.js' ],
         matches: [ 'https://drive.google.com/*' ],
+        runAt: 'document_end',
       },
     ]
   );
