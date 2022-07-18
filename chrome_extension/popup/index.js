@@ -6,7 +6,7 @@ import {
 window.addEventListener('DOMContentLoaded', async function(e) {
   
   const {
-    showSuggestion, showQuicknav, gToken
+    showQuicknav, gToken
   } =  await chrome.storage.local.get([
     'showSuggestion', 'showQuicknav', 'gToken',
   ]);
@@ -18,10 +18,6 @@ window.addEventListener('DOMContentLoaded', async function(e) {
   /**
    * INIT VIEW START
    */
-
-  const suggestionElm = document.querySelector('#suggestion-elm-toggle');
-  if (showSuggestion) { suggestionElm.setAttribute('checked', true) } 
-  else { suggestionElm.removeAttribute('checked') }
 
   const quicknavElm = document.querySelector('#quicknav-elm-toggle');
   if (showQuicknav) { quicknavElm.setAttribute('checked', true) }
@@ -39,102 +35,11 @@ window.addEventListener('DOMContentLoaded', async function(e) {
     showSection('up-ready');
   }));
 
-  // handle suggestion checkbox toggle
-  suggestionElm.addEventListener('change', async function(e) {
-    if (e.target.checked) {
-      // unregister content script: hide suggestion
-      const hideScripts = await chrome.scripting.getRegisteredContentScripts({ids: ['suggestion-hide']});
-      const ids = hideScripts.map(item => item.id);
-      ids.length > 0 && await chrome.scripting.unregisterContentScripts({ids: [...ids]});
-      console.log('done unregister suggestion-hide');
-
-      // register and execute content script: show suggestion
-      await chrome.scripting.registerContentScripts([{
-        id: 'suggestion-show',
-        js: ['content_scripts/suggestion/event_show.js'],
-        matches: ['https://drive.google.com/*']
-      }]);
-      console.log('done register suggestion-show');
-
-      await chrome.scripting.executeScript({
-        target: {tabId: tab.id},
-        files: ['content_scripts/suggestion/event_show.js']
-      });
-      console.log('done execute suggestion-show');
-
-      chrome.storage.local.set({'showSuggestion': true});
-
-    } else {
-      // unregister content script: show suggestion
-      const hideScripts = await chrome.scripting.getRegisteredContentScripts({ids: ['suggestion-show']});
-      const ids = hideScripts.map(item => item.id);
-      ids.length > 0 && await chrome.scripting.unregisterContentScripts({ids: [...ids]});
-      console.log('done unregister suggestion-show');
-
-      // register and execute content script: hide suggestion
-      await chrome.scripting.registerContentScripts([{
-        id: 'suggestion-hide',
-        js: ['content_scripts/suggestion/event_hide.js'],
-        matches: ['https://drive.google.com/*']
-      }]);
-      console.log('done register suggestion-hide');
-
-      await chrome.scripting.executeScript({
-        target: {tabId: tab.id},
-        files: ['content_scripts/suggestion/event_hide.js']
-      });
-      console.log('done execute suggestion-hide');
-
-      chrome.storage.local.set({'showSuggestion': false});
-    }
-  });
-
   // handle quickanv checkbox toggle
-  quicknavElm.addEventListener('change', async function(e) {
+  quicknavElm.addEventListener('change', function(e) {
     if (e.target.checked) {
-      // unregister content script: hide quicknav
-      const hideScripts = await chrome.scripting.getRegisteredContentScripts({ids: ['quicknav-hide']});
-      const ids = hideScripts.map(item => item.id);
-      ids.length > 0 && await chrome.scripting.unregisterContentScripts({ids: [...ids]});
-      console.log('done unregister quicknav-hide');
-
-      // register and execute content script: show quicknav
-      await chrome.scripting.registerContentScripts([{
-        id: 'quicknav-show',
-        js: ['content_scripts/quicknav/event_show.js'],
-        matches: ['https://drive.google.com/*']
-      }]);
-      console.log('done register quicknav-show');
-
-      await chrome.scripting.executeScript({
-        target: {tabId: tab.id},
-        files: ['content_scripts/quicknav/event_show.js']
-      });
-      console.log('done execute quicknav-show');
-
       chrome.storage.local.set({'showQuicknav': true});
-
     } else {
-      // unregister content script: show quicknav
-      const hideScripts = await chrome.scripting.getRegisteredContentScripts({ids: ['quicknav-show']});
-      const ids = hideScripts.map(item => item.id);
-      ids.length > 0 && await chrome.scripting.unregisterContentScripts({ids: [...ids]});
-      console.log('done unregister quicknav-show');
-
-      // register and execute content script: hide quicknav
-      await chrome.scripting.registerContentScripts([{
-        id: 'quicknav-hide',
-        js: ['content_scripts/quicknav/event_hide.js'],
-        matches: ['https://drive.google.com/*']
-      }]);
-      console.log('done register quicknav-hide');
-
-      await chrome.scripting.executeScript({
-        target: {tabId: tab.id},
-        files: ['content_scripts/quicknav/event_hide.js']
-      });
-      console.log('done execute quicknav-hide');
-
       chrome.storage.local.set({'showQuicknav': false});
     }
   });
@@ -188,18 +93,6 @@ function getActiveTab() {
       }
     });
   })
-}
-
-function testFetch() {
-  chrome.storage.local.get(['g_token'], function(result) {
-    fetch('http://localhost:8081/file/index', {
-      headers: { 'Authorization': 'Bearer '+result.g_token }
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log(data.data);
-      });
-  });
 }
 
 function showSection(id) {

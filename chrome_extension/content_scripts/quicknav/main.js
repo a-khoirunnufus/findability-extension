@@ -7,9 +7,6 @@ async function main() {
   // create quicknav element
   const qnElm = document.createElement('div');
   qnElm.id = 'qn-root';
-  qnElm.style.gridArea = 'vwgr';
-  qnElm.style.margin = '.5rem .5rem .5rem 0';
-  qnElm.style.display = 'none';
 
   // create iframe element
   const iframe = document.createElement('iframe');
@@ -31,26 +28,5 @@ async function main() {
   qnWindow.document.open();
   qnWindow.document.write(html);
   qnWindow.document.close();
-
-  // event button start click
-  // const btnStart = qnWindow.document.querySelector('button[id="btn-start"]')
-  // btnStart.addEventListener('click', async function() {
-  //   const keyword = qnWindow.document.querySelector('input[name="keyword"]').value;
-  //   console.log('button click inside quicknav iframe');
-
-  //   const html = await fetch(
-  //     'http://localhost:8081/quicknav/navigation?keyword='+keyword, 
-  //     {
-  //       headers: {
-  //         'Authorization': 'Bearer ' + gToken.value
-  //       }
-  //     }
-  //   ).then(res => res.text());
-
-  //   qnWindow.document.open();
-  //   qnWindow.document.write(html);
-  //   qnWindow.document.close();
-  // });
-
 
 }
