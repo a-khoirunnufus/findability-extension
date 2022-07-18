@@ -42,21 +42,13 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>Filename.jpg</td>
-        <td>1 Jan 2022</td>
-        <td>300 KB</td>
-      </tr>
-      <tr>
-        <td>Filename.jpg</td>
-        <td>1 Jan 2022</td>
-        <td>300 KB</td>
-      </tr>
-      <tr>
-        <td>Filename.jpg</td>
-        <td>1 Jan 2022</td>
-        <td>300 KB</td>
-      </tr>
+      <?php foreach($files as $file): ?>
+        <tr>
+          <td><?= $file['name'] ?></td>
+          <td><?= date('j M Y', strtotime($file['modifiedByMeTime'])) ?></td>
+          <td><?= floor($file['size']/1000) ?> KB</td>
+        </tr>
+      <?php endforeach; ?>
     </tbody>
   </table>
 </body>

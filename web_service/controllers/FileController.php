@@ -5,7 +5,7 @@ namespace quicknav\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\filters\auth\HttpBearerAuth;
-use quicknav\components\File;
+use quicknav\components\DriveFile;
 
 class FileController extends Controller
 {
@@ -34,10 +34,10 @@ class FileController extends Controller
   public function actionFile()
   {
     $paramFolderId = Yii::$app->request->get('folder_id');
-    $fileObj = new File();
+    $fileObj = new DriveFile();
     $folders = $fileObj->listFilesByParent($paramFolderId, 'folder');
     $files = $fileObj->listFilesByParent($paramFolderId, 'file');
-    $data = array_merge($folders, $files);
+    $data = array_merge($folders, $files);    
     
     return $this->asJson($data);
   }

@@ -5,12 +5,8 @@ namespace quicknav\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\filters\auth\HttpBearerAuth;
-use yii\helpers\ArrayHelper;
-use Google\Client;
-use Google\Service\Drive;
-use quicknav\components\GDriveClient;
 use quicknav\components\BIGFile;
-use quicknav\components\File;
+use quicknav\components\DriveFile;
 
 class QuicknavController extends Controller
 {
@@ -44,11 +40,14 @@ class QuicknavController extends Controller
     $bigfile = new BIGFile($paramFolderId, $paramKeyword);
     $adaptiveView = $bigfile->main();
 
-    // $file = new File();
-    // $staticView = $file->getFilesByFolder($paramFolderId);
+    $drive = new DriveFile();
+    $staticFolders = $drive->listFilesByParent($paramFolderId, 'folder');
+    $staticFiles = $drive->listFilesByParent($paramFolderId, 'file');
+    $staticView = array_merge($staticFolders, $staticFiles);
 
     return $this->renderPartial('navigation', [
       'shortcuts' => $adaptiveView,
+      'files' => $staticView,
     ]);
   }
 }
