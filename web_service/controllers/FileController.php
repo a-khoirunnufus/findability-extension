@@ -5,7 +5,7 @@ namespace quicknav\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\filters\auth\HttpBearerAuth;
-use quicknav\components\GDriveClient;
+use quicknav\components\File;
 
 class FileController extends Controller
 {
@@ -31,49 +31,15 @@ class FileController extends Controller
     return $behaviors;
   }
 
-  public function actionIndex()
-  {
-    return 'hello';
-  }
-
   public function actionFile()
   {
-    $id = Yii::$app->request->get('id');
-    $client = new GDriveClient();
-    $file = $client->file($id);
+    $paramFolderId = Yii::$app->request->get('folder_id');
+    $fileObj = new File();
+    $folders = $fileObj->listFilesByParent($paramFolderId, 'folder');
+    $files = $fileObj->listFilesByParent($paramFolderId, 'file');
+    $data = array_merge($folders, $files);
     
-    $files = array_map(function($item) { 
-      return [
-        'id' => $item->id,
-        'name' => $item->name,
-        'parents' => [],
-        'viewedByMeTime' => '',
-      ]; 
-    }, [$file]);
-
-    var_dump($files); exit;
-  }
-
-  public function actionListFiles()
-  {
-    $keyword = Yii::$app->request->get('keyword');
-    $client = new GDriveClient();
-    $files = $client->listFiles($keyword);
-
-    // var_dump($files); exit;
-    // $files = array_map( function($file) { return $file['id']; }, $files );
-    return $this->asJson($files);
-  }
-
-  public function actionListFilesByParent()
-  {
-    $parent_id = Yii::$app->request->get('parent_id');
-    $client = new GDriveClient();
-    $files = $client->listFilesByParent($parent_id);
-
-    // var_dump($files); exit;
-    $files = array_map( function($file) { return $file['id']; }, $files );
-    return $this->asJson($files);
+    return $this->asJson($data);
   }
 }
 
