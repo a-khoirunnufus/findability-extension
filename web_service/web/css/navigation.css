@@ -1,0 +1,39 @@
+body {
+  font-family: 'Roboto', sans-serif !important;
+  font-size: 13px !important;
+  padding: 1rem;
+}
+table {
+  table-layout: fixed;
+  width: 100%;
+}
+table#static-view td,
+table#static-view th {
+  padding: .5rem;
+}
+table#static-view td{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+table#static-view td:nth-child(1){
+  font-weight: 500;
+}
+table#static-view tbody tr:hover{
+  background-color: gainsboro;
+  cursor: pointer;
+}
+ul#adaptive-view {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+ul#adaptive-view li {
+  padding: .25rem;
+  font-weight: 500;
+}
+ul#adaptive-view li:hover {
+  background-color: gainsboro;
+  cursor: pointer;
+}

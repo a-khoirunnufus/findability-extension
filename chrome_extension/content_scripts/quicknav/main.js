@@ -17,7 +17,7 @@ async function main() {
 
   // get html
   const {gToken} = await chrome.storage.local.get(['gToken']);
-  const html = await fetch('http://localhost:8081/quicknav/navigation?folder_id=root&keyword=networking', {
+  const html = await fetch('http://localhost:8081/quicknav?folder_id=root&keyword=networking', {
     headers: {
       'Authorization': 'Bearer ' + gToken.value
     }
