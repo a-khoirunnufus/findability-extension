@@ -31,6 +31,11 @@ class FileController extends Controller
     return $behaviors;
   }
 
+  public function actionIndex()
+  {
+    return 'hello';
+  }
+
   public function actionFile()
   {
     $id = Yii::$app->request->get('id');

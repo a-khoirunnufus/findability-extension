@@ -42,6 +42,19 @@ class QuicknavController extends Controller
 
   public function actionNavigation()
   {
+    $paramFolderId = Yii::$app->request->get('folder_id'); // parent folder currently viewed
+    $paramKeyword = Yii::$app->request->get('keyword'); // NULL if not set
+
+    $bigfile = new BIGFile($paramFolderId, $paramKeyword);
+    $adaptiveView = $bigfile->main();
+
+    return $this->renderPartial('navigation', [
+      'shortcuts' => $adaptiveView,
+    ]);
+  }
+
+  public function actionNavigationOld()
+  {
     // PARAMETERS
     $N = 4; // number of shorcut
     $n = 6; // number of leaves in tree
@@ -83,6 +96,7 @@ class QuicknavController extends Controller
     $bigfile->convertTreeToArray($fileHierarchy, $files);
     ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
     
+    // files below current root folder
     $bigfile->files = $files;
     $bigfile->targets = $files;
     
@@ -101,7 +115,7 @@ class QuicknavController extends Controller
     ];
     
     $staticView = $client->listFilesByParent($rootId);
-    $adaptiveView = $bigfile->getAdaptiveView($staticView);
+    $adaptiveView = $bigfile->main($staticView);
 
     return $this->renderPartial('navigation', [
       'shortcuts' => $adaptiveView,

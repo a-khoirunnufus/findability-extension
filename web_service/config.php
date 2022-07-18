@@ -34,5 +34,8 @@ return [
       'enableCookieValidation' => false,
       // 'cookieValidationKey' => 'stB6ZhN9oeZXURkEVhTugfQKcHIRNVfq',
     ],
+    'cache' => [
+      'class' => 'yii\caching\FileCache',
+    ],
   ]
 ];
