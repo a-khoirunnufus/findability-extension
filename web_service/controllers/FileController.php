@@ -24,10 +24,10 @@ class FileController extends Controller
             'Access-Control-Max-Age'           => 3600,
         ],
     ];
-    $behaviors['authenticator'] = [
-      'class' => HttpBearerAuth::class,
-      'except' => ['options'],
-    ];
+    // $behaviors['authenticator'] = [
+    //   'class' => HttpBearerAuth::class,
+    //   'except' => ['options'],
+    // ];
     return $behaviors;
   }
 
@@ -40,6 +40,14 @@ class FileController extends Controller
     $data = array_merge($folders, $files);    
     
     return $this->asJson($data);
+  }
+
+  public function actionTest()
+  {
+    $fileId = Yii::$app->request->get('file_id');
+    $fileObj = new DriveFile();
+    $res = $fileObj->getPathToFile($fileObj->fileHierarchy, $fileId);
+    return $this->asJson($res);
   }
 }
 

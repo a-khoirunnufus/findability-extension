@@ -49,10 +49,21 @@ class QuicknavController extends Controller
     $staticFiles = $drive->listFilesByParent($paramFolderId, 'file', $paramSortKey, $paramSortDir);
     $staticView = array_merge($staticFolders, $staticFiles);
 
-    sleep(5);
-    
+    $pathToFolder = [];
+    $pathToFolder[] = [
+      'id' => 'root',
+      'name' => 'Drive Saya',
+    ];
+    if($paramFolderId != 'root') {
+      $pathToFolder = array_merge(
+        $pathToFolder,
+        $drive->getPathToFile($drive->fileHierarchy, $paramFolderId)
+      );
+    }
+
     return $this->renderPartial('index', [
       'shortcuts' => $adaptiveView,
+      'pathToFolder' => $pathToFolder,
       'files' => $staticView,
       'folder_id' => $paramFolderId,
       'keyword' => $paramKeyword,

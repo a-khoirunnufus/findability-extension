@@ -11,6 +11,7 @@ use Google\Service\Drive;
 class DriveFile {
   
   public $files;
+  public $fileHierarchy; 
   public $driveRootId;
   public $drive;
 
@@ -37,6 +38,7 @@ class DriveFile {
     }
     $this->files = $userFiles['files'];
     $this->driveRootId = $userFiles['driveRootId'];
+    $this->fileHierarchy = $this->buildTree($this->files, $this->driveRootId);
   }
 
   public function file($id)
@@ -132,6 +134,49 @@ class DriveFile {
     ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
 
     return $files;
+  }
+
+  public function getPathToFile($tree, $fileId)
+  {
+    foreach($tree as $file) {
+      if($file['id'] == $fileId) {
+        return [[
+          'id' => $file['id'],
+          'name' => $file['name'],
+          'mimeType' => $file['mimeType'],
+        ]];
+      }
+      if(isset($file['children'])) {
+        $pathToFile = $this->getPathToFile($file['children'], $fileId);
+        if($pathToFile) {
+          $arr = [];
+          array_push($arr, [
+            'id' => $file['id'],
+            'name' => $file['name'],
+            'mimeType' => $file['mimeType'],
+          ]);
+          foreach($pathToFile as $file) {
+            array_push($arr, $file);
+          } 
+          return $arr;
+        }
+      }
+    }
+  }
+
+  private function buildTree(array $elements, $parentId) 
+  {
+    $branch = array();
+    foreach ($elements as $element) {
+      if ( $element['parent'] === $parentId ) {
+        $children = $this->buildTree($elements, $element['id']);
+        if ($children) {
+          $element['children'] = $children;
+        }
+        $branch[] = $element;
+      }
+    }
+    return $branch;
   }
 
 }

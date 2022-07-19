@@ -64,3 +64,10 @@ ul#adaptive-view li:hover {
   background-color: gainsboro;
   cursor: pointer;
 }
+.breadcrumb {
+  font-size: 1.1rem;
+}
+.breadcrumb__text {
+  text-decoration: none;
+  color: var(--black-text)
+}
