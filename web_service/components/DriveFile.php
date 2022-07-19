@@ -143,6 +143,7 @@ class DriveFile {
         return [[
           'id' => $file['id'],
           'name' => $file['name'],
+          'parent' => $file['parent'],
           'mimeType' => $file['mimeType'],
         ]];
       }
@@ -153,6 +154,7 @@ class DriveFile {
           array_push($arr, [
             'id' => $file['id'],
             'name' => $file['name'],
+            'parent' => $file['parent'],
             'mimeType' => $file['mimeType'],
           ]);
           foreach($pathToFile as $file) {
@@ -177,6 +179,19 @@ class DriveFile {
       }
     }
     return $branch;
+  }
+
+  public function getChildrenFromTree($parentId, $tree, &$outChildren)
+  {
+    foreach ($tree as $node) {
+      if(isset($node['children'])) {
+        if ($node['id'] === $parentId) {
+          $outChildren = $node['children'];
+          break;
+        }
+        $this->getChildrenFromTree($parentId, $node['children'], $outChildren);
+      }
+    }
   }
 
 }

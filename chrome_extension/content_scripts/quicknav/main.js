@@ -11,7 +11,7 @@ function main() {
   // create iframe element
   const iframe = document.createElement('iframe');
   iframe.id = 'quicknav';
-  iframe.src = "http://localhost:8081/quicknav/index?folder_id=root&keyword=networking&sort_key=name&sort_dir=4";
+  iframe.src = "http://localhost:8081/quicknav/index?folder_id=root&keyword=&sort_key=name&sort_dir=4";
 
   // add newly created element to dom
   qnElm.append(iframe);

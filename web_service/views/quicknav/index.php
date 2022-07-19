@@ -25,20 +25,54 @@ use yii\helpers\Url;
   <div id="loading-image">
     <img src="<?= Url::to('gif/loading-default/64x64.gif', true) ?>">
   </div>
+
+  <!-- INPUT KEYWORD -->
+  <div class="input-group input-group-sm mb-3" style="width: 50%">
+    <input id="input-keyword" value="<?= $keyword ?>" type="text" class="form-control" placeholder="Masukkan kata kunci" aria-describedby="button-addon">
+    <button 
+      class="btn btn-outline-primary fw-bolder" 
+      type="button" 
+      id="button-addon"
+      onclick="updateKeyword()"
+    >
+      Terapkan
+    </button>
+  </div>
+
   <!-- ADAPTIVE VIEW -->
   <ul id="adaptive-view">
     <?php foreach($shortcuts as $shortcut): ?>
-      <li onclick="alert('hello')">
-        <img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">
-        &nbsp;&nbsp;<?= $shortcut['name'] ?>
+      <li class="shortcuts__item-wrapper">
+        <?php foreach($shortcut as $key => $file): ?>
+          <div 
+            class="shortcuts__item-child"
+            onclick="navigateToUrl('<?= Url::toRoute([
+              'quicknav/index',
+              'folder_id' => $file['parent'],
+              'keyword' => $keyword,
+              'sort_key' => $sort_key,
+              'sort_dir' => $sort_dir,
+            ], true) ?>')"
+          >
+            <?php if($file['mimeType'] == 'application/vnd.google-apps.folder'): ?>
+              <img src="<?= Url::to('icons/folder-fill.svg', true) ?>">
+            <?php else: ?>
+              <img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">
+            <?php endif; ?>
+            &nbsp;&nbsp;<?= $file['name'] ?>
+          </div> 
+          <?php if($key != count($shortcut)-1): ?>
+            <div class="arrow-right">></div>
+          <?php endif; ?>
+        <?php endforeach; ?>
       </li>
     <?php endforeach; ?>
   </ul>
   <hr>
 
   <!-- BREADCRUMB -->
-  <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-    <ol class="breadcrumb">
+  <nav class="d-flex justify-content-between align-items-center border-bottom pb-3" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
       <?php foreach($pathToFolder as $key => $folder): ?>
         <?php if($key == count($pathToFolder)-1): ?>
           <li class="breadcrumb-item active" aria-current="page">
@@ -62,6 +96,14 @@ use yii\helpers\Url;
         <?php endif; ?>
       <?php endforeach; ?>
     </ol>
+    <div style="min-width: 80px">
+      <button class="btn btn-sm btn-light button-icon me-2" style="z-index: 2">
+        <img src="<?= Url::to('icons/info-circle-fill.svg', true) ?>">
+      </button>
+      <button onclick="downloadFile()" class="btn btn-sm btn-light button-icon">
+        <img src="<?= Url::to('icons/download.svg', true) ?>">
+      </button>
+    </div>
   </nav>
 
   <!-- STATIC VIEW -->
@@ -69,7 +111,7 @@ use yii\helpers\Url;
     <thead>
       <tr>
         <!-- COLUMN HEADER NAME -->
-        <th style="width: 65%">
+        <th style="width: 70%">
           Nama&nbsp;&nbsp;
           <?php if($sort_key == 'name' and $sort_dir === SORT_DESC): ?>
             <span onclick="navigateToUrl('<?= Url::toRoute([
@@ -80,7 +122,7 @@ use yii\helpers\Url;
               'sort_dir' => SORT_ASC,
             ], true) ?>')">
               <img src="<?= Url::to('icons/caret-down-fill.svg', true) ?>">
-            </a>
+            </span>
           <?php else: ?>
             <span onclick="navigateToUrl('<?= Url::toRoute([
               'quicknav/index',
@@ -90,12 +132,12 @@ use yii\helpers\Url;
               'sort_dir' => SORT_DESC,
             ], true) ?>')">
               <img src="<?= Url::to('icons/caret-up-fill.svg', true) ?>">
-            </a>
+            </span>
           <?php endif; ?>
         </th>
         
         <!-- COLUMN HEADER MODIFIED DATE -->
-        <th style="width: 20%">
+        <th style="width: 15%">
           Terakhir diubah&nbsp;&nbsp;
           <?php if($sort_key == 'modifiedByMeTime' and $sort_dir === SORT_DESC): ?>
             <span onclick="navigateToUrl('<?= Url::toRoute([
@@ -150,10 +192,23 @@ use yii\helpers\Url;
     <tbody>
       <?php foreach($files as $file): ?>
         <tr 
-          class="sv__item-wrapper" 
+          class="sv__item-wrapper"
+          data-type="<?= $file['mimeType'] ?>"
           data-url="<?= Url::toRoute([
-            'quicknav/index', 'folder_id'=>$file['id'], 'keyword'=>$keyword, 'sort_key'=>$sort_key, 'sort_dir'=>$sort_dir
+            'quicknav/index', 
+            'folder_id'=>$file['id'], 
+            'keyword'=>$keyword, 
+            'sort_key'=>$sort_key, 
+            'sort_dir'=>$sort_dir
           ],true) ?>"
+          <?php if($file['mimeType'] != 'application/vnd.google-apps.folder'): ?>
+            data-url-download="<?= Url::toRoute([
+              'file/download', 
+              'file_id'=>$file['id'], 
+              'file_name'=>$file['name'], 
+              'file_mime_type'=>$file['mimeType'],
+            ],true) ?>"
+          <?php endif; ?>
         >
           <!-- FILE NAME -->
           <td>
@@ -186,11 +241,32 @@ use yii\helpers\Url;
       <?php endforeach; ?>
     </tbody>
   </table>
+
   <script>
+    function updateKeyword() {
+      const keyword = document.querySelector('#input-keyword').value;
+      const baseUrl = '<?= Url::base(true) ?>';
+      const params = '<?= "?folder_id=$folder_id&sort_key=$sort_key&sort_dir=$sort_dir" ?>';
+      const paramKeyword = '&keyword='+keyword;
+      const url = baseUrl + '/quicknav/index' + params + paramKeyword;
+      window.location.href = url;
+      document.querySelector('#loading-image').classList.add('show');
+    }
+
     function navigateToUrl(url) {
       window.location.href = url;
-      // display loading image
       document.querySelector('#loading-image').classList.add('show');
+    }
+
+    function downloadFile() {
+      const items = document.querySelectorAll('.sv__item-wrapper');
+      items.forEach((elm) => {
+        const isDownloadable = elm.classList.contains('active');
+        const url = elm.getAttribute('data-url-download');
+        if (isDownloadable && url) {
+          window.location.href = url;
+        }
+      });
     }
 
     const items = document.querySelectorAll('.sv__item-wrapper');
@@ -198,7 +274,12 @@ use yii\helpers\Url;
       elm.addEventListener('click', function(e) {
         if(this.classList.contains('active')) {
           const url = this.getAttribute('data-url');
-          navigateToUrl(url);
+          const type = this.getAttribute('data-type');
+          if(type == 'application/vnd.google-apps.folder') {
+            navigateToUrl(url);
+          } else {
+            // url to open file info
+          }
         }
         items.forEach((item) => {
           item.classList.remove('active');
