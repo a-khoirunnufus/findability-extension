@@ -1,3 +1,15 @@
+<?php
+/** var $shortcuts array */
+/** var $files array */
+/** var $folder_id string */
+/** var $keyword string|null */
+/** var $sort_key string */
+/** var $sort_dir int */
+
+use yii\helpers\Url;
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,44 +19,193 @@
   <title>QuickNav</title>
   <!-- Bootstrap 5.2 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      padding: 2rem;
-      position: relative;
-      font-family: 'Roboto', sans-serif;
-      font-size: 13px;
-      color: #3c4043;
-    }
-    #quicknav-badge {
-      padding: .25rem .5rem;
-      position: absolute;
-      top: 0;
-      font-weight: 500;
-      right: 0;
-      background-color: gainsboro;
-      border-radius: 0 10px 0 0;
-    }
-    #setup-navigation {
-      display: flex;
-      flex-direction: column;
-      gap: .5rem;
-    }
-  </style>
+  <link rel="stylesheet" href="<?= Url::to('css/index.css', true) ?>">
 </head>
 <body>
-  <span id="quicknav-badge">QuickNav</span>
-
-  <div id="setup-navigation">
-    <div>
-      <div class="input-group input-group-sm" style="width: 400px">
-        <input name="keyword" type="text" class="form-control" placeholder="Masukkan kata kunci" aria-label="Recipient's username" aria-describedby="button-addon2">
-        <button id="btn-start" class="btn btn-outline-primary" type="button" id="button-addon2">Mulai Penelusuran</button>
-      </div>
-    </div>
+  <div id="loading-image">
+    <img src="<?= Url::to('gif/loading-default/64x64.gif', true) ?>">
   </div>
+  <!-- ADAPTIVE VIEW -->
+  <ul id="adaptive-view">
+    <?php foreach($shortcuts as $shortcut): ?>
+      <li onclick="alert('hello')">
+        <img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">
+        &nbsp;&nbsp;<?= $shortcut['name'] ?>
+      </li>
+    <?php endforeach; ?>
+  </ul>
+  <hr>
+
+  <!-- BREADCRUMB -->
+  <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <?php foreach($pathToFolder as $key => $folder): ?>
+        <?php if($key == count($pathToFolder)-1): ?>
+          <li class="breadcrumb-item active" aria-current="page">
+            <?= $folder['name'] ?>
+          </li>
+        <?php else: ?>
+          <li class="breadcrumb-item">
+            <span 
+              class="breadcrumb__text" 
+              onclick="navigateToUrl('<?= Url::toRoute([
+                'quicknav/index',
+                'folder_id' => $folder['id'],
+                'keyword' => $keyword,
+                'sort_key' => $sort_key,
+                'sort_dir' => $sort_dir,
+              ], true) ?>')"
+            >
+              <?= $folder['name'] ?>
+            </span>
+          </li>
+        <?php endif; ?>
+      <?php endforeach; ?>
+    </ol>
+  </nav>
+
+  <!-- STATIC VIEW -->
+  <table id="static-view">
+    <thead>
+      <tr>
+        <!-- COLUMN HEADER NAME -->
+        <th style="width: 65%">
+          Nama&nbsp;&nbsp;
+          <?php if($sort_key == 'name' and $sort_dir === SORT_DESC): ?>
+            <span onclick="navigateToUrl('<?= Url::toRoute([
+              'quicknav/index',
+              'folder_id' => $folder_id,
+              'keyword' => $keyword,
+              'sort_key' => 'name',
+              'sort_dir' => SORT_ASC,
+            ], true) ?>')">
+              <img src="<?= Url::to('icons/caret-down-fill.svg', true) ?>">
+            </a>
+          <?php else: ?>
+            <span onclick="navigateToUrl('<?= Url::toRoute([
+              'quicknav/index',
+              'folder_id' => $folder_id,
+              'keyword' => $keyword,
+              'sort_key' => 'name',
+              'sort_dir' => SORT_DESC,
+            ], true) ?>')">
+              <img src="<?= Url::to('icons/caret-up-fill.svg', true) ?>">
+            </a>
+          <?php endif; ?>
+        </th>
+        
+        <!-- COLUMN HEADER MODIFIED DATE -->
+        <th style="width: 20%">
+          Terakhir diubah&nbsp;&nbsp;
+          <?php if($sort_key == 'modifiedByMeTime' and $sort_dir === SORT_DESC): ?>
+            <span onclick="navigateToUrl('<?= Url::toRoute([
+              'quicknav/index',
+              'folder_id' => $folder_id,
+              'keyword' => $keyword,
+              'sort_key' => 'modifiedByMeTime',
+              'sort_dir' => SORT_ASC,
+            ], true) ?>')">
+              <img src="<?= Url::to('icons/caret-down-fill.svg', true) ?>">
+            </a>
+          <?php else: ?>
+            <span onclick="navigateToUrl('<?= Url::toRoute([
+              'quicknav/index',
+              'folder_id' => $folder_id,
+              'keyword' => $keyword,
+              'sort_key' => 'modifiedByMeTime',
+              'sort_dir' => SORT_DESC,
+            ], true) ?>')">
+              <img src="<?= Url::to('icons/caret-up-fill.svg', true) ?>">
+            </a>
+          <?php endif; ?>
+        </th>
+        
+        <!-- COLUMN HEADER SIZE -->
+        <th style="width: 15%">
+          Ukuran file&nbsp;&nbsp;
+          <?php if($sort_key == 'size' and $sort_dir === SORT_DESC): ?>
+            <span onclick="navigateToUrl('<?= Url::toRoute([
+              'quicknav/index',
+              'folder_id' => $folder_id,
+              'keyword' => $keyword,
+              'sort_key' => 'size',
+              'sort_dir' => SORT_ASC,
+            ], true) ?>')">
+              <img src="<?= Url::to('icons/caret-down-fill.svg', true) ?>">
+            </a>
+          <?php else: ?>
+            <span onclick="navigateToUrl('<?= Url::toRoute([
+              'quicknav/index',
+              'folder_id' => $folder_id,
+              'keyword' => $keyword,
+              'sort_key' => 'size',
+              'sort_dir' => SORT_DESC,
+            ], true) ?>')">
+              <img src="<?= Url::to('icons/caret-up-fill.svg', true) ?>">
+            </a>
+          <?php endif; ?>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php foreach($files as $file): ?>
+        <tr 
+          class="sv__item-wrapper" 
+          data-url="<?= Url::toRoute([
+            'quicknav/index', 'folder_id'=>$file['id'], 'keyword'=>$keyword, 'sort_key'=>$sort_key, 'sort_dir'=>$sort_dir
+          ],true) ?>"
+        >
+          <!-- FILE NAME -->
+          <td>
+            <?php if($file['mimeType'] == 'application/vnd.google-apps.folder'): ?>
+              <img src="<?= Url::to('icons/folder-fill.svg', true) ?>">
+            <?php else: ?>
+              <img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">
+            <?php endif; ?>
+            &nbsp;&nbsp;<?= $file['name'] ?>
+          </td>
+
+          <!-- FILE MODIFIED DATE -->
+          <td><?= date('j M Y', strtotime($file['modifiedByMeTime'])) ?></td>
+          
+          <!-- FILE SIZE -->
+          <td>
+            <?php
+              $fileSize = intval($file['size']);
+              // print_r($fileSize);
+              if($fileSize > 0 and $fileSize < 1000000) {
+                echo floor($fileSize/1000)." KB";
+              } elseif($fileSize >= 1000000 and $fileSize < 1000000000) {
+                echo floor($fileSize/1000000)." MB";
+              } else {
+                floor($fileSize/1000000000)." GB";
+              }
+            ?>
+          </td>
+        </tr>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+  <script>
+    function navigateToUrl(url) {
+      window.location.href = url;
+      // display loading image
+      document.querySelector('#loading-image').classList.add('show');
+    }
+
+    const items = document.querySelectorAll('.sv__item-wrapper');
+    items.forEach((elm) => {
+      elm.addEventListener('click', function(e) {
+        if(this.classList.contains('active')) {
+          const url = this.getAttribute('data-url');
+          navigateToUrl(url);
+        }
+        items.forEach((item) => {
+          item.classList.remove('active');
+        });
+        this.classList.add('active');
+      });
+    });
+  </script>
 </body>
 </html>

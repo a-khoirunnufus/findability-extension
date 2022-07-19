@@ -5,15 +5,12 @@ namespace quicknav\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\filters\auth\HttpBearerAuth;
-use yii\helpers\ArrayHelper;
-use Google\Client;
-use Google\Service\Drive;
-use quicknav\components\GDriveClient;
 use quicknav\components\BIGFile;
+use quicknav\components\DriveFile;
 
 class QuicknavController extends Controller
 {
-  public $enableCsrfValidation = false;
+  // public $enableCsrfValidation = false;
 
   public function behaviors()
   {
@@ -28,97 +25,50 @@ class QuicknavController extends Controller
             'Access-Control-Max-Age'           => 3600,
         ],
     ];
-    $behaviors['authenticator'] = [
-      'class' => HttpBearerAuth::class,
-      'except' => ['options'],
-    ];
+    // $behaviors['authenticator'] = [
+    //   'class' => HttpBearerAuth::class,
+    //   'except' => ['options'],
+    // ];
     return $behaviors;
   }
 
   public function actionIndex()
   {
-    return $this->renderPartial('index');
-  }
-
-  public function actionNavigation()
-  {
     $paramFolderId = Yii::$app->request->get('folder_id'); // parent folder currently viewed
     $paramKeyword = Yii::$app->request->get('keyword'); // NULL if not set
+    if($paramKeyword === 'null') $paramKeyword = null;
+    $paramSortKey = Yii::$app->request->get('sort_key'); 
+    $paramSortDir = Yii::$app->request->get('sort_dir');
+    $paramSortDir = intval($paramSortDir);
 
     $bigfile = new BIGFile($paramFolderId, $paramKeyword);
     $adaptiveView = $bigfile->main();
 
-    return $this->renderPartial('navigation', [
-      'shortcuts' => $adaptiveView,
-    ]);
-  }
+    $drive = new DriveFile();
+    $staticFolders = $drive->listFilesByParent($paramFolderId, 'folder', $paramSortKey, $paramSortDir);
+    $staticFiles = $drive->listFilesByParent($paramFolderId, 'file', $paramSortKey, $paramSortDir);
+    $staticView = array_merge($staticFolders, $staticFiles);
 
-  public function actionNavigationOld()
-  {
-    // PARAMETERS
-    $N = 4; // number of shorcut
-    $n = 6; // number of leaves in tree
-
-    $paramFolderId = Yii::$app->request->get('folder_id'); // parent folder currently viewed
-    $paramKeyword = Yii::$app->request->get('keyword'); // NULL if not set
-    
-    $client = new GDriveClient();
-    $bigfile = new BIGFile();
-    $driveRoot = $client->file('root');
-
-    $allFile = $client->listFiles();
-    $allFileHierarchy = $bigfile->buildTree($allFile, $driveRoot->id);
-
-    $rootId;
-    if($paramFolderId === null) {
-      // TODO: status code 401
-      return 'folder_id parameter must include';
-    } elseif($paramFolderId == 'root') {
-      $rootId = $driveRoot->id;
-    } else {
-      $rootId = $paramFolderId;
-    }
-
-    // tree with root = rootId
-    $fileHierarchy = [];
-
-    if($paramFolderId == 'root') {
-      $fileHierarchy = $allFileHierarchy;
-    } else {
-      $bigfile->getChildrenFromTree(
-        $paramFolderId,     // parent id
-        $allFileHierarchy,
-        $fileHierarchy,     // children of node with id = parent id
+    $pathToFolder = [];
+    $pathToFolder[] = [
+      'id' => 'root',
+      'name' => 'Drive Saya',
+    ];
+    if($paramFolderId != 'root') {
+      $pathToFolder = array_merge(
+        $pathToFolder,
+        $drive->getPathToFile($drive->fileHierarchy, $paramFolderId)
       );
     }
 
-    $files;
-    $bigfile->convertTreeToArray($fileHierarchy, $files);
-    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
-    
-    // files below current root folder
-    $bigfile->files = $files;
-    $bigfile->targets = $files;
-    
-    $probableTargets;
-    if ($paramKeyword) {
-      $probableTargets = $client->listFilesByKeyword($paramKeyword);
-    } else {
-      $probableTargets = $client->listFiles(false);
-    }
-    
-    // create minimal compressed tree
-    $bigfile->compressedTargetHierarchy = [
-      'targets' => $bigfile->targets, 
-      'parentId' => $rootId,
-      'probableTargets' => $probableTargets,
-    ];
-    
-    $staticView = $client->listFilesByParent($rootId);
-    $adaptiveView = $bigfile->main($staticView);
-
-    return $this->renderPartial('navigation', [
+    return $this->renderPartial('index', [
       'shortcuts' => $adaptiveView,
+      'pathToFolder' => $pathToFolder,
+      'files' => $staticView,
+      'folder_id' => $paramFolderId,
+      'keyword' => $paramKeyword,
+      'sort_key' => $paramSortKey,
+      'sort_dir' => $paramSortDir,
     ]);
   }
 }

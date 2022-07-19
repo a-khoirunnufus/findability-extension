@@ -1,0 +1,1 @@
+document.querySelector('form[class="gb_Se gb_qf"]').remove();

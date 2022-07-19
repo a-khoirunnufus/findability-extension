@@ -4,25 +4,26 @@ namespace quicknav\components;
 
 use Yii;
 use yii\helpers\ArrayHelper;
-use quicknav\components\GDriveClient;
+use quicknav\components\DriveFile;
+use quicknav\models\User;
 
 class BIGFile{
 
-  private $_client;                     // google drive api client
-  private $_driveRootId;                // root of user drive            
-  private $_allFiles;                   // all file in user drive
-  private $_allFileHierarchy;
+  private $drive;                     // google drive api client
+  private $driveRootId;                // root of user drive            
+  private $allFiles;                   // all file in user drive
+  private $allFileHierarchy;
   
-  private $_rootId;                     // root of currently accessed folder
-  private $_files;                      // files below current root folder                    
-  private $_fileHierarchy;              
+  private $rootId;                     // root of currently accessed folder
+  private $files;                      // files below current root folder                    
+  private $fileHierarchy;              
   
-  private $_targets;
-  private $_targetHierarchy;            // optional
-  private $_compressedTargetHierarchy;
+  private $targets;
+  private $targetHierarchy;            // optional
+  private $compressedTargetHierarchy;
 
-  private $_staticView;
-  private $_ySets = ['select'];
+  private $staticView;
+  private $YSets = ['select'];
 
   private $_N = 4;                      // number of shortcut
   private $_n = 6;                      // number of leaves in tree
@@ -35,44 +36,41 @@ class BIGFile{
 
   public function __construct($rootId = 'root', $keyword = null, $config = [])
   {
-    $this->_client = new GDriveClient();
+    $this->drive = new DriveFile();
 
-    $userId = Yii::$app->user->identity->id;
+    // $userId = Yii::$app->user->identity->id;
+    $userId = User::findOne(['email' => 'omanaristarihoran33@gmail.com'])->id;
     $cache = Yii::$app->cache;
     
     $userFiles = $cache->get($userId.'_files');
     $allFile = null;
     $driveRootId = null;
     if ($userFiles === false) {
-      // $userFiles is not found in cache, calculate it from scratch
-      $allFile = $this->_client->listFiles();
-      $driveRootId = $this->_client->file('root')->id;
-      $userFiles['files'] = $allFile;
-      $userFiles['driveRootId'] = $driveRootId;
-      // store $userFiles in cache so that it can be retrieved next time
-      $cache->set($userId.'_files', $userFiles, 24 * 3600);
+      $userFiles['files'] = $this->drive->files;;
+      $userFiles['driveRootId'] = $this->drive->driveRootId;
+      $cache->set($userId.'_files', $userFiles, 3600);
     }
 
-    $this->_allFiles = $userFiles['files'];
-    $this->_driveRootId = $userFiles['driveRootId'];
-    $this->_allFileHierarchy = $this->buildTree($userFiles['files'], $userFiles['driveRootId']);
+    $this->allFiles = $userFiles['files'];
+    $this->driveRootId = $userFiles['driveRootId'];
+    $this->allFileHierarchy = $this->buildTree($userFiles['files'], $userFiles['driveRootId']);
     
     // set rootId and fileHierarchy
     if($rootId == 'root') {
-      $this->_rootId = $userFiles['driveRootId'];
-      $this->_fileHierarchy = $this->_allFileHierarchy;
+      $this->rootId = $userFiles['driveRootId'];
+      $this->fileHierarchy = $this->allFileHierarchy;
     } else {
-      $this->_rootId = $rootId;
+      $this->rootId = $rootId;
       $fileHierarchy;
-      $this->getChildrenFromTree($rootId, $this->_allFileHierarchy, $fileHierarchy);
-      $this->_fileHierarchy = $fileHierarchy;
+      $this->getChildrenFromTree($rootId, $this->allFileHierarchy, $fileHierarchy);
+      $this->fileHierarchy = $fileHierarchy;
     }
 
     // set files
     $files = null;
-    $this->convertTreeToArray($this->_fileHierarchy, $files);
+    $this->convertTreeToArray($this->fileHierarchy, $files);
     ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
-    $this->_files = $files;
+    $this->files = $files;
 
     // set targets, compressedTargetHierarchy
     $this->setTargets($files);
@@ -82,158 +80,31 @@ class BIGFile{
       $key = $userId.'_probabletarget_'.$keyword;
       $probableTargetIds = $cache->get($key);
       if ($probableTargetIds === false) {
-        $probableTargets = $this->_client->listFilesByKeyword($keyword);
+        $probableTargets = $this->drive->listFilesByKeyword($keyword);
         $probableTargetIds = $this->getIdsFromArray($probableTargets);
-        $cache->set($key, $probableTargetIds, 1 * 3600);
+        $cache->set($key, $probableTargetIds, 3600);
       }
     } else {
       $key = $userId.'_probabletarget_allfilesearch';
       $probableTargetIds = $cache->get($key);
       if ($probableTargetIds === false) {
-        $probableTargets = $this->_client->listFiles(false);
+        $probableTargets = $this->drive->listFiles(false);
         $probableTargetIds = $this->getIdsFromArray($probableTargets);
-        $cache->set($key, $probableTargetIds, 1 * 3600);
+        $cache->set($key, $probableTargetIds, 3600);
       }
     }
     
     $this->setCompressedTargetHierarchy([
-      'targets' => $this->_targets, 
-      'parentId' => $this->_rootId,
+      'targets' => $this->targets, 
+      'parentId' => $this->rootId,
       'probableTargetIds' => $probableTargetIds,
     ]);
 
     // set staticView
-    $this->_staticView = $this->_client->listFilesByParent($this->_rootId);
+    $staticFolders = $this->drive->listFilesByParent($this->rootId, 'folder');
+    $staticFiles = $this->drive->listFilesByParent($this->rootId, 'file');
+    $this->staticView = array_merge($staticFolders, $staticFiles);
   }
-
-
-/**
- * GETTER & SETTER START
- */
-
-  // public function setAllFiles($value)
-  // {
-  //   $this->_allFiles = $value;
-  // }
-
-  // public function getAllFiles()
-  // {
-  //   return $this->_allFiles;
-  // }
-
-  // public function setAllFileHierarchy($value)
-  // {
-  //   $files = $value['files'];
-  //   $parentId = $value['parentId'];
-  //   $this->_allFileHierarchy = $this->buildTree($files, $parentId);
-  // }
-
-  // public function getAllFileHierarchy()
-  // {
-  //   return $this->_allFileHierarchy;
-  // }
-
-  // public function setFiles($value)
-  // {
-  //   $this->_files = $value;
-  // }
-
-  // public function getFiles()
-  // {
-  //   return $this->_files;
-  // }
-
-  // public function setFileHierarchy($value)
-  // {
-  //   $files = $value['files'];
-  //   $parentId = $value['parentId'];
-  //   $this->_fileHierarchy = $this->buildTree($files, $parentId);
-  // }
-
-  // public function getFileHierarchy()
-  // {
-  //   return $this->_fileHierarchy;
-  // }
-
-  // public function setTargets($value)
-  // {
-  //   $targets = array_map(function ($item) {
-  //     $probability = pow( 1/2, 0.00001 * ( time() - strtotime($item['viewedByMeTime']) ) );
-  //     $this->_QN_SUM_PROBABILITY += $probability;
-  //     return [
-  //       'id' => $item['id'],
-  //       'parent' => $item['parent'],
-  //       'probability' => $probability,
-  //     ];
-  //   }, $value);
-
-  //   // normalizing probability
-  //   $targetsNormalize = array_map(function ($item) {
-  //     $newProbability = round($item['probability'] / $this->_QN_SUM_PROBABILITY, 8);
-  //     return [
-  //       'id' => $item['id'],
-  //       'parent' => $item['parent'],
-  //       'probability' => $newProbability,
-  //     ];
-  //   }, $targets);
-
-  //   $this->_targets = $targetsNormalize;
-  // }
-
-  // public function getTargets()
-  // {
-  //   return $this->_targets;
-  // }
-
-  // // OPTIONAL
-  // public function setTargetHierarchy($value)
-  // {
-  //   $targets = $value['targets'];
-  //   $parentId = $value['parentId'];
-  //   $this->_targetHierarchy = $this->buildTree($targets, $parentId);
-  // }
-
-  // // OPTIONAL
-  // public function getTargetHierarchy()
-  // {
-  //   return $this->_targetHierarchy;
-  // }  
-
-  // public function setCompressedTargetHierarchy($value)
-  // {
-  //   $targets = $value['targets'];
-  //   $parentId = $value['parentId'];
-  //   $this->_QN_PROBABLE_TARGET_IDS = $this->getIdsFromArray($value['probableTargets']);
-  //   $this->_QN_MARKED_COUNT = 0;
-    
-  //   // Mark target as probable target
-  //   $targetsMarked = array_map(function($item) {
-  //     $item['selectedTarget'] = false;
-  //     if (
-  //       $this->_QN_MARKED_COUNT < 6
-  //       and in_array($item['id'], $this->_QN_PROBABLE_TARGET_IDS)
-  //     ) {
-  //       $item['selectedTarget'] = true;
-  //       $this->_QN_MARKED_COUNT ++;
-  //     }
-  //     return $item;
-  //   }, $targets);
-    
-  //   // build tree
-  //   $treeWithProbableTargets = $this->buildTree($targetsMarked, $parentId);
-
-  //   // build compressed tree
-  //   $this->_compressedTargetHierarchy = $this->buildCompressedTree($treeWithProbableTargets);
-  // }
-
-  // public function getCompressedTargetHierarchy()
-  // {
-  //   return $this->_compressedTargetHierarchy;
-  // }
-
-/**
- * GETTER & SETTER END
- */
 
 
 /**
@@ -262,7 +133,7 @@ class BIGFile{
       ];
     }, $targets);
 
-    $this->_targets = $targetsNormalize;
+    $this->targets = $targetsNormalize;
   }
 
   private function setCompressedTargetHierarchy($value)
@@ -289,7 +160,7 @@ class BIGFile{
     $treeWithProbableTargets = $this->buildTree($targetsMarked, $parentId);
 
     // build compressed tree
-    $this->_compressedTargetHierarchy = $this->buildCompressedTree($treeWithProbableTargets);
+    $this->compressedTargetHierarchy = $this->buildCompressedTree($treeWithProbableTargets);
   }
 
   private function buildTree(array $elements, $parentId) 
@@ -384,13 +255,13 @@ class BIGFile{
 
     // (1) ∑_y P(Y=y∣X=x) log2 P(Y=y∣X=x)
     $sum1 = 0;
-    foreach($this->_ySets as $input)
+    foreach($this->YSets as $input)
     {
       // (1.1) P(Y=y∣X=x)
       $p11 = 0;
       // P(Y=y∣X=x) = ∑_θ′ (1.1.1) P(Y=y∣Θ=θ′,X=x) (1.1.2) P(Θ=θ′)
       $sum11 = 0;
-      foreach($this->_targets as $target)
+      foreach($this->targets as $target)
       {
         // (1.1.1) P(Y=y∣Θ=θ′,X=x)
         // todo: check for this $t param format
@@ -411,10 +282,10 @@ class BIGFile{
 
     // (2) ∑_y,θ (2.1) P(Θ=θ) (2.2) P(Y=y∣Θ=θ,X=x) (2.3) log_2 P(Y=y∣Θ=θ,X=x)
     $sum2a = 0; // sum of y (input)
-    foreach($this->_ySets as $input)
+    foreach($this->YSets as $input)
     {
       $sum2b = 0; // sum of θ (target)
-      foreach($this->_targets as $target)
+      foreach($this->targets as $target)
       {
         // (2.1) P(Θ=θ)
         $p21 = $target['probability'];
@@ -444,9 +315,9 @@ class BIGFile{
   {
     $setA = [];
     $setAPrime = [];
-    $staticViewIds = $this->getIdsFromArray($this->_staticView);
+    $staticViewIds = $this->getIdsFromArray($this->staticView);
 
-    $tree = $this->_compressedTargetHierarchy;
+    $tree = $this->compressedTargetHierarchy;
     // membuat node level 1 minimal berjumlah 4
     $tree = $this->convertTreeToNBranch($tree, 4);
     
@@ -674,7 +545,7 @@ class BIGFile{
   {
     $files = [];
     foreach($ids as $id) {
-      foreach($this->_files as $file) {
+      foreach($this->files as $file) {
         if($file['id'] == $id) {
           $files[] = $file;
         }

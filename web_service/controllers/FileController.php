@@ -5,7 +5,7 @@ namespace quicknav\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\filters\auth\HttpBearerAuth;
-use quicknav\components\GDriveClient;
+use quicknav\components\DriveFile;
 
 class FileController extends Controller
 {
@@ -24,56 +24,30 @@ class FileController extends Controller
             'Access-Control-Max-Age'           => 3600,
         ],
     ];
-    $behaviors['authenticator'] = [
-      'class' => HttpBearerAuth::class,
-      'except' => ['options'],
-    ];
+    // $behaviors['authenticator'] = [
+    //   'class' => HttpBearerAuth::class,
+    //   'except' => ['options'],
+    // ];
     return $behaviors;
-  }
-
-  public function actionIndex()
-  {
-    return 'hello';
   }
 
   public function actionFile()
   {
-    $id = Yii::$app->request->get('id');
-    $client = new GDriveClient();
-    $file = $client->file($id);
+    $paramFolderId = Yii::$app->request->get('folder_id');
+    $fileObj = new DriveFile();
+    $folders = $fileObj->listFilesByParent($paramFolderId, 'folder');
+    $files = $fileObj->listFilesByParent($paramFolderId, 'file');
+    $data = array_merge($folders, $files);    
     
-    $files = array_map(function($item) { 
-      return [
-        'id' => $item->id,
-        'name' => $item->name,
-        'parents' => [],
-        'viewedByMeTime' => '',
-      ]; 
-    }, [$file]);
-
-    var_dump($files); exit;
+    return $this->asJson($data);
   }
 
-  public function actionListFiles()
+  public function actionTest()
   {
-    $keyword = Yii::$app->request->get('keyword');
-    $client = new GDriveClient();
-    $files = $client->listFiles($keyword);
-
-    // var_dump($files); exit;
-    // $files = array_map( function($file) { return $file['id']; }, $files );
-    return $this->asJson($files);
-  }
-
-  public function actionListFilesByParent()
-  {
-    $parent_id = Yii::$app->request->get('parent_id');
-    $client = new GDriveClient();
-    $files = $client->listFilesByParent($parent_id);
-
-    // var_dump($files); exit;
-    $files = array_map( function($file) { return $file['id']; }, $files );
-    return $this->asJson($files);
+    $fileId = Yii::$app->request->get('file_id');
+    $fileObj = new DriveFile();
+    $res = $fileObj->getPathToFile($fileObj->fileHierarchy, $fileId);
+    return $this->asJson($res);
   }
 }
 

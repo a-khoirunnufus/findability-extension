@@ -4,7 +4,6 @@
 chrome.runtime.onInstalled.addListener(() => {
   // set starting storage data
   chrome.storage.local.set({
-    'showSuggestion': false,
     'showQuicknav': true,
     'gToken': {
       'value': undefined,
@@ -16,26 +15,20 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.scripting.registerContentScripts(
     [
       {
+        id: 'gdcomponent-hide',
+        js: [ 
+          'content_scripts/googledrive/filelist_hide.js',
+          'content_scripts/googledrive/searchbar_hide.js' 
+        ],
+        matches: [ 'https://drive.google.com/*' ],
+        runAt: 'document_end',
+      },
+      {
         id: 'quicknav-main',
         css: [ 'content_scripts/quicknav/main.css' ],
         js: [ 'content_scripts/quicknav/main.js' ],
         matches: [ 'https://drive.google.com/*' ],
-      },
-      {
-        id: 'suggestion-main',
-        js: [ 'content_scripts/suggestion/main.js' ],
-        matches: [ 'https://drive.google.com/*' ],
-      },
-      // development purpose
-      {
-        id: 'suggestion-hide',
-        js: [ 'content_scripts/suggestion/event_hide.js' ],
-        matches: [ 'https://drive.google.com/*' ],
-      },
-      {
-        id: 'quicknav-show',
-        js: [ 'content_scripts/quicknav/event_show.js' ],
-        matches: [ 'https://drive.google.com/*' ],
+        runAt: 'document_end',
       },
     ]
   );
@@ -43,41 +36,35 @@ chrome.runtime.onInstalled.addListener(() => {
 
 // setup();
 
-// !! MOVE THIS TO POPUP PAGE
-// UPDATE GOOGLE DRIVE PAGE
-// chrome.storage.onChanged.addListener(function (changes, namespace) {
-//   if (changes.show_suggestion) {
-//     chrome.tabs.query({url: "https://drive.google.com/*"}, (tabs) => {
-//       const tabId = tabs[0].id;
-//       if (changes.show_suggestion.newValue == true) {
-//         chrome.scripting.executeScript(
-//           {target: {tabId: tabId}, func: showSuggestionElm}
-//         );
-//       } else {
-//         chrome.scripting.executeScript(
-//           {target: {tabId: tabId}, func: hideSuggestionElm}
-//         );
-//       }
-//     });
-//     return;
-//   }
-
-//   if(changes.show_quicknav) {
-//     chrome.tabs.query({url: "https://drive.google.com/*"}, (tabs) => {
-//       const tabId = tabs[0].id;
-//       if (changes.show_quicknav.newValue == true) {
-//         chrome.scripting.executeScript(
-//           {target: {tabId: tabId}, func: showQuicknavElm}
-//         );
-//       } else {
-//         chrome.scripting.executeScript(
-//           {target: {tabId: tabId}, func: hideQuicknavElm}
-//         );
-//       }
-//     });
-//   }
-// });
-
+// storage change event
+chrome.storage.onChanged.addListener(function (changes, namespace) {
+  if (changes.showQuicknav) {
+    if (changes.showQuicknav.newValue === true) {
+      chrome.scripting.registerContentScripts([
+        {
+          id: 'gdcomponent-hide',
+          js: [ 
+            'content_scripts/googledrive/filelist_hide.js',
+            'content_scripts/googledrive/searchbar_hide.js' 
+          ],
+          matches: [ 'https://drive.google.com/*' ],
+          runAt: 'document_end',
+        },
+        {
+          id: 'quicknav-main',
+          css: [ 'content_scripts/quicknav/main.css' ],
+          js: [ 'content_scripts/quicknav/main.js' ],
+          matches: [ 'https://drive.google.com/*' ],
+          runAt: 'document_end',
+        },
+      ]);
+    } else {
+      chrome.scripting.unregisterContentScripts({
+        ids: ['quicknav-main', 'gdcomponent-hide'],
+      })
+    }
+  }
+})
 
 /* TEMPORARY COMMENT
 // LISTEN MESSAGE
