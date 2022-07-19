@@ -57,19 +57,36 @@ table#static-view td{
 table#static-view td:nth-child(1){
   font-weight: 500;
 }
+
 ul#adaptive-view {
   list-style-type: none;
   padding: 0;
   margin: 0;
 }
 ul#adaptive-view li {
-  padding: .25rem;
+  /* padding: .25rem; */
   font-weight: 500;
 }
-ul#adaptive-view li:hover {
-  background-color: gainsboro;
-  cursor: pointer;
+.shortcuts__item-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  /* gap: 1rem; */
 }
+.shortcuts__item-child {
+  /* width: 200px; */
+  padding: .25rem .5rem;
+  border-radius: 5px;
+}
+.shortcuts__item-child:hover {
+  cursor: pointer;
+  background-color: var(--blue-light);
+  color: var(--blue-primary);
+}
+.arrow-right {
+  margin: 0 .5rem;
+}
+
 .breadcrumb {
   font-size: 1.1rem;
 }

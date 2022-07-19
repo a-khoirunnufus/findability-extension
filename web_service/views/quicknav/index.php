@@ -25,12 +25,18 @@ use yii\helpers\Url;
   <div id="loading-image">
     <img src="<?= Url::to('gif/loading-default/64x64.gif', true) ?>">
   </div>
+
   <!-- ADAPTIVE VIEW -->
   <ul id="adaptive-view">
     <?php foreach($shortcuts as $shortcut): ?>
-      <li onclick="alert('hello')">
-        <img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">
-        &nbsp;&nbsp;<?= $shortcut['name'] ?>
+      <li class="shortcuts__item-wrapper" onclick="alert('hello')">
+        <div class="shortcuts__item-child"><img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">&nbsp;&nbsp;File X</div> <div class="arrow-right">></div>
+        <div class="shortcuts__item-child"><img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">&nbsp;&nbsp;File X</div> <div class="arrow-right">></div>
+        <div class="shortcuts__item-child"><img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">&nbsp;&nbsp;File X</div> <div class="arrow-right">></div>
+        <div class="shortcuts__item-child"><img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">&nbsp;&nbsp;File X</div> <div class="arrow-right">></div>
+        <div class="shortcuts__item-child"><img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">&nbsp;&nbsp;File X</div> 
+        <!-- <img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">
+        &nbsp;&nbsp;<?= $shortcut['name'] ?> -->
       </li>
     <?php endforeach; ?>
   </ul>
@@ -186,6 +192,7 @@ use yii\helpers\Url;
       <?php endforeach; ?>
     </tbody>
   </table>
+
   <script>
     function navigateToUrl(url) {
       window.location.href = url;
