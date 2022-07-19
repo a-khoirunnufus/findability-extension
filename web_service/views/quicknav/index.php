@@ -29,14 +29,29 @@ use yii\helpers\Url;
   <!-- ADAPTIVE VIEW -->
   <ul id="adaptive-view">
     <?php foreach($shortcuts as $shortcut): ?>
-      <li class="shortcuts__item-wrapper" onclick="alert('hello')">
-        <div class="shortcuts__item-child"><img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">&nbsp;&nbsp;File X</div> <div class="arrow-right">></div>
-        <div class="shortcuts__item-child"><img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">&nbsp;&nbsp;File X</div> <div class="arrow-right">></div>
-        <div class="shortcuts__item-child"><img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">&nbsp;&nbsp;File X</div> <div class="arrow-right">></div>
-        <div class="shortcuts__item-child"><img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">&nbsp;&nbsp;File X</div> <div class="arrow-right">></div>
-        <div class="shortcuts__item-child"><img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">&nbsp;&nbsp;File X</div> 
-        <!-- <img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">
-        &nbsp;&nbsp;<?= $shortcut['name'] ?> -->
+      <li class="shortcuts__item-wrapper">
+        <?php foreach($shortcut as $key => $file): ?>
+          <div 
+            class="shortcuts__item-child"
+            onclick="navigateToUrl('<?= Url::toRoute([
+              'quicknav/index',
+              'folder_id' => $file['parent'],
+              'keyword' => $keyword,
+              'sort_key' => $sort_key,
+              'sort_dir' => $sort_dir,
+            ], true) ?>')"
+          >
+            <?php if($file['mimeType'] == 'application/vnd.google-apps.folder'): ?>
+              <img src="<?= Url::to('icons/folder-fill.svg', true) ?>">
+            <?php else: ?>
+              <img src="<?= Url::to('icons/file-earmark-fill.svg', true) ?>">
+            <?php endif; ?>
+            &nbsp;&nbsp;<?= $file['name'] ?>
+          </div> 
+          <?php if($key != count($shortcut)-1): ?>
+            <div class="arrow-right">></div>
+          <?php endif; ?>
+        <?php endforeach; ?>
       </li>
     <?php endforeach; ?>
   </ul>
@@ -156,7 +171,8 @@ use yii\helpers\Url;
     <tbody>
       <?php foreach($files as $file): ?>
         <tr 
-          class="sv__item-wrapper" 
+          class="sv__item-wrapper"
+          data-type="<?= $file['mimeType'] ?>"
           data-url="<?= Url::toRoute([
             'quicknav/index', 'folder_id'=>$file['id'], 'keyword'=>$keyword, 'sort_key'=>$sort_key, 'sort_dir'=>$sort_dir
           ],true) ?>"
@@ -199,13 +215,21 @@ use yii\helpers\Url;
       // display loading image
       document.querySelector('#loading-image').classList.add('show');
     }
+    function downloadFile(url) {
+      
+    }
 
     const items = document.querySelectorAll('.sv__item-wrapper');
     items.forEach((elm) => {
       elm.addEventListener('click', function(e) {
         if(this.classList.contains('active')) {
           const url = this.getAttribute('data-url');
-          navigateToUrl(url);
+          const type = this.getAttribute('data-type');
+          if(type == 'application/vnd.google-apps.folder') {
+            navigateToUrl(url);
+          } else {
+            // url to open file info
+          }
         }
         items.forEach((item) => {
           item.classList.remove('active');

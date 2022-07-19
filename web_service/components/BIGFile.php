@@ -16,7 +16,7 @@ class BIGFile{
   
   private $rootId;                     // root of currently accessed folder
   private $files;                      // files below current root folder                    
-  private $fileHierarchy;              
+  public $fileHierarchy;              
   
   private $targets;
   private $targetHierarchy;            // optional
@@ -56,7 +56,7 @@ class BIGFile{
     $this->allFileHierarchy = $this->buildTree($userFiles['files'], $userFiles['driveRootId']);
     
     // set rootId and fileHierarchy
-    if($rootId == 'root') {
+    if($rootId == 'root' or $rootId == $this->driveRootId) {
       $this->rootId = $userFiles['driveRootId'];
       $this->fileHierarchy = $this->allFileHierarchy;
     } else {
@@ -431,7 +431,7 @@ class BIGFile{
   // make tree level 1 nodes atleast $n or higher
   private function convertTreeToNBranch($tree, $n = 4)
   {    
-    while (count($tree) < $n) { 
+    while (count($tree) < $n and $this->isTreeExplorable($tree)) { 
       foreach ($tree as $key => $branch) {
         if (isset($branch['children'])) {
           array_splice($tree, $key, 1, $branch['children']);

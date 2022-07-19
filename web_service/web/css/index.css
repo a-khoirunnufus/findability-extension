@@ -77,6 +77,11 @@ ul#adaptive-view li {
   /* width: 200px; */
   padding: .25rem .5rem;
   border-radius: 5px;
+  max-width: 30%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
 }
 .shortcuts__item-child:hover {
   cursor: pointer;
