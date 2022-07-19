@@ -10,7 +10,7 @@ use quicknav\components\DriveFile;
 
 class QuicknavController extends Controller
 {
-  public $enableCsrfValidation = false;
+  // public $enableCsrfValidation = false;
 
   public function behaviors()
   {
@@ -25,10 +25,10 @@ class QuicknavController extends Controller
             'Access-Control-Max-Age'           => 3600,
         ],
     ];
-    $behaviors['authenticator'] = [
-      'class' => HttpBearerAuth::class,
-      'except' => ['options'],
-    ];
+    // $behaviors['authenticator'] = [
+    //   'class' => HttpBearerAuth::class,
+    //   'except' => ['options'],
+    // ];
     return $behaviors;
   }
 
@@ -36,18 +36,28 @@ class QuicknavController extends Controller
   {
     $paramFolderId = Yii::$app->request->get('folder_id'); // parent folder currently viewed
     $paramKeyword = Yii::$app->request->get('keyword'); // NULL if not set
+    if($paramKeyword === 'null') $paramKeyword = null;
+    $paramSortKey = Yii::$app->request->get('sort_key'); 
+    $paramSortDir = Yii::$app->request->get('sort_dir');
+    $paramSortDir = intval($paramSortDir);
 
     $bigfile = new BIGFile($paramFolderId, $paramKeyword);
     $adaptiveView = $bigfile->main();
 
     $drive = new DriveFile();
-    $staticFolders = $drive->listFilesByParent($paramFolderId, 'folder');
-    $staticFiles = $drive->listFilesByParent($paramFolderId, 'file');
+    $staticFolders = $drive->listFilesByParent($paramFolderId, 'folder', $paramSortKey, $paramSortDir);
+    $staticFiles = $drive->listFilesByParent($paramFolderId, 'file', $paramSortKey, $paramSortDir);
     $staticView = array_merge($staticFolders, $staticFiles);
 
-    return $this->renderPartial('navigation', [
+    sleep(5);
+    
+    return $this->renderPartial('index', [
       'shortcuts' => $adaptiveView,
       'files' => $staticView,
+      'folder_id' => $paramFolderId,
+      'keyword' => $paramKeyword,
+      'sort_key' => $paramSortKey,
+      'sort_dir' => $paramSortDir,
     ]);
   }
 }

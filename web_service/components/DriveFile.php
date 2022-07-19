@@ -4,6 +4,7 @@ namespace quicknav\components;
 
 use Yii;
 use yii\helpers\ArrayHelper;
+use quicknav\models\User;
 use Google\Client;
 use Google\Service\Drive;
 
@@ -15,7 +16,8 @@ class DriveFile {
 
   public function __construct() 
   {
-    $identity = Yii::$app->user->identity;
+    // $identity = Yii::$app->user->identity;
+    $identity = User::findOne(['email' => 'omanaristarihoran33@gmail.com']);
 
     $access_token = $identity->g_access_token;
     $access_token = json_decode($access_token, true);

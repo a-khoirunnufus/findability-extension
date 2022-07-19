@@ -40,7 +40,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.storage.onChanged.addListener(function (changes, namespace) {
   if (changes.showQuicknav) {
     if (changes.showQuicknav.newValue === true) {
-      chrome.scripting.registerContentScripts(
+      chrome.scripting.registerContentScripts([
         {
           id: 'gdcomponent-hide',
           js: [ 
@@ -57,7 +57,7 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
           matches: [ 'https://drive.google.com/*' ],
           runAt: 'document_end',
         },
-      );
+      ]);
     } else {
       chrome.scripting.unregisterContentScripts({
         ids: ['quicknav-main', 'gdcomponent-hide'],

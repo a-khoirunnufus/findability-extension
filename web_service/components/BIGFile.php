@@ -5,6 +5,7 @@ namespace quicknav\components;
 use Yii;
 use yii\helpers\ArrayHelper;
 use quicknav\components\DriveFile;
+use quicknav\models\User;
 
 class BIGFile{
 
@@ -37,7 +38,8 @@ class BIGFile{
   {
     $this->drive = new DriveFile();
 
-    $userId = Yii::$app->user->identity->id;
+    // $userId = Yii::$app->user->identity->id;
+    $userId = User::findOne(['email' => 'omanaristarihoran33@gmail.com'])->id;
     $cache = Yii::$app->cache;
     
     $userFiles = $cache->get($userId.'_files');
@@ -45,7 +47,7 @@ class BIGFile{
     $driveRootId = null;
     if ($userFiles === false) {
       $userFiles['files'] = $this->drive->files;;
-      $userFiles['driveRootId'] = $$this->drive->driveRootId;
+      $userFiles['driveRootId'] = $this->drive->driveRootId;
       $cache->set($userId.'_files', $userFiles, 3600);
     }
 
