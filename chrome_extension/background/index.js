@@ -1,14 +1,14 @@
-// import setup from './setup.js';
+import setup from './setup.js';
 
 // when extension first installed / reloaded
 chrome.runtime.onInstalled.addListener(() => {
   // set starting storage data
   chrome.storage.local.set({
     'showQuicknav': true,
-    'gToken': {
-      'value': undefined,
-      'expiredAt': undefined   
-    }
+    // 'gToken': {
+    //   'value': undefined,
+    //   'expiredAt': undefined   
+    // }
   });
 
   // register content script
@@ -34,7 +34,7 @@ chrome.runtime.onInstalled.addListener(() => {
   );
 });
 
-// setup();
+setup();
 
 // storage change event
 chrome.storage.onChanged.addListener(function (changes, namespace) {

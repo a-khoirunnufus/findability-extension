@@ -5,9 +5,9 @@ function setup() {
     chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
       let rule = {
         conditions: [
-          new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: {urlMatches: 'http://localhost:8080/*'},
-          }),
+          // new chrome.declarativeContent.PageStateMatcher({
+          //   pageUrl: {urlMatches: 'http://localhost:8080/*'},
+          // }),
           new chrome.declarativeContent.PageStateMatcher({
             pageUrl: {urlMatches: 'https://drive.google.com/*'},
           }),

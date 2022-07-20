@@ -1,35 +1,22 @@
 <html>
   <head>
+    <title>Popup</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="index.css">
   </head>
   <body>
-    <header>
-      <div><strong>QuickNav</strong></div>
-    </header>
-
-    <main>
-      <!-- USER PORTAL PAGE -->
-      <section id="up-login" class="">
-        <p>status: anda belum login.</p>
-        <button id="btn-login">Login</button>
-      </section>
-      <section id="up-ready" class="">
-        <p>status: ekstensi siap digunakan.</p>
-      </section>
-
-      <!-- GOOGLE DRIVE PAGE -->
-      <section id="gd-login" class="">
-        <p>status: anda belum login.</p>
-        <p>Silahkah login pada halaman user portal.</p>
-      </section>
-      <section id="gd-ready" class="">
-        <p>status: siap untuk melakukan navigasi.</p>
-        <!-- <input id="suggestion-elm-toggle" type="checkbox"> <label>Tampilkan komponen 'Disarankan'</label><br> -->
-        <input id="quicknav-elm-toggle" type="checkbox"> <label>Tampilkan QuickNav</label><br>
-      </section>
-
-    </main>
-    
+    <div class="main-container">
+      <div class="notification bg-warning w-100 p-2 text-left">
+        Silahkan refresh halaman ini untuk melihat perubahan.
+      </div>
+      <div class="d-flex flex-column align-items-center justify-content-center h-100">
+        <p class="fs-5 fw-bold my-4" id="status-text"></p>
+        <div>
+          <button type="button" id="btn-show" class="btn btn-sm btn-outline-primary fw-bold me-3">Aktifkan</button>
+          <button type="button" id="btn-hide" class="btn btn-sm btn-outline-secondary fw-bold">Matikan</button>
+        </div>
+      </div>
+    </div>
     <script src="index.js" type="module"></script>
   </body>
 </html>

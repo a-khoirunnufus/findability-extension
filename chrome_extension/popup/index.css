@@ -1,19 +1,26 @@
+html {
+  width: 420px;
+  height: fit-content;
+}
+
 body {
-  width: 300px;
-  text-align: left;
-  padding: 1rem;
+  margin: 0;
   font-size: 16px;
 }
 
-header {
-  padding: 0 0 .5rem 0;
-  border-bottom: 1px solid gainsboro;
-  margin-bottom: 1rem;
+.main-container {
+  height: 200px;
 }
 
-section {
+.notification {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   display: none;
+  font-size: .9rem;
+  text-align: center;
 }
-section.show {
+.notification.show {
   display: block;
 }
