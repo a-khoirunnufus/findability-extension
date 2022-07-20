@@ -23,7 +23,13 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
-            'loginUrl' => '@web/userportal/auth/login'
+            'loginUrl' => '@web/userportal/auth/login',
+            'identityCookie' => [
+                'name' => '_identity',
+                'httpOnly' => true,
+                'sameSite' => 'None',
+                'secure' => true,
+            ],
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -40,7 +46,7 @@ $config = [
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
+                    'levels' => ['error', 'warning', 'info'],
                 ],
             ],
         ],
