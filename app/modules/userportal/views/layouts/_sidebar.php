@@ -9,7 +9,7 @@ use yii\helpers\Url;
   <ul class="sidebar-nav" data-coreui="navigation" data-simplebar="">
     <li class="nav-item"><a class="nav-link" href="<?= Url::toRoute('home/index', true) ?>">
         Home</a></li>
-    <li class="nav-item"><a class="nav-link" href="<?= Url::to('/', true) ?>">
+    <li class="nav-item"><a class="nav-link" href="<?= Url::toRoute('user-testing/index', true) ?>">
         Pengujian</a></li>
     <li class="nav-item"><a class="nav-link" href="<?= Url::to('/', true) ?>">
         Panduan</a></li>
