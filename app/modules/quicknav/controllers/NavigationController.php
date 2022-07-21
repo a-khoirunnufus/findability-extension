@@ -24,7 +24,8 @@ class NavigationController extends Controller
           ],
         ],
         'denyCallback' => function ($rule, $action) {
-          throw new \Exception('Anda tidak bisa menampilkan halaman ini, silahkan login terlebih dahulu.');
+          // TODO: Buat halaman untuk informasi error ini
+          throw new \yii\base\UserException('Anda tidak dapat membuka halaman ini, silahkan login terlebih dahulu pada halaman user portal.');
         },
       ],
     ];

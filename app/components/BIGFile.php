@@ -39,7 +39,6 @@ class BIGFile{
     $this->drive = new DriveFile();
 
     $userId = Yii::$app->user->identity->id;
-    // $userId = User::findOne(['email' => 'omanaristarihoran33@gmail.com'])->id;
     $cache = Yii::$app->cache;
     
     $userFiles = $cache->get($userId.'_files');

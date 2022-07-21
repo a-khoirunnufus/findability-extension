@@ -18,9 +18,13 @@ class DriveFile {
   public function __construct() 
   {
     $identity = Yii::$app->user->identity;
-    // $identity = User::findOne(['email' => 'omanaristarihoran33@gmail.com']);
 
     $access_token = $identity->g_access_token;
+    if($access_token == null) {
+      // TODO: buat halaman untuk informasi ini
+      throw new \yii\base\UserException('Anda belum memerikan izin akses google drive, silahkan atur perizinan pada halaman user portal.');
+    }
+
     $access_token = json_decode($access_token, true);
     $client_secret = Yii::getAlias('@app/client_secret.json');    
     $client = new Client();

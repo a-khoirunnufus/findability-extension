@@ -12,8 +12,6 @@ use yii\filters\AccessControl;
 
 class AuthController extends Controller
 {
-  public $layout = '@app/modules/userportal/views/layouts/public.php';
-
   public function behaviors()
   {
     return [
@@ -49,7 +47,7 @@ class AuthController extends Controller
       ." connect-src 'self' https://accounts.google.com/gsi/"
     );
     
-    return $this->render('login');
+    return $this->renderPartial('login');
   }
 
   public function actionSigninWithGoogleCallback()

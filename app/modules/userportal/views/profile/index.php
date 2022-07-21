@@ -6,28 +6,17 @@ $identity = Yii::$app->user->identity;
 ?>
 
 <style>
-  #profile-table {
-    /* margin: 0 auto; */
-  }
   #profile-table td {
     padding: .5rem;
     vertical-align: top;
   }
   #profile-table tr td:nth-child(1) {
-    text-align: right;
+    text-align: left;
     font-weight: 700;
-  }
-  #profile-picture {
-    height: 100px;
-    width: 100px;
-    object-fit: cover;
-    border-radius: 50%;
-    outline: 1px solid gainsboro;
-    padding: .25rem;
   }
 </style>
 
-<div class="card shadow-sm">
+<div class="card shadow-sm" style="width: fit-content; margin: 0 auto;">
   <div class="card-body">
     <div class="row">
       <div class="col-12">

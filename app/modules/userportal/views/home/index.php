@@ -1,9 +1,5 @@
-<?php
-$this->title = 'Home';
-?>
-
-<div class="card shadow-sm">
+<div class="card mb-4">
   <div class="card-body">
-    Home Page
+    Selamat datang, <strong><?= \Yii::$app->user->identity->name ?></strong>
   </div>
 </div>
