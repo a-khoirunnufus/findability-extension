@@ -30,6 +30,12 @@ class UserTestingController extends Controller
     return $this->render('index');
   }
 
+  public function actionRegister()
+  {
+    
+    return $this->render('register');
+  }
+
   public function actionTaskDetail()
   {
     $request = \Yii::$app->request;

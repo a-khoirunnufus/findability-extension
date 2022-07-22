@@ -81,4 +81,13 @@ class User extends ActiveRecord implements IdentityInterface
     
     return $user->save();
   }
+
+  public static function isUTParticipant($userId)
+  {
+    return (new \yii\db\Query())
+      ->select(['id'])
+      ->from('ut_participant')
+      ->where(['user_id' => $userId])
+      ->exists();
+  }
 }
