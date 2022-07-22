@@ -3,16 +3,16 @@
 use yii\db\Migration;
 
 /**
- * Handles the creation of table `{{%user_task_item}}`.
+ * Handles the creation of table `{{%ut_task_item}}`.
  */
-class m220721_143008_create_user_task_item_table extends Migration
+class m220722_102727_create_ut_task_item_table extends Migration
 {
     /**
      * {@inheritdoc}
      */
     public function safeUp()
     {
-        $this->createTable('user_task_item', [
+        $this->createTable('ut_task_item', [
             'id' => $this->primaryKey(),
             'code' => $this->string(7),
             'file_id' => $this->string()->notNull(),
@@ -26,10 +26,10 @@ class m220721_143008_create_user_task_item_table extends Migration
         ]);
 
         $this->addForeignKey(
-            'fk-user_task_item-task_id',
-            'user_task_item',
+            'fk-ut_task_item-task_id',
+            'ut_task_item',
             'task_id',
-            'user_task',
+            'ut_task',
             'id',
             'CASCADE'
         );
@@ -41,10 +41,10 @@ class m220721_143008_create_user_task_item_table extends Migration
     public function safeDown()
     {
         $this->dropForeignKey(
-            'fk-user_task_item-task_id',
-            'user_task_item',
+            'fk-ut_task_item-task_id',
+            'ut_task_item',
         );
 
-        $this->dropTable('user_task_item');
+        $this->dropTable('ut_task_item');
     }
 }

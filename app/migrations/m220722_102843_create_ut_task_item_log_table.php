@@ -3,16 +3,16 @@
 use yii\db\Migration;
 
 /**
- * Handles the creation of table `{{%user_task_item_log}}`.
+ * Handles the creation of table `{{%ut_task_item_log}}`.
  */
-class m220721_143112_create_user_task_item_log_table extends Migration
+class m220722_102843_create_ut_task_item_log_table extends Migration
 {
     /**
      * {@inheritdoc}
      */
     public function safeUp()
     {
-        $this->createTable('user_task_item_log', [
+        $this->createTable('ut_task_item_log', [
             'id' => $this->primaryKey(),
             'action' => $this->string()->notNull(),
             'object' => $this->string()->notNull(),
@@ -21,10 +21,10 @@ class m220721_143112_create_user_task_item_log_table extends Migration
         ]);
 
         $this->addForeignKey(
-            'fk-user_task_item_log-task_item_id',
-            'user_task_item_log',
+            'fk-ut_task_item_log-task_item_id',
+            'ut_task_item_log',
             'task_item_id',
-            'user_task_item',
+            'ut_task_item',
             'id',
             'CASCADE'
         );
@@ -36,10 +36,10 @@ class m220721_143112_create_user_task_item_log_table extends Migration
     public function safeDown()
     {
         $this->dropForeignKey(
-            'fk-user_task_item_log-task_item_id',
-            'user_task_item_log',
+            'fk-ut_task_item_log-task_item_id',
+            'ut_task_item_log',
         );
 
-        $this->dropTable('user_task_item_log');
+        $this->dropTable('ut_task_item_log');
     }
 }
