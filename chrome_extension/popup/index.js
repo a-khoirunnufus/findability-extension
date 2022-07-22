@@ -70,7 +70,7 @@ window.addEventListener('DOMContentLoaded', async function(e) {
             child.nextElementSibling.classList.add('show');
             console.log('show body');
           } else {
-            child.nextElementSibling.classList.remove('show');
+            child.nextElementSibling?.classList.remove('show');
           }
         }
       }
