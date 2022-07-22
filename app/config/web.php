@@ -66,6 +66,9 @@ $config = [
         'quicknav' => [
             'class' => 'app\modules\quicknav\Module',
         ],
+        'facilitator' => [
+            'class' => 'app\modules\facilitator\Module'
+        ],
     ],
     'defaultRoute' => 'userportal/home/index',
 ];
