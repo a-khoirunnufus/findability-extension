@@ -17,11 +17,6 @@ use yii\helpers\Url;
           <div class="avatar avatar-md"><img class="avatar-img w-100 h-100" style="object-fit: cover" src="<?= Url::to('@web/img/profile-picture-1.jpg') ?>" alt="user@email.com"></div>
         </a>
         <div class="dropdown-menu dropdown-menu-end">
-          <a class="dropdown-item" href="<?= Url::toRoute('profile/index', true) ?>">
-            <svg class="icon me-2">
-              <use xlink:href="<?= Url::to('@web/coreui/vendors/@coreui/icons/svg/free.svg#cil-user') ?>"></use>
-            </svg> Profile</a>
-          <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="<?= Url::toRoute('auth/logout', true) ?>">
             <svg class="icon me-2">
               <use xlink:href="<?= Url::to('@web/coreui/vendors/@coreui/icons/svg/free.svg#cil-account-logout') ?>"></use>

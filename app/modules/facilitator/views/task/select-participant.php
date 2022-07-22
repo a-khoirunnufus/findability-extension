@@ -2,7 +2,7 @@
 use yii\helpers\Url;
 
 $this->params['breadcrumbs'] = [
-  [ 'label' => 'Home', 'link' => Url::toRoute('home/index'), 'active' => true ],
+  [ 'label' => 'Pilih Partisipan', 'link' => Url::toRoute('task/select-participant'), 'active' => true ],
 ];
 ?>
 
@@ -16,7 +16,7 @@ $this->params['breadcrumbs'] = [
           <th scope="col">Nama</th>
           <th scope="col">Umur</th>
           <th scope="col">Pekerjaan</th>
-          <th class="text-center" scope="col">Aksi</th>
+          <th class="text-center" scope="col"></th>
         </tr>
       </thead>
       <tbody>
@@ -26,7 +26,7 @@ $this->params['breadcrumbs'] = [
             <td><?= $participant['age'] ?></td>
             <td><?= $participant['job'] ?></td>
             <td class="text-center"><a href="<?= Url::toRoute(['task/list', 'participant_id' => $participant['id']]) ?>" class="btn btn-primary btn-sm">
-                Pilih</a></td>
+                Atur Tugas</a></td>
           </tr>
         <?php endforeach; ?>
       </tbody>

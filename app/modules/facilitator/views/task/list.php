@@ -7,7 +7,8 @@ $this->registerJsFile(
 );
 
 $this->params['breadcrumbs'] = [
-  [ 'label' => 'Home', 'link' => Url::toRoute('home/index'), 'active' => true ],
+  [ 'label' => 'Pilih Partisipan', 'link' => Url::toRoute('task/select-participant'), 'active' => false ],
+  [ 'label' => 'Daftar Tugas', 'link' => null, 'active' => true ],
 ];
 
 $csrfToken = \Yii::$app->request->csrfToken;
@@ -15,17 +16,21 @@ $session = \Yii::$app->session;
 ?>
 
 <div class="card shadow-sm">
-  <div class="card-body">
-    <h4 class="card-title mb-0">Daftar Tugas</h4>
-    <div class="small text-medium-emphasis">Partisipan <?= $participant['name'] ?></div>
-    
-    <div class="d-flex flex-row justify-content-end my-3">
-    <button class="btn btn-primary text-white me-3" data-coreui-toggle="modal" data-coreui-target="#LoadDefaultTask">
-        Load Default</button>
-    <button class="btn btn-success text-white" data-coreui-toggle="modal" data-coreui-target="#addTask">
-        Tambah Tugas</button>
+  <div class="card-body">    
+    <div class="d-flex flex-row justify-content-between align-items-center">
+      <div>
+        <h4 class="card-title mb-0">Daftar Tugas</h4>
+        <div class="small text-medium-emphasis">Partisipan <?= $participant['name'] ?></div>
+      </div>
+      <div>
+        <button class="btn btn-primary btn-sm text-white me-2" data-coreui-toggle="modal" data-coreui-target="#LoadDefaultTask">
+            Load Default</button>
+        <button class="btn btn-success btn-sm text-white" data-coreui-toggle="modal" data-coreui-target="#addTask">
+            Tambah Tugas</button>
+      </div>
     </div>
-    <table class="table" id="table-task-list">
+
+    <table class="table" id="table-task-list" style="margin-top: 40px">
       <thead>
         <tr class="table-light">
           <th scope="col">#</th>
