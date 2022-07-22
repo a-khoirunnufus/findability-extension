@@ -5,10 +5,10 @@ chrome.runtime.onInstalled.addListener(() => {
   // set starting storage data
   chrome.storage.local.set({
     'showQuicknav': true,
-    // 'gToken': {
-    //   'value': undefined,
-    //   'expiredAt': undefined   
-    // }
+    'popup_qnOpen': false,
+    'popup_utOpen': true,
+    'popup_utCurrentOpen': false,
+    'popup_utListOpen': true,
   });
 
   // register content script

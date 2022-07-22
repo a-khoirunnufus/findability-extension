@@ -17,11 +17,33 @@ window.addEventListener('DOMContentLoaded', async function(e) {
     });
   });
     
-  const { showQuicknav } =  await chrome.storage.local.get(['showQuicknav']);
+  const { 
+      showQuicknav,
+      popup_qnOpen,
+      popup_utOpen,
+      popup_utCurrentOpen,
+      popup_utListOpen 
+    } = await chrome.storage.local.get([
+      'showQuicknav',
+      'popup_qnOpen',
+      'popup_utOpen',
+      'popup_utCurrentOpen',
+      'popup_utListOpen',
+    ]);
 
   const statusTextElm = document.querySelector('#status-text');
+  const qnBodyElm = document.querySelector('#quicknav').nextElementSibling;
+  const utBodyElm = document.querySelector('#user-testing').nextElementSibling;
+  const utCurrentBodyElm = utBodyElm.firstElementChild;
+  const utListBodyElm = utBodyElm.lastElementChild;
+
   if (showQuicknav) { statusTextElm.innerText = 'Quicknav diaktifkan' }
   else { statusTextElm.innerText = 'Quicknav dimatikan' }
+
+  if (popup_qnOpen) qnBodyElm.classList.add('show');
+  if (popup_utOpen) utBodyElm.classList.add('show');
+  if (popup_utCurrentOpen) utCurrentBodyElm.classList.add('show');
+  if (popup_utListOpen) utListBodyElm.classList.add('show');
 
   // document.querySelector('#btn-show-ut').addEventListener('click', function (e) {
   //   if(this.classList.contains('open')) {
