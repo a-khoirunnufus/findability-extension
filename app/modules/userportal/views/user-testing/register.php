@@ -7,7 +7,7 @@ $identity = \Yii::$app->user->identity;
 
 $this->params['breadcrumbs'] = [
   [ 'label' => 'Pengujian', 'link' => Url::toRoute('user-testing/index'), 'active' => false ],
-  [ 'label' => 'Mendaftar', 'link' => Url::toRoute('user-testing/register'), 'active' => true ],
+  [ 'label' => 'Daftar sebagai partisipan', 'link' => Url::toRoute('user-testing/register'), 'active' => true ],
 ];
 ?>
 
@@ -15,21 +15,22 @@ $this->params['breadcrumbs'] = [
   <div class="card-body">
     <h4 class="card-title mb-0">Daftar sebagai partisipan</h4>
 
-    <form action="#" method="post" style="width: 400px; margin-top: 40px">
+    <form action="<?= Url::toRoute('user-testing/add-participant') ?>" method="post" style="width: 400px; margin-top: 40px">
       <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
+      <input type="hidden" name="user_id" value="<?= $identity->id ?>">
       <div class="mb-3">
         <label for="name" class="form-label">Nama</label>
-        <input type="text" class="form-control" id="name" value="<?= $identity->name ?>">
+        <input type="text" class="form-control" id="name" name="name" value="<?= $identity->name ?>">
       </div>
       <div class="mb-3">
         <label for="age" class="form-label">Umur</label>
-        <input type="number" class="form-control" id="age">
+        <input type="number" class="form-control" id="age" name="age">
       </div>
-      <div class="mb-3">
+      <div class="mb-4">
         <label for="job" class="form-label">Pekerjaan</label>
-        <input type="text" class="form-control" id="job">
+        <input type="text" class="form-control" id="job" name="job">
       </div>
-      <button type="submit" class="btn btn-primary">Kirim</button>
+      <button type="submit" class="btn btn-primary w-100 fw-semibold">Daftar</button>
     </form>
   </div>
 </div>

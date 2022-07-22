@@ -19,7 +19,7 @@ $session = \Yii::$app->session;
   <style>
     .custom-alert {
       position: fixed;
-      top: calc(65px + 1rem);
+      top: 1rem;
       width: 400px;
       right: 1rem;
       z-index: 1030;
@@ -27,6 +27,20 @@ $session = \Yii::$app->session;
   </style>
 </head>
 <body>
+  
+  <?php if($session->hasFlash('success')): ?>
+    <div class="alert custom-alert alert-success alert-dismissible fade show" role="alert">
+      <?= $session->getFlash('success') ?> 
+      <button type="button" class="btn-close" data-coreui-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <?php endif; ?>
+  <?php if($session->hasFlash('failed')): ?>
+    <div class="alert custom-alert alert-danger alert-dismissible fade show" role="alert">
+      <?= $session->getFlash('failed') ?> 
+      <button type="button" class="btn-close" data-coreui-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <?php endif; ?>
+
   <!-- alert -->
   <?php if($session->hasFlash('notification.type') and $session->hasFlash('notification.message')): ?>
     <div class="alert custom-alert alert-<?= $session->getFlash('notification.type') ?> alert-dismissible fade show" role="alert">
