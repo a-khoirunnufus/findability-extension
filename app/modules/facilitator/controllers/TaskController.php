@@ -64,9 +64,22 @@ class TaskController extends Controller
     ]);
   }
 
-  public function actionTaskDetail()
+  public function actionDetail()
   {
+    $pid = \Yii::$app->request->get('participant_id');
+    $tid = \Yii::$app->request->get('task_id');
     
+    $participant = (new \yii\db\Query())
+      ->select(['id', 'name'])
+      ->from('ut_participant')
+      ->where(['id' => $pid])
+      ->one();
+    $task = UtTask::findOne($tid);
+
+    return $this->render('detail', [
+      'participant' => $participant,
+      'task' => $task,
+    ]);
   }
 
   /**

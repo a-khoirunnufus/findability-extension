@@ -15,5 +15,5 @@ use yii\helpers\Url;
     <li class="nav-item"><a class="nav-link" href="<?= Url::toRoute('task/select-participant', true) ?>">
         Tugas</a></li>
   </ul>
-  <!-- <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button> -->
+  <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
 </div>
