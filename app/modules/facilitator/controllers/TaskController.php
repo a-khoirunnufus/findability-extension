@@ -9,23 +9,28 @@ use app\modules\facilitator\models\UtTask;
 
 class TaskController extends Controller
 {
-  // public function behaviors()
-  // {
-  //   return [
-  //     'access' => [
-  //       'class' => AccessControl::class,
-  //       'only' => ['index'],
-  //       'rules' => [
-  //         [
-  //           'allow' => true,
-  //           'actions' => ['index'],
-  //           'roles' => ['@'],
-  //         ],
-  //       ],
-  //     ],
-  //   ];
-  // }
+  public function behaviors()
+  {
+    return [
+      'access' => [
+        'class' => AccessControl::class,
+        'rules' => [
+          [
+            'allow' => true,
+            'roles' => ['@'],
+            'matchCallback' => function ($rule, $action) {
+              return Yii::$app->user->identity->email === 'a.khoirunnufus@gmail.com';
+            }
+          ],
+        ],
+      ],
+    ];
+  }
   
+  /**
+   * Page related actions
+   */
+
   public function actionSelectParticipant()
   {
     $participants = (new \yii\db\Query())
@@ -58,6 +63,15 @@ class TaskController extends Controller
       'tasks' => $tasks,
     ]);
   }
+
+  public function actionTaskDetail()
+  {
+    
+  }
+
+  /**
+   * Resource related actions
+   */
 
   public function actionAddTask()
   {
