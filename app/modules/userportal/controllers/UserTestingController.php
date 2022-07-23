@@ -7,7 +7,7 @@ use yii\filters\AccessControl;
 use yii\helpers\Url;
 use yii\web\Controller;
 use app\models\User;
-use app\modules\facilitator\models\UtParticipant;
+use app\modules\facilitator\models\UtParticipant as Participant;
 
 class UserTestingController extends Controller
 {
@@ -28,29 +28,16 @@ class UserTestingController extends Controller
     ];
   }
 
-  public function actionIndex()
-  {
-    $identity = \Yii::$app->user->identity;
-    $isParticipant = User::isUTParticipant($identity->id);
-    if($isParticipant) {
-      return $this->render('index');
-    } else {
-      return $this->redirect(Url::toRoute('user-testing/register', true));
-    }
-  }
-
   public function actionRegister()
   {
-    
-    return $this->render('register');
-  }
-  
-  public function actionTaskDetail()
-  {
-    $request = \Yii::$app->request;
-    $taskId = $request->get('task-id');
-    
-    return $this->render('task-detail');
+    $identity = \Yii::$app->user->identity;
+    $participant = Participant::findOne(['user_id' => $identity->id]);
+
+    if($participant) {
+      return $this->redirect(Url::toRoute('task/index', true));
+    } else {
+      return $this->render('register');
+    }
   }
   
   /**
@@ -61,19 +48,19 @@ class UserTestingController extends Controller
   {
     $postData = Yii::$app->request->post();
     
-    // try{
-      $utParticipat = new UtParticipant();
+    try{
+      $utParticipat = new Participant();
       $utParticipat->user_id = $postData['user_id'];
       $utParticipat->name = $postData['name'];
       $utParticipat->age = $postData['age'];
       $utParticipat->job = $postData['job'];
       $utParticipat->save();
       Yii::$app->session->setFlash('success', 'Berhasil mendaftar sebagai partisipan.');
-    // } catch (\Exception $e) {
-    //   Yii::$app->session->setFlash('failed', 'Gagal mendaftar sebagai partisipan.');
-    // }
+    } catch (\Exception $e) {
+      Yii::$app->session->setFlash('failed', 'Gagal mendaftar sebagai partisipan.');
+    }
 
-    return $this->redirect(Url::toRoute('user-testing/index', true));
+    return $this->redirect(Yii::$app->request->referrer);
   }
   
 }

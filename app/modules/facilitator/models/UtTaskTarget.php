@@ -13,4 +13,29 @@ class UtTaskTarget extends ActiveRecord
   {
     return 'ut_task_target';
   }
+
+  public static function isDescribeComplete($taskId)
+  {
+    $targets = self::find()
+      ->where(['task_id' => $taskId])
+      ->all();
+    foreach($targets as $target) {
+      if(!boolval($target['description'])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public static function getTargetToDescribe($taskId)
+  {
+    $target = self::find()
+      ->where(['task_id' => $taskId])
+      ->andWhere(new \yii\db\conditions\OrCondition([
+        ['=', 'description', null],
+        ['=', 'description', ''],
+      ]))
+      ->one();
+    return $target;
+  }
 }
