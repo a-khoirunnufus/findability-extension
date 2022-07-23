@@ -13,6 +13,8 @@ class DriveFileUt {
   public $files;
   public $fileHierarchy; 
   public $driveRootId;
+  public $filesPerDepth;
+  public $fileCountsPerDepth;
   public $drive;
 
   public function __construct($pId) 
@@ -21,7 +23,6 @@ class DriveFileUt {
 
     $access_token = $identity->g_access_token;
     if($access_token == null) {
-      // TODO: buat halaman untuk informasi ini
       throw new \yii\base\UserException('Partisipan belum memerikan izin akses google drive.');
     }
 
@@ -33,16 +34,48 @@ class DriveFileUt {
     $this->drive = new Drive($client);
     
     $cache = Yii::$app->cache;
-    $cacheKey = $identity->id.'_files_ut';
+    $cacheKey = $identity->id.'_ut_files';
     $userFiles = $cache->get($cacheKey);
     if ($userFiles === false) {
       $userFiles['files'] = $this->fetchAllDriveFiles();
       $userFiles['driveRootId'] = $this->file('root')->id;
       $cache->set($cacheKey, $userFiles, 3600);
     }
-    $this->files = $userFiles['files'];
-    $this->driveRootId = $userFiles['driveRootId'];
-    $this->fileHierarchy = $this->buildTree($this->files, $this->driveRootId);
+
+    $files = $userFiles['files'];
+    $driveRootId = $userFiles['driveRootId'];
+    $fileHierarchy = $this->buildTree($files, $driveRootId);
+
+    $cacheKey = $identity->id.'_ut_files_per_depth';
+    $filesPerDepth = $cache->get($cacheKey);
+    if ($filesPerDepth === false) {
+      $filesPerDepth = [
+        'level_1' => $this->getFilesFromTreeLvOne($fileHierarchy),
+        'level_2' => $this->getFilesFromTreeLvTwo($fileHierarchy),
+        'level_3' => $this->getFilesFromTreeLvThree($fileHierarchy),
+        'level_4' => $this->getFilesFromTreeLvFour($fileHierarchy),
+        'level_5' => $this->getFilesFromTreeLvFive($fileHierarchy),
+        'level_6' => $this->getFilesFromTreeLvSix($fileHierarchy),
+        'level_7' => $this->getFilesFromTreeLvSeven($fileHierarchy),
+        'level_8' => $this->getFilesFromTreeLvEight($fileHierarchy),
+      ];
+      $cache->set($cacheKey, $filesPerDepth, 3600);
+    }
+
+    $cacheKey = $identity->id.'_ut_file_counts_per_depth';
+    $fileCountsPerDepth = $cache->get($cacheKey);
+    if ($fileCountsPerDepth === false) {
+      $fileCountsPerDepth = array_map(function($item) {
+        return count($item);
+      }, $filesPerDepth);
+      $cache->set($cacheKey, $fileCountsPerDepth, 3600);
+    }
+
+    $this->files = $files;
+    $this->driveRootId = $driveRootId;
+    $this->fileHierarchy = $fileHierarchy;
+    $this->filesPerDepth = $filesPerDepth;
+    $this->fileCountsPerDepth = $fileCountsPerDepth;
   }
 
   public function file($id)
@@ -86,91 +119,6 @@ class DriveFileUt {
     return $files;
   }
 
-  public function listFiles($includeFolder = true, $sortKey = 'viewedByMeTime', $sortDir = SORT_DESC)
-  {
-    $files = $this->files;
-    $filteredFiles = array_filter($files, function($item) use($includeFolder){
-      if($includeFolder and $item['mimeType'] == 'application/vnd.google-apps.folder') {
-        return true;
-      }
-      if($item['mimeType'] != 'application/vnd.google-apps.folder') {
-        return true;
-      }
-    });
-    ArrayHelper::multisort($filteredFiles, $sortKey, $sortDir);
-    $filteredFiles = array_slice($filteredFiles, 0, 100);
-
-    return $filteredFiles;
-  }
-
-  public function listFilesByParent($parentId, $type, $sortKey = 'name', $sortDir = SORT_ASC)
-  {
-    if($parentId == 'root') $parentId = $this->driveRootId;
-    $files = $this->files;
-    $filteredFiles = array_filter($files, function($item) use($parentId, $type){
-      if($item['parent'] == $parentId) {
-        if($type == "file" and $item['mimeType'] != 'application/vnd.google-apps.folder') {
-          return true;
-        }
-        if($type == "folder" and $item['mimeType'] == 'application/vnd.google-apps.folder') {
-          return true;
-        }
-      }
-    });
-    ArrayHelper::multisort($filteredFiles, $sortKey, $sortDir);
-
-    return $filteredFiles;
-  }
-
-  public function listFilesByKeyword($keyword)
-  {
-    // Sorting is not supported for queries with fullText terms.
-    $res = $this->drive->files->listFiles([
-      'fields' => 'files(id,viewedByMeTime)',
-      'q' => "name contains '$keyword' or fullText contains '$keyword'",
-    ]);
-    
-    $files = array_map(
-      function($item) {
-        return ['id' => $item->id, 'viewedByMeTime' => $item->viewedByMeTime];
-      }, 
-      $res->files
-    );
-    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
-
-    return $files;
-  }
-
-  public function getPathToFile($tree, $fileId)
-  {
-    foreach($tree as $file) {
-      if($file['id'] == $fileId) {
-        return [[
-          'id' => $file['id'],
-          'name' => $file['name'],
-          'parent' => $file['parent'],
-          'mimeType' => $file['mimeType'],
-        ]];
-      }
-      if(isset($file['children'])) {
-        $pathToFile = $this->getPathToFile($file['children'], $fileId);
-        if($pathToFile) {
-          $arr = [];
-          array_push($arr, [
-            'id' => $file['id'],
-            'name' => $file['name'],
-            'parent' => $file['parent'],
-            'mimeType' => $file['mimeType'],
-          ]);
-          foreach($pathToFile as $file) {
-            array_push($arr, $file);
-          } 
-          return $arr;
-        }
-      }
-    }
-  }
-
   private function buildTree(array $elements, $parentId) 
   {
     $branch = array();
@@ -184,19 +132,6 @@ class DriveFileUt {
       }
     }
     return $branch;
-  }
-
-  public function getChildrenFromTree($parentId, $tree, &$outChildren)
-  {
-    foreach ($tree as $node) {
-      if(isset($node['children'])) {
-        if ($node['id'] === $parentId) {
-          $outChildren = $node['children'];
-          break;
-        }
-        $this->getChildrenFromTree($parentId, $node['children'], $outChildren);
-      }
-    }
   }
 
   public function getFilesFromTreeLvOne($tree)

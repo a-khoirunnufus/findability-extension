@@ -6,7 +6,6 @@ use Yii;
 use yii\web\Controller;
 use yii\filters\AccessControl;
 use app\components\DriveFileUt;
-use app\modules\facilitator\models\UtParticipantFileStructure as FileStructure;
 
 class ParticipantController extends Controller
 {
@@ -43,69 +42,31 @@ class ParticipantController extends Controller
   public function actionDetail()
   {
     $pId = \Yii::$app->request->get('participant_id');
-    
+    $drive = new DriveFileUt($pId);
+
     $participant = (new \yii\db\Query())
       ->select(['id', 'name', 'age', 'job'])
       ->from('ut_participant')
       ->where(['id' => $pId])
       ->one();
-    $fileStructure = FileStructure::findOne(['participant_id' => $pId]);
+    $fileHierarchy = $drive->fileHierarchy;
+    $filesPerDepth = $drive->filesPerDepth;
+    $fileCountsPerDepth = $drive->fileCountsPerDepth;
 
     return $this->render('detail', [
       'participant' => $participant,
-      'fileStructure' => $fileStructure,
+      'fileHierarchy' => $fileHierarchy,
+      'filesPerDepth' => $filesPerDepth,
+      'fileCountsPerDepth' => $fileCountsPerDepth,
     ]);
-  }
-
-  public function actionGenerateFileStructureData()
-  {
-    $pId = \Yii::$app->request->get('participant_id');
-    $drive = new DriveFileUt($pId);
-    
-    // generate tree hierarchy
-    $fileHierarchy = $drive->fileHierarchy;
-    // $fileHierarchyJson = json_encode($fileHierarchy);
-  
-    // get file count at level 1,2,3,4,5,6 depth
-    $filesPerDepth = [
-      'level_1' => $drive->getFilesFromTreeLvOne($fileHierarchy),
-      'level_2' => $drive->getFilesFromTreeLvTwo($fileHierarchy),
-      'level_3' => $drive->getFilesFromTreeLvThree($fileHierarchy),
-      'level_4' => $drive->getFilesFromTreeLvFour($fileHierarchy),
-      'level_5' => $drive->getFilesFromTreeLvFive($fileHierarchy),
-      'level_6' => $drive->getFilesFromTreeLvSix($fileHierarchy),
-      'level_7' => $drive->getFilesFromTreeLvSeven($fileHierarchy),
-      'level_8' => $drive->getFilesFromTreeLvEight($fileHierarchy),
-    ];
-    $fileCountsPerDepth = array_map(function($item) {
-      return count($item);
-    }, $filesPerDepth);
-
-    // save to database
-    try{
-      $fileStructure = FileStructure::findOne($pId);
-      if(boolval($fileStructure) == false) {
-        $fileStructure = new FileStructure();
-        $fileStructure->participant_id = $pId;
-      }
-      $fileStructure->file_hierarchy = json_encode($fileHierarchy);
-      $fileStructure->files_per_depth = json_encode($filesPerDepth);
-      $fileStructure->file_counts_per_depth = json_encode($fileCountsPerDepth);
-      $fileStructure->save();
-      Yii::$app->session->setFlash('success', 'Data telah digenerate dan berhasil disimpan.');
-    } catch (\Exception $e) {
-      Yii::$app->session->setFlash('failed', 'Gagal generate data.');
-    }
-
-    return $this->redirect(Yii::$app->request->referrer);
   }
 
   public function actionDisplayTreeView()
   {
     $pId = \Yii::$app->request->get('participant_id');
-    $fileStructure = FileStructure::findOne(['participant_id' => $pId]);
+    $drive = new DriveFileUt($pId);
 
-    $tree = json_decode($fileStructure['file_hierarchy'], true);
+    $tree = $drive->fileHierarchy;
     $treeHtml = $this->generateTreeHtml($tree);
 
     return $this->renderPartial('tree-view', [

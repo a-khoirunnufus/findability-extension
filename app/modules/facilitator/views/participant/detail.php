@@ -20,38 +20,32 @@ $user = app\models\User::getUserByParticipantId($participant['id']);
   <div class="card-body">
     <div class="d-flex flex-row align-items-center justify-content-between" style="margin-bottom: 40px">
       <h5 class="card-title mb-0">Karakteristik Drive Partisipan</h5>
-      <a role="button" href="<?= Url::toRoute([
+      <!-- <a role="button" href="<?= Url::toRoute([
           'participant/generate-file-structure-data', 
-          'participant_id' => $participant['id']]) ?>" class="btn btn-primary btn-sm">Generate Data</a>
+          'participant_id' => $participant['id']]) ?>" class="btn btn-primary btn-sm">Generate Data</a> -->
     </div>    
     
-    <?php if($fileStructure == null): ?>
-      <div class="alert alert-warning" style="width: fit-content; margin: 0 auto;">
-        ! Data belum digenerate
-      </div>
-    <?php else: ?>
-      <table class="table">
-        <tbody>
-          <tr>
-            <th style="width: 300px" scope="row">Visualisasi hirariki file</th>
-            <td><a target="_blank" href="<?= Url::toRoute([
-                'participant/display-tree-view',
-                'participant_id' => $participant['id']]) ?>" class="btn btn-primary btn-sm"
-                >Lihat</a></td>
-          </tr>
-          <tr>
-            <th style="width: 300px" scope="row">Jumlah file pada kedalaman setiap kedalaman</th>
-            <td>
-              <ul class="list-group list-group-horizontal">
-                <?php foreach(json_decode($fileStructure['file_counts_per_depth']) as $key => $value): ?>
-                  <li class="list-group-item"><?=$key?>: <?=$value?></li>
-                <?php endforeach; ?>
-              </ul>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    <?php endif; ?>
+    <table class="table">
+      <tbody>
+        <tr>
+          <th style="width: 300px" scope="row">Visualisasi hirariki file</th>
+          <td><a target="_blank" href="<?= Url::toRoute([
+              'participant/display-tree-view',
+              'participant_id' => $participant['id']]) ?>" class="btn btn-primary btn-sm"
+              >Lihat</a></td>
+        </tr>
+        <tr>
+          <th style="width: 300px" scope="row">Jumlah file pada kedalaman setiap kedalaman</th>
+          <td>
+            <ul class="list-group list-group-horizontal">
+              <?php foreach($fileCountsPerDepth as $key => $value): ?>
+                <li class="list-group-item"><?=$key?>: <?=$value?></li>
+              <?php endforeach; ?>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
     <!-- <ul>
       <li>Jumlah file</li>
