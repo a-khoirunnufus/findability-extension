@@ -69,7 +69,7 @@ $session = \Yii::$app->session;
               <a href="#" class="btn btn-primary btn-sm">
                   Status Tugas</a>    
               <a href="<?= Url::toRoute([
-                  'task/detail', 
+                  'task/setup', 
                   'participant_id' => $participant['id'], 
                   'task_id' => $task['id']]) ?>" class="btn btn-warning btn-sm"
                   >Atur Tugas</a>

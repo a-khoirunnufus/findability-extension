@@ -7,6 +7,7 @@ use yii\web\Controller;
 use yii\filters\AccessControl;
 use app\modules\facilitator\models\UtTask;
 use app\components\DriveFileUt;
+use app\modules\facilitator\models\UtTaskTarget;
 
 class TaskController extends Controller
 {
@@ -65,7 +66,7 @@ class TaskController extends Controller
     ]);
   }
 
-  public function actionDetail()
+  public function actionSetup()
   {
     $pId = \Yii::$app->request->get('participant_id');
     $tId = \Yii::$app->request->get('task_id');
@@ -97,16 +98,31 @@ class TaskController extends Controller
           $selectedFiles1Arr[] = $res;
         }
       }
-    //  return $this->asJson($selectedFiles1Arr);
     }
 
-    return $this->render('detail', [
+    // final targets
+    $targets = UtTaskTarget::find()
+      ->where(['task_id' => $tId])
+      ->all();
+    $targetsExtended = [];
+    foreach($targets as $item) {
+      $file = $drive->getFileById($item['file_id']);
+      $newTarget['name'] = $file['name'];
+      $newTarget['depth'] = $item['file_depth'];
+      $newTarget['path_to_file'] = $item['path_to_file'];
+      $newTarget['viewed_by_me_time'] = $file['viewedByMeTime'];
+      $newTarget['frequency'] = $item['frequency'];
+      $targetsExtended[] = $newTarget;
+    }
+
+    return $this->render('setup', [
       'participant' => $participant,
       'numberOfFiles' => $numberOfFiles,
       'filesPerDepth' => $filesPerDepth,
       'fileCountsPerDepth' => $fileCountsPerDepth,
       'selectedFiles1' => $selectedFiles1Arr,
       'task' => $task,
+      'targets' => $targetsExtended,
     ]);
   }
 
@@ -211,11 +227,52 @@ class TaskController extends Controller
     $cacheKey = $pId.'_ut_selected_files_1';
     $cache->set($cacheKey, $selectedFileIds, 3600);
 
-    // $cacheKey = $pId.'_ut_selected_files_1';
-    // $selectedFiles1 = $cache->get($cacheKey);
-    // return $this->asJson($selectedFiles1);
-
     // redirect back
+    return $this->redirect(Yii::$app->request->referrer);
+  }
+
+  public function actionSetFinalTargets()
+  {
+    $tId = \Yii::$app->request->post('task_id');
+    $pId = \Yii::$app->request->post('participant_id');
+    $finalTargetsString = \Yii::$app->request->post('final_targets');
+    $drive = new DriveFileUt($pId);
+
+    $finalTargetsRaw = explode(',', $finalTargetsString);
+    $finalTargets = [];
+    foreach($finalTargetsRaw as $targetString) {
+      $target = explode('@', $targetString);
+      $finalTargets[] = [
+        'fileId' => $target[0],
+        'frequency' => intval($target[1]),
+      ];
+    }
+
+    $transaction = UtTaskTarget::getDb()->beginTransaction();
+    try {
+      // save to db
+      foreach($finalTargets as $item) {
+        $target = new UtTaskTarget();
+        $target->file_id = $item['fileId'];
+  
+        $pathToFile = $drive->getPathToFile($drive->fileHierarchy, $item['fileId']);
+        $target->path_to_file = implode(" > ", $pathToFile);
+        $target->file_depth = count($pathToFile);
+        
+        $target->frequency = $item['frequency'];
+        $target->task_id = $tId;
+        $target->save();
+      }
+      $transaction->commit();
+      Yii::$app->session->setFlash('success', 'Target berhasil disimpan.');
+    } catch(\Exception $e) {
+      $transaction->rollBack();
+      Yii::$app->session->setFlash('failed', 'Target gagal disimpan.');
+    } catch(\Throwable $e) {
+      $transaction->rollBack();
+      Yii::$app->session->setFlash('failed', 'Target gagal disimpan.');
+    }
+
     return $this->redirect(Yii::$app->request->referrer);
   }
 
