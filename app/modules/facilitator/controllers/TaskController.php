@@ -6,6 +6,7 @@ use Yii;
 use yii\web\Controller;
 use yii\filters\AccessControl;
 use app\modules\facilitator\models\UtTask;
+use app\components\DriveFileUt;
 
 class TaskController extends Controller
 {
@@ -66,18 +67,45 @@ class TaskController extends Controller
 
   public function actionDetail()
   {
-    $pid = \Yii::$app->request->get('participant_id');
-    $tid = \Yii::$app->request->get('task_id');
+    $pId = \Yii::$app->request->get('participant_id');
+    $tId = \Yii::$app->request->get('task_id');
+    $drive = new DriveFileUt($pId);
     
     $participant = (new \yii\db\Query())
       ->select(['id', 'name'])
       ->from('ut_participant')
-      ->where(['id' => $pid])
+      ->where(['id' => $pId])
       ->one();
-    $task = UtTask::findOne($tid);
+    $task = UtTask::findOne($tId);
+
+    $numberOfFiles = $drive->numberOfFiles;
+    $filesPerDepth = $drive->filesPerDepth;
+    $fileCountsPerDepth = $drive->fileCountsPerDepth;
+
+    // selected files 1
+    $cache = Yii::$app->cache;
+    $cacheKey = $pId.'_ut_selected_files_1';
+    $selectedFiles1 = $cache->get($cacheKey);
+    $selectedFiles1Arr = [];
+    if($selectedFiles1) {
+      foreach($selectedFiles1 as $fileId) {
+        $res = $drive->getFileById($fileId);
+        if($res) {
+          $pathToFile = $drive->getPathToFile($drive->fileHierarchy, $fileId);
+          $res['depth'] = count($pathToFile);
+          $res['pathToFile'] = implode("/", $pathToFile);
+          $selectedFiles1Arr[] = $res;
+        }
+      }
+    //  return $this->asJson($selectedFiles1Arr);
+    }
 
     return $this->render('detail', [
       'participant' => $participant,
+      'numberOfFiles' => $numberOfFiles,
+      'filesPerDepth' => $filesPerDepth,
+      'fileCountsPerDepth' => $fileCountsPerDepth,
+      'selectedFiles1' => $selectedFiles1Arr,
       'task' => $task,
     ]);
   }
@@ -169,6 +197,25 @@ class TaskController extends Controller
       Yii::$app->session->setFlash('failed', 'Tugas gagal diload.');
     }
     
+    return $this->redirect(Yii::$app->request->referrer);
+  }
+
+  public function actionSelectFile1()
+  {
+    $pId = \Yii::$app->request->post('participant_id');
+    $selectedFiles = \Yii::$app->request->post('selected_files');
+    $selectedFileIds = explode(',', $selectedFiles);
+      
+    // save to cache
+    $cache = Yii::$app->cache;
+    $cacheKey = $pId.'_ut_selected_files_1';
+    $cache->set($cacheKey, $selectedFileIds, 3600);
+
+    // $cacheKey = $pId.'_ut_selected_files_1';
+    // $selectedFiles1 = $cache->get($cacheKey);
+    // return $this->asJson($selectedFiles1);
+
+    // redirect back
     return $this->redirect(Yii::$app->request->referrer);
   }
 

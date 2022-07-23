@@ -49,13 +49,14 @@ class ParticipantController extends Controller
       ->from('ut_participant')
       ->where(['id' => $pId])
       ->one();
-    $fileHierarchy = $drive->fileHierarchy;
+
+    $numberOfFiles = $drive->numberOfFiles;
     $filesPerDepth = $drive->filesPerDepth;
     $fileCountsPerDepth = $drive->fileCountsPerDepth;
 
     return $this->render('detail', [
       'participant' => $participant,
-      'fileHierarchy' => $fileHierarchy,
+      'numberOfFiles' => $numberOfFiles,
       'filesPerDepth' => $filesPerDepth,
       'fileCountsPerDepth' => $fileCountsPerDepth,
     ]);

@@ -11,7 +11,19 @@ use yii\helpers\Url;
         <use xlink:href="<?= Url::to('@web/coreui/vendors/@coreui/icons/svg/free.svg#cil-menu') ?>"></use>
       </svg>
     </button>
-    <div></div>
+    <nav class="flex-grow-1" aria-label="breadcrumb">
+      <ol class="breadcrumb my-0 ms-2">
+        <?php foreach($this->params['breadcrumbs'] as $item): ?>
+          <li class="breadcrumb-item <?= $item['active'] ? 'active' : '' ?>">
+            <?php if(!$item['active']): ?>
+              <a href="<?= $item['link'] ?>"><?= $item['label'] ?></a>
+            <?php else: ?>
+              <span><?= $item['label'] ?></span>
+            <?php endif; ?>
+          </li>
+        <?php endforeach; ?>
+      </ol>
+    </nav>
     <ul class="header-nav ms-3">
       <li class="nav-item dropdown"><a class="nav-link py-0" data-coreui-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
           <div class="avatar avatar-md"><img class="avatar-img w-100 h-100" style="object-fit: cover" src="<?= Url::to('@web/img/profile-picture-1.jpg') ?>" alt="user@email.com"></div>
@@ -26,7 +38,7 @@ use yii\helpers\Url;
     </ul>
   </div>
   
-  <div class="header-divider"></div>
+  <!-- <div class="header-divider"></div>
 
   <div class="container-fluid">
     <nav aria-label="breadcrumb">
@@ -42,5 +54,5 @@ use yii\helpers\Url;
         <?php endforeach; ?>
       </ol>
     </nav>
-  </div>
+  </div> -->
 </header>

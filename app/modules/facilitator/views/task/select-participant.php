@@ -26,7 +26,7 @@ $this->params['breadcrumbs'] = [
             <td><?= $participant['age'] ?></td>
             <td><?= $participant['job'] ?></td>
             <td class="text-center"><a href="<?= Url::toRoute(['task/list', 'participant_id' => $participant['id']]) ?>" class="btn btn-primary btn-sm">
-                Atur Tugas</a></td>
+                Pilih</a></td>
           </tr>
         <?php endforeach; ?>
       </tbody>

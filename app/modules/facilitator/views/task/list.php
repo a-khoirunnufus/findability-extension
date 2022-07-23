@@ -65,12 +65,14 @@ $session = \Yii::$app->session;
                   class="btn-open-delete-modal text-white btn btn-danger btn-sm"
                   >Hapus</button>
             </td>
-            <td class="text-center">    
+            <td class="text-center">
+              <a href="#" class="btn btn-primary btn-sm">
+                  Status Tugas</a>    
               <a href="<?= Url::toRoute([
                   'task/detail', 
                   'participant_id' => $participant['id'], 
-                  'task_id' => $task['id']]) ?>" class="btn btn-primary btn-sm"
-                  >Detail</a>
+                  'task_id' => $task['id']]) ?>" class="btn btn-warning btn-sm"
+                  >Atur Tugas</a>
             </td>
           </tr>
         <?php endforeach; ?>

@@ -2,7 +2,7 @@
 use yii\helpers\Url;
 
 $this->params['breadcrumbs'] = [
-  [ 'label' => 'Partisipan', 'link' => Url::toRoute('task/select-participant'), 'active' => false ],
+  [ 'label' => 'Partisipan', 'link' => Url::toRoute('participant/index'), 'active' => false ],
   [ 'label' => 'Detail', 'link' => null, 'active' => true ],
 ];
 
@@ -20,9 +20,6 @@ $user = app\models\User::getUserByParticipantId($participant['id']);
   <div class="card-body">
     <div class="d-flex flex-row align-items-center justify-content-between" style="margin-bottom: 40px">
       <h5 class="card-title mb-0">Karakteristik Drive Partisipan</h5>
-      <!-- <a role="button" href="<?= Url::toRoute([
-          'participant/generate-file-structure-data', 
-          'participant_id' => $participant['id']]) ?>" class="btn btn-primary btn-sm">Generate Data</a> -->
     </div>    
     
     <table class="table">
@@ -33,6 +30,10 @@ $user = app\models\User::getUserByParticipantId($participant['id']);
               'participant/display-tree-view',
               'participant_id' => $participant['id']]) ?>" class="btn btn-primary btn-sm"
               >Lihat</a></td>
+        </tr>
+        <tr>
+          <th style="width: 300px" scope="row">Jumlah seluruh file</th>
+          <td><?= $numberOfFiles ?></td>
         </tr>
         <tr>
           <th style="width: 300px" scope="row">Jumlah file pada kedalaman setiap kedalaman</th>
@@ -46,14 +47,6 @@ $user = app\models\User::getUserByParticipantId($participant['id']);
         </tr>
       </tbody>
     </table>
-
-    <!-- <ul>
-      <li>Jumlah file</li>
-      <li>Kedalaman, kedalaman maksimal</li>
-      <li>Branching factor</li>
-      <li>Ukuran folder</li>
-      <li>Grafik terakhir kali diakses</li>
-    </ul> -->
   </div>
 </div>
 

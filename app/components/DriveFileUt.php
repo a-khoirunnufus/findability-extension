@@ -11,6 +11,7 @@ use Google\Service\Drive;
 class DriveFileUt {
   
   public $files;
+  public $numberOfFiles;
   public $fileHierarchy; 
   public $driveRootId;
   public $filesPerDepth;
@@ -43,6 +44,14 @@ class DriveFileUt {
     }
 
     $files = $userFiles['files'];
+
+    $numberOfFiles = 0;
+    foreach($files as $file) {
+      if($file['mimeType'] != 'application/vnd.google-apps.folder') {
+        $numberOfFiles++;
+      }
+    }
+
     $driveRootId = $userFiles['driveRootId'];
     $fileHierarchy = $this->buildTree($files, $driveRootId);
 
@@ -72,6 +81,7 @@ class DriveFileUt {
     }
 
     $this->files = $files;
+    $this->numberOfFiles = $numberOfFiles;
     $this->driveRootId = $driveRootId;
     $this->fileHierarchy = $fileHierarchy;
     $this->filesPerDepth = $filesPerDepth;
@@ -119,6 +129,16 @@ class DriveFileUt {
     return $files;
   }
 
+  public function getFileById($id)
+  {
+    foreach($this->files as $file) {
+      if($file['id'] == $id) {
+        return $file;
+      }
+    }
+    return null;
+  }
+
   private function buildTree(array $elements, $parentId) 
   {
     $branch = array();
@@ -134,15 +154,37 @@ class DriveFileUt {
     return $branch;
   }
 
+  public function getPathToFile($tree, $fileId)
+  {
+    foreach($tree as $file) {
+      if($file['id'] == $fileId) {
+        return [$file['name']];
+      }
+      if(isset($file['children'])) {
+        $pathToFile = $this->getPathToFile($file['children'], $fileId);
+        if($pathToFile) {
+          $arr = [];
+          array_push($arr, $file['name']);
+          foreach($pathToFile as $file) {
+            array_push($arr, $file);
+          } 
+          return $arr;
+        }
+      }
+    }
+  }
+
   public function getFilesFromTreeLvOne($tree)
   {
     $files = [];
     foreach($tree as $nodeLvOne) { 
       if($nodeLvOne['mimeType'] !== 'application/vnd.google-apps.folder') {
         unset($nodeLvOne['children']);
+        $nodeLvOne['pathToFile'] = implode("/", $this->getPathToFile($tree, $nodeLvOne['id']));
         $files[] = $nodeLvOne;
       }
     }
+    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
     return $files;
   }
 
@@ -154,11 +196,13 @@ class DriveFileUt {
         foreach($nodeLvOne['children'] as $nodeLvTwo) {
           if($nodeLvTwo['mimeType'] !== 'application/vnd.google-apps.folder') {
             unset($nodeLvTwo['children']);
+            $nodeLvTwo['pathToFile'] = implode("/", $this->getPathToFile($tree, $nodeLvTwo['id']));
             $files[] = $nodeLvTwo;
           }
         }
       }
     }
+    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
     return $files;
   }
 
@@ -173,6 +217,7 @@ class DriveFileUt {
             foreach($nodeLvTwo['children'] as $nodeLvThree) {
               if($nodeLvThree['mimeType'] !== 'application/vnd.google-apps.folder') {
                 unset($nodeLvThree['children']);
+                $nodeLvThree['pathToFile'] = implode("/", $this->getPathToFile($tree, $nodeLvThree['id']));
                 $files[] = $nodeLvThree;
               }
             }
@@ -180,6 +225,7 @@ class DriveFileUt {
         }
       }
     }
+    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
     return $files;
   }
 
@@ -197,6 +243,7 @@ class DriveFileUt {
                 foreach($nodeLvThree['children'] as $nodeLvFour) {
                   if($nodeLvFour['mimeType'] !== 'application/vnd.google-apps.folder') {
                     unset($nodeLvFour['children']);
+                    $nodeLvFour['pathToFile'] = implode("/", $this->getPathToFile($tree, $nodeLvFour['id']));
                     $files[] = $nodeLvFour;
                   }
                 }
@@ -206,6 +253,7 @@ class DriveFileUt {
         }
       }
     }
+    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
     return $files;
   }
 
@@ -226,6 +274,7 @@ class DriveFileUt {
                     foreach($nodeLvFour['children'] as $nodeLvFive) {
                       if($nodeLvFive['mimeType'] !== 'application/vnd.google-apps.folder') {
                         unset($nodeLvFive['children']);
+                        $nodeLvFive['pathToFile'] = implode("/", $this->getPathToFile($tree, $nodeLvFive['id']));
                         $files[] = $nodeLvFive;
                       }
                     }
@@ -237,6 +286,7 @@ class DriveFileUt {
         }
       }
     }
+    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
     return $files;
   }
 
@@ -260,6 +310,7 @@ class DriveFileUt {
                         foreach($nodeLvFive['children'] as $nodeLvSix) {
                           if($nodeLvSix['mimeType'] !== 'application/vnd.google-apps.folder') {
                             unset($nodeLvSix['children']);
+                            $nodeLvSix['pathToFile'] = implode("/", $this->getPathToFile($tree, $nodeLvSix['id']));
                             $files[] = $nodeLvSix;
                           }
                         }
@@ -273,6 +324,7 @@ class DriveFileUt {
         }
       }
     }
+    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
     return $files;
   }
 
@@ -299,6 +351,7 @@ class DriveFileUt {
                             foreach($nodeLvSix['children'] as $nodeLvSeven) {
                               if($nodeLvSeven['mimeType'] !== 'application/vnd.google-apps.folder') {
                                 unset($nodeLvSeven['children']);
+                                $nodeLvSeven['pathToFile'] = implode("/", $this->getPathToFile($tree, $nodeLvSeven['id']));
                                 $files[] = $nodeLvSeven;
                               }
                             }
@@ -314,6 +367,7 @@ class DriveFileUt {
         }
       }
     }
+    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
     return $files;
   }
 
@@ -343,6 +397,7 @@ class DriveFileUt {
                                 foreach($nodeLvSeven['children'] as $nodeLvEight) {
                                   if($nodeLvEight['mimeType'] !== 'application/vnd.google-apps.folder') {
                                     unset($nodeLvEight['children']);
+                                    $nodeLvEight['pathToFile'] = implode("/", $this->getPathToFile($tree, $nodeLvEight['id']));
                                     $files[] = $nodeLvEight;
                                   }
                                 }
@@ -360,6 +415,7 @@ class DriveFileUt {
         }
       }
     }
+    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
     return $files;
   }
 
