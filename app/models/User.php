@@ -90,4 +90,15 @@ class User extends ActiveRecord implements IdentityInterface
       ->where(['user_id' => $userId])
       ->exists();
   }
+
+  public static function getUserByParticipantId($pId)
+  {
+    $res = (new \yii\db\Query())
+      ->select(['user_id'])
+      ->from('ut_participant')
+      ->where(['id' => $pId])
+      ->one();
+    $userId = $res['user_id'];
+    return self::findOne($userId);
+  }
 }

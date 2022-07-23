@@ -10,7 +10,7 @@ use yii\helpers\Url;
   <ul class="sidebar-nav" data-coreui="navigation" data-simplebar="">
     <li class="nav-item"><a class="nav-link" href="<?= Url::toRoute('home/index', true) ?>">
         Home</a></li>
-    <li class="nav-item"><a class="nav-link" href="#">
+    <li class="nav-item"><a class="nav-link" href="<?= Url::toRoute('participant/index', true) ?>">
         Partisipan</a></li>
     <li class="nav-item"><a class="nav-link" href="<?= Url::toRoute('task/select-participant', true) ?>">
         Tugas</a></li>

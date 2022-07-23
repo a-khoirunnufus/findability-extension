@@ -21,14 +21,125 @@ $session = \Yii::$app->session;
   <div class="small text-medium-emphasis">Tugas <?= $task['code'] ?> - <?= $task['name'] ?></div>
 </div>
 
-<div class="card shadow-sm mb-3">
-  <div class="card-body">    
-    <h5 class="card-title mb-0">Konfigurasi Item</h5>
-
+<div class="row mb-4">
+  <div class="col-sm-6">
+  <div class="card shadow-sm">
+      <div class="card-body">    
+        <h5 class="card-title" style="margin-bottom: 40px">Karakteristik Drive Partisipan</h5>
+        <ul>
+          <li>Jumlah file</li>
+          <li>Kedalaman, kedalaman maksimal</li>
+          <li>Branching factor</li>
+          <li>Ukuran folder</li>
+          <li>Grafik terakhir kali diakses</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card shadow-sm">
+      <div class="card-body">    
+        <h5 class="card-title" style="margin-bottom: 40px">Konfigurasi Item</h5>
+    
+        <form style="">
+          <div class="mb-3 row">
+            <label for="itemCountInput" class="col-sm-6 col-form-label">Jumlah item</label>
+            <div class="col-sm-6">
+              <input type="number" class="form-control" id="itemCountInput" value="20">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="itemCountInput" class="col-sm-6 col-form-label">Jumlah file</label>
+            <div class="col-sm-6">
+              <input type="number" class="form-control" id="itemCountInput" value="10">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="itemCountInput" class="col-sm-6 col-form-label">Jumlah target yang mungkin</label>
+            <div class="col-sm-6">
+              <input type="number" class="form-control" id="itemCountInput" value="100">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="itemCountInput" class="col-sm-6 col-form-label">Distribusi</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" id="itemCountInput" value="5, 3, 2, 2, 2, 2, 1, 1, 1, 1">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="itemCountInput" class="col-sm-6 col-form-label">Urut berdasarkan</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" id="itemCountInput" value="viewedByMeTime desc">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Terapkan</button>
+        </form>
+        <!-- 
+        TODO: 
+        - set item number, default 20
+        - set file number, default 10
+        - probable target number, default 100 files based on last viewed by me time
+        - set distribution, Zipf : 5, 3, 2, 2, 2, 2, 1, 1, 1, 1
+        - generate target based on last viewed by me time 
+        - 
+        -->
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="card shadow-sm">
+<div class="card shadow-sm mb-4">
+  <div class="card-body">    
+    <h5 class="card-title" style="margin-bottom: 40px">Mapping Item</h5>
+    <table class="table" id="table-list-item" style="font-size: .9rem">
+      <thead>
+        <tr class="table-light">
+          <th scope="col">Nama file</th>
+          <th scope="col">Kedalaman</th>
+          <th scope="col">Jalur ke file</th>
+          <th scope="col">Terakhir diakses</th>
+          <th scope="col">Frekuensi</th>
+          <th scope="col">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Laporan DI Minggu 6.pdf</td>
+          <td>4</td>
+          <td>My Drive/Kuliah/Desain Interaksi/Tugas/Laporan DI Minggu 6.pdf</td>
+          <td>2022-07-22 12:00:00</td>
+          <td><input type="text" class="form-control" style="width: 60px"></td>
+          <td>
+            <button class="btn btn-sm btn-danger">Hapus</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Laporan DI Minggu 6.pdf</td>
+          <td>4</td>
+          <td>My Drive/Kuliah/Desain Interaksi/Tugas/Laporan DI Minggu 6.pdf</td>
+          <td>2022-07-22 12:00:00</td>
+          <td><input type="text" class="form-control" style="width: 60px"></td>
+          <td>
+            <button class="btn btn-sm btn-danger">Hapus</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Laporan DI Minggu 6.pdf</td>
+          <td>4</td>
+          <td>My Drive/Kuliah/Desain Interaksi/Tugas/Laporan DI Minggu 6.pdf</td>
+          <td>2022-07-22 12:00:00</td>
+          <td><input type="text" class="form-control" style="width: 60px"></td>
+          <td>
+            <button class="btn btn-sm btn-danger">Hapus</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary mt-3">Terapkan</button>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
   <div class="card-body">    
     <h5 class="card-title mb-0">List Item Final</h5>
     <table class="table" id="table-list-item" style="margin-top: 40px; font-size: .9rem">
@@ -57,120 +168,5 @@ $session = \Yii::$app->session;
         </tr>
       </tbody>
     </table>
-  </div>
-</div>
-
-<!-- Add Task Modal -->
-<div class="modal fade" id="addTask" data-coreui-backdrop="static" data-coreui-keyboard="false" tabindex="-1" aria-labelledby="addTaskLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addTaskLabel">Tambah Tugas</h5>
-        <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="form-add-task" action="<?= Url::toRoute('task/add-task') ?>" method="post">
-          <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
-          <input type="hidden" name="participant_id" value="<?= $participant['id'] ?>">
-          <div class="mb-3">
-            <label for="inputCode" class="form-label">Kode Tugas</label>
-            <input type="text" class="form-control" name="code" id="inputCode">
-          </div>
-          <div class="mb-3">
-            <label for="inputName" class="form-label">Nama Tugas</label>
-            <input type="text" class="form-control" name="name" id="inputName">
-          </div>
-          <div class="mb-3">
-            <label for="inputOrder" class="form-label">Urutan Tugas</label>
-            <input type="number" class="form-control" name="order" id="inputOrder">
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary text-white" data-coreui-dismiss="modal">Batal</button>
-        <button id="btn-submit-add-form" type="button" class="btn btn-success text-white">Tambah</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Update Task Modal -->
-<div class="modal fade" id="updateTask" data-coreui-backdrop="static" data-coreui-keyboard="false" tabindex="-1" aria-labelledby="updateTaskLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="updateTaskLabel">Update Tugas</h5>
-        <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="form-update-task" action="<?= Url::toRoute('task/update-task') ?>" method="post">
-          <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
-          <input type="hidden" name="task_id">
-          <input type="hidden" name="participant_id" value="<?= $participant['id'] ?>">
-          <div class="mb-3">
-            <label for="inputCode" class="form-label">Kode Tugas</label>
-            <input type="text" class="form-control" name="code" id="inputCode">
-          </div>
-          <div class="mb-3">
-            <label for="inputName" class="form-label">Nama Tugas</label>
-            <input type="text" class="form-control" name="name" id="inputName">
-          </div>
-          <div class="mb-3">
-            <label for="inputOrder" class="form-label">Urutan Tugas</label>
-            <input type="number" class="form-control" name="order" id="inputOrder">
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary text-white" data-coreui-dismiss="modal">Batal</button>
-        <button id="btn-submit-update-form" type="button" class="btn btn-warning text-white">Update</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Delete Task Modal -->
-<div class="modal fade" id="deleteTask" data-coreui-backdrop="static" data-coreui-keyboard="false" tabindex="-1" aria-labelledby="deleteTaskLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteTaskLabel">Hapus Tugas</h5>
-        <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Apakah anda yakin ingin menghapus task ini?
-        <form id="form-delete-task" action="<?= Url::toRoute('task/delete-task') ?>" method="post">
-          <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
-          <input type="hidden" name="task_id">
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary text-white" data-coreui-dismiss="modal">Batal</button>
-        <button id="btn-submit-delete-form" type="button" class="btn btn-danger text-white">Hapus</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Load Default Task Modal -->
-<div class="modal fade" id="LoadDefaultTask" data-coreui-backdrop="static" data-coreui-keyboard="false" tabindex="-1" aria-labelledby="LoadDefaultTaskLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="LoadDefaultTaskLabel">Load Tugas Default</h5>
-        <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Apakah anda yakin ingin meload tugas default?
-        <form id="form-load-default-task" action="<?= Url::toRoute('task/load-default-task') ?>" method="post">
-          <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
-          <input type="hidden" name="participant_id" value="<?= $participant['id'] ?>">
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary text-white" data-coreui-dismiss="modal">Batal</button>
-        <button id="btn-submit-load-default-form" type="button" class="btn btn-primary text-white">Load</button>
-      </div>
-    </div>
   </div>
 </div>
