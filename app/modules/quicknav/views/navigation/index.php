@@ -48,7 +48,8 @@ use yii\helpers\Url;
             class="shortcuts__item-child"
             onclick="navigateToUrl('<?= Url::toRoute([
               'navigation/index',
-              'folder_id' => $file['parent'],
+              'folder_id' => $file['mimeType'] == 'application/vnd.google-apps.folder' 
+                  ? $file['id'] : $file['parent'],
               'keyword' => $keyword,
               'sort_key' => $sort_key,
               'sort_dir' => $sort_dir,
