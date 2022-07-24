@@ -18,6 +18,32 @@ class ItemController extends Controller
       ];
       return $behaviors;
   }
+
+  public function beforeAction($action)
+  {
+    // your custom code here, if you want the code to run before action filters,
+    // which are triggered on the [[EVENT_BEFORE_ACTION]] event, e.g. PageCache or AccessControl
+
+    if (!parent::beforeAction($action)) {
+      return false;
+    }
+
+    // other custom code here
+    $user = Yii::$app->user;
+    $identity = $user->identity;
+    $cookie = Yii::createObject(array_merge($user->identityCookie, [
+      'class' => 'yii\web\Cookie',
+      'value' => json_encode([
+        $identity->getId(),
+        $identity->getAuthKey(),
+        24*3600,
+      ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+      'expire' => time() + 24*3600,
+    ]));
+    Yii::$app->getResponse()->getCookies()->add($cookie);
+
+    return true; // or false to not run the action
+  }
   
   public function actionIndex()
   {
