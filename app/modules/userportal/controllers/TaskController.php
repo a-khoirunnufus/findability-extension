@@ -11,6 +11,7 @@ use app\components\DriveFileUt as Drive;
 use app\modules\facilitator\models\UtParticipant as Participant;
 use app\modules\facilitator\models\UtTask as Task;
 use app\modules\facilitator\models\UtTaskTarget as Target;
+use app\modules\facilitator\models\UtTaskItem as Item;
 
 class TaskController extends Controller
 {
@@ -63,9 +64,16 @@ class TaskController extends Controller
   {
     $request = \Yii::$app->request;
     $pId = $request->get('participant_id');
-    $tId = $request->get('task_id');
+    $taskId = $request->get('task_id');
+
+    $items = Item::find()
+      ->where(['task_id' => $taskId])
+      ->orderBy('order ASC')
+      ->all();
     
-    return $this->render('detail');
+    return $this->render('detail', [
+      'items' => $items,
+    ]);
   }
 
   public function actionDescribeTarget()
