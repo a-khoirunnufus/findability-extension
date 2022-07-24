@@ -52,8 +52,13 @@ const eventHandler = async (e) => {
     res.taskItem.description,
   );
 
+  const { activeTask } = await chrome.storage.local.get(['activeTask']);
+
   // run task button
   const btnRun = document.createElement('button');
+  if(activeTask.itemId && activeTask.status && activeTask.status == 'running') {
+    btnRun.setAttribute('disabled', true);
+  }
   btnRun.className = 'd-inline-block btn btn-sm btn-primary';
   btnRun.innerText = 'Jalankan Tugas';
   btnRun.addEventListener('click', () => {
