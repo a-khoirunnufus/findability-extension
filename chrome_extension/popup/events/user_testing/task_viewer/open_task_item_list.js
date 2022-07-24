@@ -1,19 +1,20 @@
 import { 
     bodyUserTesting,
-    bodyUserTestingList as body, 
+    bodyUserTestingTaskViewer as body, 
     spinner, 
-  } from "../elements.js";
-import { getAccessToken, resetStackView } from "../utils.js";
-import { otlEvent } from "./open_task_list.js";
-import { otcEventCreator } from "./open_task_current.js";
+  } from "../../../elements.js";
+import { getAccessToken, resetStackView } from "../../../utils.js";
+import { event as openTaskListEvent } from "./open_task_list.js";
+import { eventCreator as openTaskItemDetailEventCreator } from "./open_task_item_detail.js";
 
-const otliType = 'OPEN_TASK_LIST_ITEMS';
-const otliEventCreator = (options) => {
-  return new CustomEvent(otliType, options)
+const eventType = 'UT/TASK_VIEWER/OPEN_TASK_ITEM_LIST';
+const eventCreator = (options) => {
+  return new CustomEvent(eventType, options)
 }
 
-const otliHandler = async (e) => {
-  console.log('event: open task list items')
+const eventHandler = async (e) => {
+  console.log(e.detail);
+  console.log('event:', eventType);
   resetStackView();
 
   bodyUserTesting.classList.add('show');
@@ -33,7 +34,7 @@ const otliHandler = async (e) => {
   btnBack.className = 'py-2 ps-3 mb-3 d-inline-block';
   btnBack.innerText = 'Kembali';
   btnBack.addEventListener('click', () => {
-    document.dispatchEvent(otlEvent);
+    document.dispatchEvent(openTaskListEvent);
   })
 
   // construct list html
@@ -45,23 +46,28 @@ const otliHandler = async (e) => {
     listItem.className = 'list-group-item d-flex flex-row justify-content-between align-items-center';
     listItem.classList.add('list-group-item');
 
-    const itemText = document.createElement('span');
-    itemText.innerHTML = `${item.code} &nbsp;&nbsp;&nbsp; ${
-      item.is_complete == "0" ? '<span class="badge text-bg-secondary">belum selesai</span>' : '<span class="badge text-bg-success">selesai</span>'
-    }`;
+    const itemCode = document.createElement('span');
+    itemCode.innerHTML = `<span>${item.code}</span>`;
+    
+    const itemStatus = document.createElement('span');
+    itemStatus.innerHTML = (item.is_complete == "0") 
+        ? '<span>Belum selesai</span>' 
+        : '<span>Selesai</span>';
 
     const btn = document.createElement('button');
-    btn.innerText = 'Pilih';
+    btn.innerText = 'Buka';
     btn.className = 'btn btn-primary btn-sm';
     btn.addEventListener('click', () => {
-      document.dispatchEvent(otcEventCreator({
+      document.dispatchEvent(openTaskItemDetailEventCreator({
         detail: {
+          taskId: e.detail.taskId,
           itemId: item.id
         }
       }))
     });
 
-    listItem.append(itemText);
+    listItem.append(itemCode);
+    listItem.append(itemStatus);
     listItem.append(btn);
     list.append(listItem);
   }
@@ -71,4 +77,4 @@ const otliHandler = async (e) => {
   body.append(list);
 }
 
-export {otliType, otliEventCreator, otliHandler};
+export {eventType, eventCreator, eventHandler};

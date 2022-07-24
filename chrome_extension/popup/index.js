@@ -1,13 +1,16 @@
-import { otlType, otlEvent, otlHandler } from './events/open_task_list.js';
-import { otliType, otliHandler } from './events/open_task_list_items.js';
-import { otcType, otcHandler } from './events/open_task_current.js';
+import { eventType as utotlType, event as utotlEvent, eventHandler as utotlHandler } 
+    from './events/user_testing/task_viewer/open_task_list.js';
+import { eventType as utotilType, eventHandler as utotilHandler } 
+    from './events/user_testing/task_viewer/open_task_item_list.js';
+import { eventType as utotidType, eventHandler as utotidHandler } 
+    from './events/user_testing/task_viewer/open_task_item_detail.js';
 
 document.addEventListener('DOMContentLoaded', function() {
 
-  document.addEventListener(otlType, otlHandler);   // OPEN TASK LIST
-  document.addEventListener(otliType, otliHandler); // OPEN TASK LIST ITEMS
-  document.addEventListener(otcType, otcHandler);   // OPEN TASK CURRENT
+  document.addEventListener(utotlType, utotlHandler);   // OPEN TASK LIST
+  document.addEventListener(utotilType, utotilHandler); // OPEN TASK ITEM LIST
+  document.addEventListener(utotidType, utotidHandler); // OPEN TASK ITEM DETAIL
   
-  document.dispatchEvent(otlEvent);
+  document.dispatchEvent(utotlEvent);
 
 });

@@ -1,16 +1,16 @@
 import { 
     bodyUserTesting,
-    bodyUserTestingList as body, 
+    bodyUserTestingTaskViewer as body, 
     spinner, 
-  } from "../elements.js";
-import { getAccessToken, resetStackView } from "../utils.js";
-import { otliEventCreator } from "./open_task_list_items.js";
+  } from "../../../elements.js";
+import { getAccessToken, resetStackView } from "../../../utils.js";
+import { eventCreator as openTaskItemListEventCreator } from "./open_task_item_list.js";
 
-const otlType = 'OPEN_TASK_LIST';
-const otlEvent = new Event(otlType);
+const eventType = 'UT/TASK_VIEWER/OPEN_TASK_LIST';
+const event = new Event(eventType);
 
-const otlHandler = async (e) => {
-  console.log('event: open task list');
+const eventHandler = async (e) => {
+  console.log('event:', eventType);
   resetStackView();
 
   bodyUserTesting.classList.add('show');
@@ -38,7 +38,7 @@ const otlHandler = async (e) => {
     btn.innerText = 'Buka';
     btn.className = 'btn btn-primary btn-sm';
     btn.addEventListener('click', () => {
-      document.dispatchEvent(otliEventCreator({
+      document.dispatchEvent(openTaskItemListEventCreator({
         detail: {
           taskId: task.id
         }
@@ -53,4 +53,4 @@ const otlHandler = async (e) => {
   body.append(list);
 }
 
-export {otlType, otlEvent, otlHandler};
+export {eventType, event, eventHandler};

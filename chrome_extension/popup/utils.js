@@ -1,8 +1,8 @@
 import {
     bodyQuicknav,
     bodyUserTesting,
-    bodyUserTestingCurrent,
-    bodyUserTestingList,
+    bodyUserTestingActiveTask,
+    bodyUserTestingTaskViewer,
   } from './elements.js';
 
 function getAccessToken() {
@@ -19,8 +19,8 @@ function getAccessToken() {
 function resetStackView() {
   bodyQuicknav.classList.remove('show');
   bodyUserTesting.classList.remove('show');
-  bodyUserTestingCurrent.classList.remove('show');
-  bodyUserTestingList.classList.remove('show');
+  bodyUserTestingActiveTask.classList.remove('show');
+  bodyUserTestingTaskViewer.classList.remove('show');
 }
 
 export {

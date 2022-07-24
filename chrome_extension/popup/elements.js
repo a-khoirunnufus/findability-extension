@@ -4,13 +4,11 @@ const bodyQuicknav = headerQuicknav.nextElementSibling;
 const headerUserTesting = document.querySelector('#user-testing');
 const bodyUserTesting = headerUserTesting.nextElementSibling;
 
-const headerUserTestingCurrent = document.querySelector('#user-testing-current');
-const bodyUserTestingCurrent = headerUserTestingCurrent.nextElementSibling;
-// const wrapperBodyUserTestingCurrent = document.querySelector('#wrapper-current-task');
+const headerUserTestingActiveTask = document.querySelector('#active-task');
+const bodyUserTestingActiveTask = headerUserTestingActiveTask.nextElementSibling;
 
-const headerUserTestingList = document.querySelector('#user-testing-list');
-const bodyUserTestingList = headerUserTestingList.nextElementSibling;
-// const wrapperBodyUserTestingList = document.querySelector('#wrapper-task-list');
+const headerUserTestingTaskViewer = document.querySelector('#task-viewer');
+const bodyUserTestingTaskViewer = headerUserTestingTaskViewer.nextElementSibling;
 
 const spinner = document.createElement('div');
 spinner.className = 'spinner-border';
@@ -21,9 +19,9 @@ export {
   bodyQuicknav,
   headerUserTesting,
   bodyUserTesting,
-  headerUserTestingCurrent,
-  bodyUserTestingCurrent,
-  headerUserTestingList,
-  bodyUserTestingList,
+  headerUserTestingActiveTask,
+  bodyUserTestingActiveTask,
+  headerUserTestingTaskViewer,
+  bodyUserTestingTaskViewer,
   spinner,
 };
