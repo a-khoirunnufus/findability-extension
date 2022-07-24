@@ -1,5 +1,14 @@
 window.addEventListener('DOMContentLoaded', async function(e) {
   
+  // render task list start
+  const spinner = `
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  `;
+  document.querySelector('#task-list-wrapper').innerHTML = spinner;
+  // render task list end
+
   const notificationElm = document.querySelector('.notification');
   const btnShowElm = document.querySelector('#btn-show');
   const btnHideElm = document.querySelector('#btn-hide');
@@ -78,3 +87,48 @@ window.addEventListener('DOMContentLoaded', async function(e) {
   });
 });
 
+// get task list
+renderTaskList();
+
+async function renderTaskList() {
+  const accessToken = await getAccessToken();
+  let res = await fetch('http://localhost:8080/api/task/index', {
+    headers: {
+      'Authorization': 'Basic ' + btoa(`${accessToken}:password`),
+    }
+  });
+  res = await res.json();
+
+  // construct list html
+  const list = document.createElement('ul');
+  list.classList.add('list-group');
+
+  for (const item of res.task) {
+    const listItem = document.createElement('li');
+    listItem.className = 'list-group-item d-flex flex-row justify-content-between align-items-center';
+    listItem.classList.add('list-group-item');
+    listItem.innerText = item.code + ' ' + item.name;
+
+    const btn = document.createElement('button');
+    btn.innerText = 'Buka';
+    btn.className = 'btn btn-primary btn-sm';
+
+    listItem.append(btn);
+    list.append(listItem);
+  }
+  
+  const listWrapper = document.querySelector('#task-list-wrapper');
+  listWrapper.innerHTML = '';
+  listWrapper.append(list);
+}
+
+function getAccessToken() {
+  return new Promise((resolve, reject) => {
+    chrome.cookies.get(
+      { name: 'access_token', url: 'http://localhost:8080' },
+      (cookie) => {
+        resolve(cookie.value);
+      }
+    );
+  });
+}

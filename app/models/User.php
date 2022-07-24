@@ -32,6 +32,7 @@ class User extends ActiveRecord implements IdentityInterface
    */
   public static function findIdentityByAccessToken($token, $type = null)
   {
+    return static::findOne(['access_token' => $token]);
   }
 
   /**
@@ -64,6 +65,7 @@ class User extends ActiveRecord implements IdentityInterface
     if (parent::beforeSave($insert)) {
       if ($this->isNewRecord) {
         $this->auth_key = Yii::$app->getSecurity()->generateRandomString();
+        $this->access_token = Yii::$app->getSecurity()->generateRandomString();
       }
       return true;
     }

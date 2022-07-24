@@ -67,7 +67,10 @@ $config = [
             'class' => 'app\modules\quicknav\Module',
         ],
         'facilitator' => [
-            'class' => 'app\modules\facilitator\Module'
+            'class' => 'app\modules\facilitator\Module',
+        ],
+        'api' => [
+            'class' => 'app\modules\api\Module',
         ],
     ],
     'defaultRoute' => 'userportal/home/index',

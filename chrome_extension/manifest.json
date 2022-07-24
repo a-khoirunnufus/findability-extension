@@ -11,6 +11,6 @@
     "default_title": "Quick Navigation",
     "default_popup": "popup/index.html"
   },
-  "permissions": ["activeTab", "scripting", "storage", "tabs", "declarativeContent"],
+  "permissions": ["activeTab", "scripting", "storage", "tabs", "declarativeContent", "cookies"],
   "host_permissions": ["http://localhost:8080/", "https://drive.google.com/"]
 }

@@ -97,12 +97,23 @@ class AuthController extends Controller
     $identity = User::findOne(['email' => $payload['email']]);
     Yii::$app->user->login($identity, 1*24*3600); // session expired after 1 days
     
+    // send cookie
+    setcookie(
+      'access_token', 
+      $identity->access_token, 
+      time() + (86400 * 30), // 86400 = 1 day
+      "/"
+    );
+
     // redirect to home/index
     return $this->redirect(Url::toRoute('home/index'));
   }
 
   public function actionLogout()
   {
+    // delete cookie
+    setcookie("access_token", "", time() - 3600);
+
     Yii::$app->user->logout();
 
     return $this->redirect(Url::toRoute(['auth/login']));
