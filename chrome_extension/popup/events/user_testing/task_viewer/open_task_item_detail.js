@@ -5,6 +5,7 @@ import {
   } from "../../../elements.js";
 import { getAccessToken, resetStackView } from "../../../utils.js";
 import { eventCreator as openTaskItemListEventCreator } from './open_task_item_list.js';
+import { eventCreator as openActiveTaskEventCreator } from '../active_task/open_active_task.js';
 import getHtml from "../../../templates/user_testing/task_viewer/task_item_detail.js";
 
 const eventType = 'UT/TASK_VIEWER/OPEN_TASK_ITEM_DETAIL';
@@ -32,7 +33,7 @@ const eventHandler = async (e) => {
   // back button
   const btnBack = document.createElement('a');
   btnBack.setAttribute('href', '#');
-  btnBack.className = 'py-2 ps-3 mb-3 d-inline-block';
+  btnBack.className = 'mb-3 d-inline-block';
   btnBack.innerText = 'Kembali';
   btnBack.addEventListener('click', () => {
     document.dispatchEvent(openTaskItemListEventCreator({
@@ -42,14 +43,37 @@ const eventHandler = async (e) => {
     }));
   })
 
-  const html = getHtml(
+  // content html
+  const content = document.createElement('div');
+  content.className = 'p-3';
+  content.innerHTML = getHtml(
     res.taskItem.code,
     (res.taskItem.is_complete == "0") ? 'Belum selesai' : 'Selesai',
     res.taskItem.description,
   );
 
-  body.innerHTML = html;
-  body.prepend(btnBack);
+  // run task button
+  const btnRun = document.createElement('button');
+  btnRun.className = 'd-inline-block btn btn-sm btn-primary';
+  btnRun.innerText = 'Jalankan Tugas';
+  btnRun.addEventListener('click', () => {
+    console.log('run task item');
+    // set active task
+    chrome.storage.local.set({
+      activeTask: {
+        itemId: e.detail.itemId,
+        status: 'idle',
+      }
+    }, () => { 
+      // open active task stack
+      document.dispatchEvent(openActiveTaskEventCreator({}));
+    });
+  })
+
+  content.prepend(btnBack);
+  content.append(btnRun);
+  body.innerHTML = '';
+  body.append(content);
 }
 
 export {eventType, eventCreator, eventHandler};

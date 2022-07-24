@@ -9,10 +9,14 @@ chrome.runtime.onInstalled.addListener(() => {
       'detail': null,
     },
     'showQuicknav': true,
-    'popup_qnOpen': false,
-    'popup_utOpen': true,
-    'popup_utCurrentOpen': false,
-    'popup_utListOpen': true,
+    'activeTask': {
+      'itemId': null,
+      'status': null,
+    },
+    // 'popup_qnOpen': false,
+    // 'popup_utOpen': true,
+    // 'popup_utCurrentOpen': false,
+    // 'popup_utListOpen': true,
   });
 
   // register content script
