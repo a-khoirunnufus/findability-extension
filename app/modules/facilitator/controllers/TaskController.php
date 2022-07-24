@@ -8,6 +8,7 @@ use yii\filters\AccessControl;
 use app\modules\facilitator\models\UtTask;
 use app\components\DriveFileUt;
 use app\modules\facilitator\models\UtTaskTarget;
+use app\modules\facilitator\models\UtTaskItem as Item;
 
 class TaskController extends Controller
 {
@@ -107,13 +108,23 @@ class TaskController extends Controller
     $targetsExtended = [];
     foreach($targets as $item) {
       $file = $drive->getFileById($item['file_id']);
+      $newTarget['id'] = $item['id'];
       $newTarget['name'] = $file['name'];
       $newTarget['depth'] = $item['file_depth'];
       $newTarget['path_to_file'] = $item['path_to_file'];
       $newTarget['viewed_by_me_time'] = $file['viewedByMeTime'];
       $newTarget['frequency'] = $item['frequency'];
+      $newTarget['status'] = $item['status'];
+      $newTarget['description'] = $item['description'];
       $targetsExtended[] = $newTarget;
     }
+
+    // final items
+    $items = Item::find()
+      ->where(['task_id' => $tId])
+      ->orderBy('order ASC')
+      ->asArray()
+      ->all();
 
     return $this->render('setup', [
       'participant' => $participant,
@@ -123,6 +134,7 @@ class TaskController extends Controller
       'selectedFiles1' => $selectedFiles1Arr,
       'task' => $task,
       'targets' => $targetsExtended,
+      'items' => $items,
     ]);
   }
 
@@ -271,6 +283,82 @@ class TaskController extends Controller
     } catch(\Throwable $e) {
       $transaction->rollBack();
       Yii::$app->session->setFlash('failed', 'Target gagal disimpan.');
+    }
+
+    return $this->redirect(Yii::$app->request->referrer);
+  }
+
+  public function actionTargetValidation()
+  {
+    $request = Yii::$app->request;
+    $targetId = $request->post('target_id');
+    $status = $request->post('status');
+
+    try{
+      $target = UtTaskTarget::findOne($targetId);
+      $target->status = $status;
+      $target->save();
+      Yii::$app->session->setFlash('success', 'Target berhasil diproses.');
+    } catch (\Exception $e) {
+      Yii::$app->session->setFlash('failed', 'Target gagal diproses.');
+    }
+
+    return $this->redirect(Yii::$app->request->referrer);
+  }
+
+  public function actionAutoGenerateItems()
+  {
+    $request = Yii::$app->request;
+    
+    $taskId = $request->post('task_id');
+    $task = UtTask::findOne($taskId);
+
+    $pId = $request->get('participant_id');
+    $drive = new DriveFileUt($pId);
+
+    try{
+      // delete all items for this task
+      Item::deleteAll(['task_id' => $taskId]);
+      
+      // get targets with task_id
+      $targets = UtTaskTarget::find()
+        ->where([
+          'task_id' => $taskId,
+          'status' => 'valid'
+        ])
+        ->all();
+      
+      // populate order value
+      $targetFreqSum = 0;
+      foreach($targets as $target) {
+        $targetFreqSum += $target->frequency;
+      }
+      $orders = range(1,$targetFreqSum);
+      shuffle($orders);
+
+      // populate items from targets
+      foreach($targets as $target) {
+        $file = $drive->getFileById($target->file_id);
+
+        for ($i=0; $i < $target->frequency; $i++) { 
+          $order = array_pop($orders);
+
+          $item = new Item();
+          $item->code = $task->code."-".$order;
+          $item->file_id = $target->file_id;
+          $item->file_name = $file['name'];
+          $item->file_depth = $target->file_depth;
+          $item->path_to_file = $target->path_to_file;
+          $item->description = $target->description;
+          $item->order = $order;
+          $item->task_id = $taskId;
+          $item->save();
+        }
+      }
+      
+      Yii::$app->session->setFlash('success', 'Berhasil generate item.');
+    } catch (\Exception $e) {
+      Yii::$app->session->setFlash('failed', 'Gagal generate item.');
     }
 
     return $this->redirect(Yii::$app->request->referrer);

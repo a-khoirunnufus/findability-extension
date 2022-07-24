@@ -284,30 +284,143 @@ $session = \Yii::$app->session;
           <th scope="col">#</th>
           <th scope="col">Nama File</th>
           <th scope="col">Kedalaman</th>
-          <th scope="col">Jalur ke File</th>
-          <th scope="col">Terakhir Diakses</th>
           <th scope="col">Frekuensi</th>
+          <th scope="col">Status</th>
           <th scope="col">Aksi</th>
         </tr>
       </thead>
       <tbody>
-        <?php foreach($targets as $key => $file): ?>
+        <?php foreach($targets as $key => $target): ?>
           <tr>
             <td><?= $key + 1 ?></td>
-            <td><?= $file['name'] ?></td>
-            <td><?= $file['depth'] ?></td>
-            <td><?= $file['path_to_file'] ?></td>
-            <td><?= date('j M Y', strtotime($file['viewed_by_me_time'])) ?></td>
-            <td><?= $file['frequency'] ?></td>
+            <td><?= $target['name'] ?></td>
+            <td><?= $target['depth'] ?></td>
+            <td><?= $target['frequency'] ?></td>
+            <td><?= $target['status'] ?></td>
             <td>
-              <div class="d-flex">
-                <button class="btn btn-warning btn-sm text-white me-2">Edit</button>
-                <button class="btn btn-danger btn-sm text-white">Hapus</button>
-              </div>
+              <button 
+                  data-coreui-toggle="modal" 
+                  data-coreui-target="#modal-target-validation"
+                  class="btn-open-modal-target-validation btn btn-warning btn-sm text-white me-2"
+                  data-target-id="<?= $target['id'] ?>"
+                  data-target-name="<?= $target['name'] ?>"
+                  data-target-depth="<?= $target['depth'] ?>"
+                  data-target-path_to_file="<?= $target['path_to_file'] ?>"
+                  data-target-viewed_by_me_time="<?= $target['viewed_by_me_time'] ?>"
+                  data-target-frequency="<?= $target['frequency'] ?>"
+                  data-target-status="<?= $target['status'] ?>"
+                  data-target-description="<?= $target['description'] ?>"
+                  >Proses</button>
             </td>
           </tr>
         <?php endforeach; ?>
       </tbody>
     </table>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <div class="d-flex flex-row align-items-center justify-content-between">
+      <h5 class="card-title mb-0">List Final Item</h5>
+      <form action="<?= Url::toRoute(['task/auto-generate-items', 'participant_id' => $participant['id']]) ?>" method="post">
+        <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
+        <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
+        <button type="submit" class="btn btn-warning btn-sm text-white">Generate Item Otomatis</button>
+      </form>
+    </div>    
+  
+    <table class="table" id="table-mapping-file" style="font-size: 14px; margin-top: 40px;">
+      <thead>
+        <tr class="table-light">
+          <th scope="col">#</th>
+          <th scope="col">Kode</th>
+          <th scope="col">Nama File</th>
+          <th scope="col">Kedalaman</th>
+          <th scope="col">Jalur ke file</th>
+          <th scope="col">Deskripsi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach($items as $key => $item): ?>
+          <tr>
+            <td><?= $item['order'] ?></td>
+            <td><?= $item['code'] ?></td>
+            <td><?= $item['file_name'] ?></td>
+            <td><?= $item['file_depth'] ?></td>
+            <td><?= $item['path_to_file'] ?></td>
+            <td><?= $item['description'] ?></td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Process Target Modal -->
+<div id="modal-target-validation" class="modal fade" data-coreui-backdrop="static" data-coreui-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Proses Target</h5>
+        <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col-sm-4"><span>Nama file</span></div>
+              <div class="col-sm-8"><span id="modal-target-name"></span></div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col-sm-4"><span>Kedalaman</span></div>
+              <div class="col-sm-8"><span id="modal-target-depth"></span></div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col-sm-4"><span>Jalur ke file</span></div>
+              <div class="col-sm-8"><span id="modal-target-path_to_file"></span></div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col-sm-4"><span>Terakhir diakses</span></div>
+              <div class="col-sm-8"><span id="modal-target-viewed_by_me_time"></span></div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col-sm-4"><span>Frekuensi</span></div>
+              <div class="col-sm-8"><span id="modal-target-frequency"></span></div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col-sm-4"><span>Status</span></div>
+              <div class="col-sm-8"><span id="modal-target-status"></span></div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col-sm-4"><span>Deskripsi</span></div>
+              <div class="col-sm-8"><span id="modal-target-description"></span></div>
+            </div>
+          </li>
+        </ul>
+
+        <form id="form-target-validation" action="<?= Url::toRoute('task/target-validation') ?>" method="post">
+          <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
+          <input type="hidden" name="target_id" value="">
+          <input type="hidden" name="status" value="">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Close</button>
+        <button data-value="not_valid" type="button" class="btn btn-danger btn-target-validation">Tidak Valid</button>
+        <button data-value="valid" type="button" class="btn btn-success btn-target-validation">Valid</button>
+      </div>
+    </div>
   </div>
 </div>

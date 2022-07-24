@@ -20,7 +20,10 @@ class UtTaskTarget extends ActiveRecord
       ->where(['task_id' => $taskId])
       ->all();
     foreach($targets as $target) {
-      if(!boolval($target['description'])) {
+      if(
+          !boolval($target['description'])
+          or $target['status'] == 'not_valid' 
+        ) {
         return false;
       }
     }
@@ -34,6 +37,8 @@ class UtTaskTarget extends ActiveRecord
       ->andWhere(new \yii\db\conditions\OrCondition([
         ['=', 'description', null],
         ['=', 'description', ''],
+        ['=', 'status', 'init'],
+        ['=', 'status', 'not_valid'],
       ]))
       ->one();
     return $target;

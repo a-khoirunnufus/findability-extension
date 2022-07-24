@@ -42,4 +42,37 @@ window.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#form-set-final-targets').submit();
   })
 
+  // OPEN TARGET VALIDATION MODAL
+  document.querySelectorAll('.btn-open-modal-target-validation').forEach((elm) => {
+    elm.addEventListener('click', function() {
+      console.log('open modal');
+      const targetId = this.getAttribute('data-target-id');
+      const targetName = this.getAttribute('data-target-name');
+      const targetDepth = this.getAttribute('data-target-depth');
+      const targetPathToFile = this.getAttribute('data-target-path_to_file');
+      const targetViewedByMeTime = this.getAttribute('data-target-viewed_by_me_time');
+      const targetFrequency = this.getAttribute('data-target-frequency');
+      const targetStatus = this.getAttribute('data-target-status');
+      const targetDescription = this.getAttribute('data-target-description');
+  
+      document.querySelector('#modal-target-validation #modal-target-name').innerText = targetName;
+      document.querySelector('#modal-target-validation #modal-target-depth').innerText = targetDepth;
+      document.querySelector('#modal-target-validation #modal-target-path_to_file').innerText = targetPathToFile;
+      document.querySelector('#modal-target-validation #modal-target-viewed_by_me_time').innerText = targetViewedByMeTime;
+      document.querySelector('#modal-target-validation #modal-target-frequency').innerText = targetFrequency;
+      document.querySelector('#modal-target-validation #modal-target-status').innerText = targetStatus;
+      document.querySelector('#modal-target-validation #modal-target-description').innerText = targetDescription;
+      document.querySelector('#modal-target-validation input[name="target_id"]').value = targetId;
+    });
+  })
+
+  // TARGET VALIDAITON
+  document.querySelectorAll('.btn-target-validation').forEach((elm) => {
+    elm.addEventListener('click', function() {
+      const value = this.getAttribute('data-value');
+      document.querySelector('#modal-target-validation input[name="status"').value = value;
+      document.querySelector('#modal-target-validation #form-target-validation').submit();
+    });
+  })
+
 });

@@ -77,6 +77,7 @@ class TaskController extends Controller
       try{
         $target = Target::findOne($targetId);
         $target->description = $description;
+        $target->status = 'pending';
         $target->save();
         Yii::$app->session->setFlash('success', 'Berhasil mendeskripsikan file.');
       } catch (\Exception $e) {
