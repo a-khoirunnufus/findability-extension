@@ -5,7 +5,7 @@ use yii\db\Migration;
 /**
  * Handles the creation of table `{{%ut_task_target}}`.
  */
-class m220723_132324_create_ut_task_target_table extends Migration
+class m220722_102726_create_ut_task_target_table extends Migration
 {
     /**
      * {@inheritdoc}
@@ -15,10 +15,11 @@ class m220723_132324_create_ut_task_target_table extends Migration
         $this->createTable('ut_task_target', [
             'id' => $this->primaryKey(),
             'file_id' => $this->string()->notNull(),
-            'path_to_file' => $this->string(),
             'file_depth' => $this->integer(),
+            'path_to_file' => $this->string(),
             'description' => $this->string(),
             'frequency' => $this->integer()->notNull(),
+            'status' => $this->string()->defaultValue('init'), 
             'task_id' => $this->integer()->notNull(),
         ]);
 

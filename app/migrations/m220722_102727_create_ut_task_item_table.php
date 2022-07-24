@@ -17,6 +17,7 @@ class m220722_102727_create_ut_task_item_table extends Migration
             'code' => $this->string(7),
             'file_id' => $this->string()->notNull(),
             'file_name' => $this->string()->notNull(),
+            'file_depth' => $this->integer(),
             'path_to_file' => $this->string()->notNull(),
             'description' => $this->text()->notNull(),
             'order' => $this->integer(),
