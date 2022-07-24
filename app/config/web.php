@@ -15,6 +15,7 @@ $config = [
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
+            'enableCookieValidation' => true,
             'cookieValidationKey' => 'kW0d8Ky2b0IXENm92Lakwo5f5_4O0Asg',
         ],
         'cache' => [
@@ -23,6 +24,7 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
+            'enableSession' => true,
             'loginUrl' => '@web/userportal/auth/login',
             'identityCookie' => [
                 'name' => '_identity',
