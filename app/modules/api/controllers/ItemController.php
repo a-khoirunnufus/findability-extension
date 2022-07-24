@@ -6,10 +6,9 @@ use Yii;
 use yii\web\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use app\modules\facilitator\models\UtParticipant as Participant;
-use app\modules\facilitator\models\UtTask as Task;
 use app\modules\facilitator\models\UtTaskItem as Item;
 
-class TaskController extends Controller
+class ItemController extends Controller
 {
   public function behaviors()
   {
@@ -22,17 +21,29 @@ class TaskController extends Controller
   
   public function actionIndex()
   {
-    $identity = Yii::$app->user->identity;
-    $participant = Participant::findOne(['user_id' => $identity->id]);
+    $request = Yii::$app->request;
+    $taskId = $request->get('task_id');
 
-    $taskList = Task::find()
-      ->where(['participant_id' => $participant['id']])
+    $taskItems = Item::find()
+      ->where(['task_id' => $taskId])
       ->orderBy('order ASC')
       ->asArray()
       ->all();
 
     return $this->asJson([
-      'taskList' => $taskList
+      'taskItems' => $taskItems,
+    ]);
+  }
+
+  public function actionDetail()
+  {
+    $request = Yii::$app->request;
+    $itemId = $request->get('item_id');
+
+    $taskItem = Item::findOne($itemId);
+
+    return $this->asJson([
+      'taskItem' => $taskItem,
     ]);
   }
 }
