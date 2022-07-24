@@ -5,6 +5,7 @@ import {
   } from "../elements.js";
 import { getAccessToken, resetStackView } from "../utils.js";
 import { otlEvent } from "./open_task_list.js";
+import { otcEventCreator } from "./open_task_current.js";
 
 const otliType = 'OPEN_TASK_LIST_ITEMS';
 const otliEventCreator = (options) => {
@@ -53,7 +54,11 @@ const otliHandler = async (e) => {
     btn.innerText = 'Pilih';
     btn.className = 'btn btn-primary btn-sm';
     btn.addEventListener('click', () => {
-      console.log('event select task item');
+      document.dispatchEvent(otcEventCreator({
+        detail: {
+          itemId: item.id
+        }
+      }))
     });
 
     listItem.append(itemText);
