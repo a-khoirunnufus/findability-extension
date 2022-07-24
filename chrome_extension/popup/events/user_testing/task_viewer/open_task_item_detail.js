@@ -13,8 +13,9 @@ const eventCreator = (options) => {
 }
 
 const eventHandler = async (e) => {
-  console.log(e.detail);
   console.log('event:', eventType);
+  chrome.storage.local.set({lastPopupEvent: {type: eventType, detail: e.detail}});
+  
   resetStackView();
 
   bodyUserTesting.classList.add('show');

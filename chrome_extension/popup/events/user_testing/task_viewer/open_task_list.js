@@ -7,10 +7,14 @@ import { getAccessToken, resetStackView } from "../../../utils.js";
 import { eventCreator as openTaskItemListEventCreator } from "./open_task_item_list.js";
 
 const eventType = 'UT/TASK_VIEWER/OPEN_TASK_LIST';
-const event = new Event(eventType);
+const eventCreator = (options) => {
+  return new CustomEvent(eventType, options)
+}
 
 const eventHandler = async (e) => {
   console.log('event:', eventType);
+  chrome.storage.local.set({lastPopupEvent: {type: eventType, detail: e.detail}});
+  
   resetStackView();
 
   bodyUserTesting.classList.add('show');
@@ -53,4 +57,4 @@ const eventHandler = async (e) => {
   body.append(list);
 }
 
-export {eventType, event, eventHandler};
+export {eventType, eventCreator, eventHandler};

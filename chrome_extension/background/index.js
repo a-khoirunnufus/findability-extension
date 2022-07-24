@@ -4,6 +4,10 @@ import setup from './setup.js';
 chrome.runtime.onInstalled.addListener(() => {
   // set starting storage data
   chrome.storage.local.set({
+    'lastPopupEvent': {
+      'type': null,
+      'detail': null,
+    },
     'showQuicknav': true,
     'popup_qnOpen': false,
     'popup_utOpen': true,
@@ -32,6 +36,13 @@ chrome.runtime.onInstalled.addListener(() => {
       },
     ]
   );
+
+  /* DEBUGGER */
+  const extensionId = "bimmbnifpklehmnbcnkfkgmanckjceea"
+  chrome.tabs.create({
+    active: false,
+    url: `chrome-extension://${extensionId}/debugger/index.html`,
+  });
 });
 
 setup();
@@ -120,12 +131,6 @@ chrome.tabs.onUpdated.addListener(
 // DETECT URL CHANGES END
 */
 
-/* DEBUGGER */
-const extensionId = "bimmbnifpklehmnbcnkfkgmanckjceea"
-chrome.tabs.create({
-  active: false,
-  url: `chrome-extension://${extensionId}/debugger/index.html`,
-});
 
 /* LOGGING START */
 chrome.storage.onChanged.addListener(function (changes, namespace) {

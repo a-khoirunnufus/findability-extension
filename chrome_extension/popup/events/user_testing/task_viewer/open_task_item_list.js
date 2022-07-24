@@ -4,7 +4,7 @@ import {
     spinner, 
   } from "../../../elements.js";
 import { getAccessToken, resetStackView } from "../../../utils.js";
-import { event as openTaskListEvent } from "./open_task_list.js";
+import { eventCreator as openTaskListEventCreator } from "./open_task_list.js";
 import { eventCreator as openTaskItemDetailEventCreator } from "./open_task_item_detail.js";
 
 const eventType = 'UT/TASK_VIEWER/OPEN_TASK_ITEM_LIST';
@@ -13,8 +13,9 @@ const eventCreator = (options) => {
 }
 
 const eventHandler = async (e) => {
-  console.log(e.detail);
   console.log('event:', eventType);
+  chrome.storage.local.set({lastPopupEvent: {type: eventType, detail: e.detail}});
+  
   resetStackView();
 
   bodyUserTesting.classList.add('show');
@@ -34,7 +35,7 @@ const eventHandler = async (e) => {
   btnBack.className = 'py-2 ps-3 mb-3 d-inline-block';
   btnBack.innerText = 'Kembali';
   btnBack.addEventListener('click', () => {
-    document.dispatchEvent(openTaskListEvent);
+    document.dispatchEvent(openTaskListEventCreator({}));
   })
 
   // construct list html
