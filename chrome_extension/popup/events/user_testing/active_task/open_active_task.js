@@ -51,35 +51,37 @@ const eventHandler = async (e) => {
     const btnSetup = document.createElement('button');
     btnSetup.className = 'd-inline-block btn btn-sm btn-info me-3';
     btnSetup.innerText = 'Siapkan Tugas';
-    btnSetup.addEventListener('click', () => {
+    btnSetup.addEventListener('click', async () => {
 
       // check item task interface
-      const interfaceType = res.taskItem.interface;
-      if (interfaceType == 'GOOGLE_DRIVE') {
+      if (activeTask.interface == 'GOOGLE_DRIVE') {
         // unregister content script
-        chrome.storage.local.set({showQuicknav: false});
-      } else if(interfaceType == 'QUICKNAV') {
-        // register content script
-        chrome.storage.local.set({showQuicknav: true});
+        await chrome.storage.local.set({showQuicknav: false});
+      } 
+      else if(activeTask.interface == 'QUICKNAV') {
+        // trigger re-register content script
+        // set task status running
+        await chrome.storage.local.set({showQuicknav: false});
+        await chrome.storage.local.set({
+          activeTask: {
+            itemId: activeTask.itemId,
+            status: 'running',
+            interface: 'QUICKNAV',
+          },
+          showQuicknav: true,
+        });
       }
 
       // navigate to home url
-      getCurrentTab()
-        .then(tab => {
-          chrome.scripting.executeScript(
-            {
-              target: {tabId: tab.id},
-              func: () => {
-                window.location.href = 'https://drive.google.com/drive/my-drive';
-              },
-            },
-          );
-        });
+      const tab = await getCurrentTab();
+      chrome.scripting.executeScript({
+        target: {tabId: tab.id},
+        func: () => {
+          window.location.href = 'https://drive.google.com/drive/my-drive';
+        },
+      });
 
     });
-
-    // hint information
-    // divHintInfo available
 
     // button show hint
     const btnShowHint = document.createElement('button');
@@ -94,16 +96,15 @@ const eventHandler = async (e) => {
     btnBegin.className = 'd-inline-block btn btn-sm btn-primary';
     btnBegin.innerText = 'Mulai Tugas';
     btnBegin.addEventListener('click', async () => {
-      const interfaceType = res.taskItem.interface;
 
-      if(interfaceType == 'GOOGLE_DRIVE') {
+      if(activeTask.interface == 'GOOGLE_DRIVE') {
         const currentTab = await getCurrentTab();
-        // set active task
+        // set task status running
         await chrome.storage.local.set({ 
             activeTask: {
               itemId: activeTask.itemId,
               status: 'running',
-              interface: 'GOOGLE_DRIVE'
+              interface: 'GOOGLE_DRIVE',
             },
             taskLog: [{
               action: 'BEGIN_TASK',
@@ -113,22 +114,19 @@ const eventHandler = async (e) => {
         });
         window.close();
       } 
-      else if(interfaceType == 'QUICKNAV') {
-        // set active task
-        // also trigger re-register content script
-        await chrome.storage.local.set({
-          activeTask: {
-            itemId: activeTask.itemId,
-            status: 'running',
-            interface: 'QUICKNAV',
-          },
-          showQuicknav: false,
-        });
 
-        await chrome.storage.local.set({
-          showQuicknav: true,
-        });
-
+      else if(activeTask.interface == 'QUICKNAV') {
+        // send to server, task is begin
+        let res = await fetch(
+          'http://localhost:8080/api/item/log-action'
+            +'?action=BEGIN_TASK'
+            +'&object=PREVIOUS'
+            +'&time='+Math.floor(new Date().getTime()/1000.0)
+            +'&task_item_id'+activeTask.itemId,
+          { headers: { 'Authorization': 'Basic ' + btoa(`${accessToken}:password`) }}
+        );
+        res = await res.json();
+        console.log('log action result', res);
         window.close();
       }
 
@@ -139,34 +137,56 @@ const eventHandler = async (e) => {
     btnEnd.className = 'd-inline-block btn btn-sm btn-success';
     btnEnd.innerText = 'Tugas Selesai';
     btnEnd.addEventListener('click', async () => {
-      const currentTab = await getCurrentTab();
-      let {taskLog} = await chrome.storage.local.get(['taskLog']);
 
-      taskLog.push({
-        action: 'END_TASK',
-        object: currentTab.url,
-        time: Math.floor(new Date().getTime()/1000.0),
-      });
-
-      // send log to background
-      chrome.runtime.sendMessage({
-        code: "FINAL_TASK_LOG",
-        data: {
-          logs: taskLog,
-          taskItemId: activeTask.itemId,
-        },
-      });
-
-      chrome.storage.local.set(
-        {
+      if(activeTask.interface == 'GOOGLE_DRIVE') {
+        const currentTab = await getCurrentTab();
+        let {taskLog} = await chrome.storage.local.get(['taskLog']);
+        taskLog.push({
+          action: 'END_TASK',
+          object: currentTab.url,
+          time: Math.floor(new Date().getTime()/1000.0),
+        });
+        // send log to background
+        chrome.runtime.sendMessage({
+          code: "FINAL_TASK_LOG",
+          data: { logs: taskLog, taskItemId: activeTask.itemId },
+        });
+        // set task status idle
+        await chrome.storage.local.set({
           activeTask: {
             itemId: activeTask.itemId,
             status: 'idle',
+            interface: 'GOOGLE_DRIVE',
           },
           taskLog: [],
-        },
-        () => { window.close() }
-      );
+        });
+        window.close();
+      }
+
+      else if(activeTask.interface == 'QUICKNAV') {
+        // set task status idle
+        await chrome.storage.local.set({
+          activeTask: {
+            itemId: activeTask.itemId,
+            status: 'idle',
+            interface: res.taskItem.interface,
+          },
+          taskLog: [],
+        });
+        // send to server, task is end
+        let res = await fetch(
+          'http://localhost:8080/api/item/log-action'
+            +'?action=END_TASK'
+            +'&object=PREVIOUS'
+            +'&time='+Math.floor(new Date().getTime()/1000.0)
+            +'&task_item_id'+activeTask.itemId,
+          { headers: { 'Authorization': 'Basic ' + btoa(`${accessToken}:password`) }}
+        );
+        res = await res.json();
+        console.log('log action result', res);
+        window.close();
+      }
+
     });
 
     // cancel task button
@@ -174,17 +194,27 @@ const eventHandler = async (e) => {
     btnCancel.className = 'd-inline-block btn btn-sm btn-secondary me-3';
     btnCancel.innerText = 'Batalkan Tugas';
     btnCancel.addEventListener('click', () => {
-      // update storage task status
-      chrome.storage.local.set(
-        {
-          activeTask: {
-            itemId: activeTask.itemId,
-            status: 'idle',
-          },
-          taskLog: [],
+      // set task status idle
+      await chrome.storage.local.set({
+        activeTask: {
+          itemId: activeTask.itemId,
+          status: 'idle',
+          interface: activeTask.interface,
         },
-        () => { window.close() }
+        taskLog: [],
+      });
+      // send to server, task is cancel
+      let res = await fetch(
+        'http://localhost:8080/api/item/log-action'
+          +'?action=CANCEL_TASK'
+          +'&object=PREVIOUS'
+          +'&time='+Math.floor(new Date().getTime()/1000.0)
+          +'&task_item_id'+activeTask.itemId,
+        { headers: { 'Authorization': 'Basic ' + btoa(`${accessToken}:password`) }}
       );
+      res = await res.json();
+      console.log('log action result', res);
+      window.close();
     });
 
     if (res.taskItem.hint_visible && activeTask.status == 'idle') {

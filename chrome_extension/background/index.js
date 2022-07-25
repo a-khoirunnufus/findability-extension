@@ -19,28 +19,6 @@ chrome.runtime.onInstalled.addListener(() => {
     'taskLog': [],
   });
 
-  // register content script
-  // chrome.scripting.registerContentScripts(
-  //   [
-  //     {
-  //       id: 'gdcomponent-hide',
-  //       js: [ 
-  //         'content_scripts/googledrive/filelist_hide.js',
-  //         'content_scripts/googledrive/searchbar_hide.js' 
-  //       ],
-  //       matches: [ 'https://drive.google.com/*' ],
-  //       runAt: 'document_end',
-  //     },
-  //     {
-  //       id: 'quicknav-main',
-  //       css: [ 'content_scripts/quicknav/main.css' ],
-  //       js: [ 'content_scripts/quicknav/main.js' ],
-  //       matches: [ 'https://drive.google.com/*' ],
-  //       runAt: 'document_end',
-  //     },
-  //   ]
-  // );
-
   /* DEBUGGER */
   const extensionId = "bimmbnifpklehmnbcnkfkgmanckjceea"
   chrome.tabs.create({
@@ -93,7 +71,7 @@ chrome.runtime.onMessage.addListener(
       // send log to server as json
       const accessToken = await getAccessToken();
       let res = await fetch(
-        'http://localhost:8080/api/item/log?task_item_id='+taskItemId
+        'http://localhost:8080/api/item/submit-log?task_item_id='+taskItemId
           +'&logs='+JSON.stringify(logs),
         {
           method: 'GET',
@@ -101,7 +79,7 @@ chrome.runtime.onMessage.addListener(
         },
       );
       res = await res.json();
-      console.log(res);
+      console.log('submit log result', res);
     }
   }
 );
@@ -118,12 +96,6 @@ function getAccessToken() {
 }
 
 // DETECT URL CHANGES START
-// async function getCurrentTab() {
-//   let queryOptions = { active: true, currentWindow: true };
-//   let [tab] = await chrome.tabs.query(queryOptions);
-//   return tab;
-// }
-
 chrome.tabs.onUpdated.addListener(
   async (tabId, changeInfo, tab) => {
     
@@ -147,7 +119,6 @@ chrome.tabs.onUpdated.addListener(
   }
 )
 // DETECT URL CHANGES END
-
 
 
 /* LOGGING START */

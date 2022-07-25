@@ -62,12 +62,13 @@ const eventHandler = async (e) => {
   btnRun.className = 'd-inline-block btn btn-sm btn-primary';
   btnRun.innerText = 'Jalankan Tugas';
   btnRun.addEventListener('click', () => {
-    console.log('run task item');
-    // set active task
+
+    // initialize active task with status idle
     chrome.storage.local.set({
       activeTask: {
         itemId: e.detail.itemId,
         status: 'idle',
+        interface: res.taskItem.interface,
       }
     }, () => { 
       // open active task stack

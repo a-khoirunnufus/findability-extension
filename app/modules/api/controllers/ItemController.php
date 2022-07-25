@@ -74,7 +74,7 @@ class ItemController extends Controller
     ]);
   }
 
-  public function actionLog()
+  public function actionSubmitLog()
   {
     $request = Yii::$app->request;
     $taskItemId = $request->get('task_item_id');
@@ -101,8 +101,32 @@ class ItemController extends Controller
       $res = 'failed';
     }
 
-    return $this->asJson([
-      'status' => $res
-    ]);
+    return $this->asJson([ 'status' => $res ]);
   }
+
+  public function actionLogAction()
+  {
+    $request = Yii::$app->request;
+    $paramAction = $request->get('action');
+    $paramObject = $request->get('object');
+    $paramTime = $request->get('time');
+    $paramTaskItemId = $request->get('task_item_id');
+    $res = 'success';
+
+    try {
+      $log = new Log();
+      $log->action = $paramAction;
+      $log->object = $paramObject;
+      $log->time = date('Y-m-d H:i:s', intval($paramTime));
+      $log->task_item_id = $paramTaskItemId;
+      $log->save();
+    } catch (\Exception $e) {
+      $res = 'failed';
+    } catch(\Throwable $e) {
+      $res = 'failed';
+    }
+
+    return $this->asJson([ 'status' => $res ]);
+  }
+
 }

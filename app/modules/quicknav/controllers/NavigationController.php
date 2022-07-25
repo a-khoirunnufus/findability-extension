@@ -41,12 +41,10 @@ class NavigationController extends Controller
     $paramSortDir = Yii::$app->request->get('sort_dir');
     $paramSortDir = intval($paramSortDir);
 
-    $request = Yii::$app->request;
-    $paramLog = $request->get('log');
-    $fullUrl = $request->absoluteUrl .'?'. $request->queryString;
-    if($paramLog) {
-      // TODO: CASE ACTION CANCEL
-
+    // task item logging
+    $paramLog = Yii::$app->request->get('log');
+    if($paramLog !== null) {
+      $fullUrl = $request->absoluteUrl .'?'. $request->queryString;
       $logData = explode('@', $paramLog);
       $log = new Log;
       $log->action = $logData[0];
@@ -55,7 +53,6 @@ class NavigationController extends Controller
       $log->task_item_id = $logData[1];
       $log->save();
     }
-
 
     $bigfile = new BIGFile($paramFolderId, $paramKeyword);
     $drive = new DriveFile();
