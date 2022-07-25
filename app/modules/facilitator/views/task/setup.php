@@ -8,6 +8,7 @@ $this->registerJsFile(
 
 $this->params['breadcrumbs'] = [
   [ 'label' => 'Pilih Partisipan', 'link' => Url::toRoute('task/select-participant'), 'active' => false ],
+  [ 'label' => 'Daftar Tugas', 'link' => Url::toRoute(['task/list', 'participant_id' => $participant['id']]), 'active' => false ],
   [ 'label' => 'Atur Tugas', 'link' => null, 'active' => true ],
 ];
 
@@ -16,7 +17,7 @@ $session = \Yii::$app->session;
 ?>
 
 <div class="mb-4">
-  <h4 class="card-title mb-0">Atur Tugas</h4>
+  <h4 class="card-title mb-0">Atur Item Tugas</h4>
   <div class="small text-medium-emphasis">Partisipan <?= $participant['name'] ?></div>
   <div class="small text-medium-emphasis">Tugas <?= $task['code'] ?> - <?= $task['name'] ?></div>
 </div>

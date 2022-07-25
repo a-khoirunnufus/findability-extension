@@ -16,7 +16,7 @@ async function main() {
     && activeTask.status == 'idle' 
     && activeTask.interface == 'QUICKNAV'
   ) {
-    url += '&log=NAVIGATE-'+activeTask.itemId;
+    url += '&source=static&log=NAVIGATE-'+activeTask.itemId;
   }
 
   // create iframe element

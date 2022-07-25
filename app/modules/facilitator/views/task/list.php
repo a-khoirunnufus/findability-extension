@@ -60,6 +60,11 @@ $session = \Yii::$app->session;
                   data-task-id="<?= $task['id'] ?>" 
                   class="btn-open-edit-modal text-white btn btn-warning btn-sm"
                   >Edit</button>
+              <a href="<?= Url::toRoute([
+                  'task/setup', 
+                  'participant_id' => $participant['id'], 
+                  'task_id' => $task['id']]) ?>" class="btn btn-warning btn-sm text-white"
+                  >Atur Item</a>
               <button 
                   data-coreui-toggle="modal" 
                   data-coreui-target="#deleteTask"
@@ -69,12 +74,7 @@ $session = \Yii::$app->session;
             </td>
             <td class="text-center">
               <a href="#" class="btn btn-primary btn-sm">
-                  Status Tugas</a>    
-              <a href="<?= Url::toRoute([
-                  'task/setup', 
-                  'participant_id' => $participant['id'], 
-                  'task_id' => $task['id']]) ?>" class="btn btn-warning btn-sm"
-                  >Atur Tugas</a>
+                  Buka</a>
             </td>
           </tr>
         <?php endforeach; ?>
