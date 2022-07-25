@@ -125,4 +125,21 @@ class ItemController extends Controller
     return $this->redirect(Yii::$app->request->referrer);
   }
 
+  public function actionUnvalidate()
+  {
+    $request = Yii::$app->request;
+    $taskItemId = $request->post('task_item_id');
+
+    try {
+      $item = Item::findOne($taskItemId);
+      $item->status = 'NOT_COMPLETE';
+      $item->save();
+      Yii::$app->session->setFlash('success', 'Berhasil mengupdate data.');
+    } catch(\Exception $e) {
+      Yii::$app->session->setFlash('failed', 'Gagal mengupdate data.');
+    }
+    
+    return $this->redirect(Yii::$app->request->referrer);
+  }
+
 }

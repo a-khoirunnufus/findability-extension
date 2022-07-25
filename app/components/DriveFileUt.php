@@ -131,7 +131,7 @@ class DriveFileUt {
 
   public function getFileById($id)
   {
-    if($id == 'root') {
+    if($id == 'root' or $id == 'my-drive') {
       return [
         'name' => 'Drive Saya'
       ];

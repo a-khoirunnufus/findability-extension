@@ -45,7 +45,7 @@ $csrfToken = \Yii::$app->request->csrfToken;
                 <?php 
                 if($item['interface'] == 'GOOGLE_DRIVE') {
                   $tempArr = explode('/', $log['object']);
-                  echo end($tempArr);
+                  $folder_id = end($tempArr);
                 }
                 elseif($item['interface'] == 'QUICKNAV') {
                   $url = $log['object'];
@@ -55,9 +55,10 @@ $csrfToken = \Yii::$app->request->csrfToken;
                   $url = parse_url($url, PHP_URL_QUERY);
                   $output;
                   parse_str($url, $output);
-                  $file = $drive->getFileById($output['folder_id']);
-                  echo $file['name'];
+                  $folder_id = $output['folder_id'];
                 }
+                $file = $drive->getFileById($folder_id);
+                echo $file['name'];
                 ?>
               </td>
               <td><?= $log['time'] ?></td>
@@ -66,8 +67,12 @@ $csrfToken = \Yii::$app->request->csrfToken;
         </tbody>
       </table>
 
-      <button type="submit" class="btn btn-success btn-lg text-white mt-3">Validasi</button>
+      <button type="submit" class="btn btn-success btn-lg text-white mt-3">Tandai selesai</button>
     </form>
-
+    <form  action="<?= Url::toRoute('item/unvalidate') ?>" method="post">
+      <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
+      <input type="hidden" name="task_item_id" value="<?= $item['id'] ?>">
+      <button type="submit" class="btn btn-secondary btn-lg text-white mt-3">Tandai belum selesai</button>
+    </form>
   </div>
 </div>
