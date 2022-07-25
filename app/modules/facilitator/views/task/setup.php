@@ -275,8 +275,21 @@ $session = \Yii::$app->session;
 </div>
 
 <div class="card shadow-sm mb-4">
-  <div class="card-body">    
-    <h5 class="card-title mb-0">List File Target Final</h5>
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="card-title mb-0">List File Target Final</h5>
+      <div class="d-flex flex-row">
+        <form action="<?= Url::toRoute('task/clear-target') ?>" method="post" class="me-3">
+          <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
+          <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
+          <button type="submit" class="btn btn-danger text-white btn-sm">Kosongkan Target</button>
+        </form>
+        <button 
+            data-coreui-toggle="modal" 
+            data-coreui-target="#modal-copy-target"
+            class="btn btn-warning text-white btn-sm">Copas Target</button>
+      </div>
+    </div>    
   
     <table class="table" id="table-mapping-file" style="font-size: 14px; margin-top: 40px;">
       <thead>
@@ -354,6 +367,53 @@ $session = \Yii::$app->session;
         <?php endforeach; ?>
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- Copas Target Modal -->
+<div id="modal-copy-target" class="modal fade" data-coreui-backdrop="static" data-coreui-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Copas Target</h5>
+        <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info" role="alert">
+          Info: Hanya meng-copy target dengan status valid
+        </div>
+
+        <form id="form-copy-target" action="<?= Url::toRoute('task/copy-task-target') ?>" method="post">
+          <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
+          <input type="hidden" name="dest_task_id" value="<?= $task['id'] ?>">
+          
+          <?php // get all task list
+            $allTask = (new \yii\db\Query())
+              ->select(['id', 'code', 'name', 'interface'])
+              ->from('ut_task')
+              ->all();
+          ?>
+          <?php foreach($allTask as $sourceTask): ?>
+            <div class="form-check border-bottom">
+              <input class="form-check-input" type="radio" name="source_task_id" value="<?= $sourceTask['id'] ?>">
+              <label class="form-check-label row text-left">
+                <div class="col-sm-2">
+                  <?= $sourceTask['code'] ?>
+                </div>
+                <div class="col-sm-6">
+                  <?= $sourceTask['name'] ?>
+                </div>
+                <div class="col-sm-4">
+                  <?= $sourceTask['interface'] ?>
+                </div>
+              </label>
+            </div>
+          <?php endforeach; ?>
+
+          <button type="submit" class="btn btn-warning mt-3">Copas dari Tugas ini</button>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
 

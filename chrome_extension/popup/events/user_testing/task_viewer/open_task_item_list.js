@@ -51,9 +51,13 @@ const eventHandler = async (e) => {
     itemCode.innerHTML = `<span>${item.code}</span>`;
     
     const itemStatus = document.createElement('span');
-    itemStatus.innerHTML = (item.is_complete == "0") 
-        ? '<span class="badge bg-secondary">belum selesai</span>' 
-        : '<span class="badge bg-selesai">selesai</span>';
+    if(item.status == 'NOT_COMPLETE') {
+      itemStatus.innerHTML = '<span class="badge bg-secondary">belum selesai</span>'; 
+    } else if(item.status == 'PENDING') {
+      itemStatus.innerHTML = '<span class="badge bg-warning">pending</span>';
+    } else if(item.status == 'COMPLETED') {
+      itemStatus.innerHTML = '<span class="badge bg-success">selesai</span>';
+    }
 
     const btn = document.createElement('button');
     btn.innerText = 'Buka';

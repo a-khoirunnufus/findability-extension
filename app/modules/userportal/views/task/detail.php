@@ -28,8 +28,7 @@ $this->params['breadcrumbs'] = [
             <th class="text-center" scope="col">Kode</th>
             <th scope="col">Keterangan</th>
             <th class="text-center" scope="col">Status</th>
-            <th scope="col">Diselesaikan pada</th>
-            <!-- <th class="text-center" scope="col">Aksi</th> -->
+            <th scope="col">Dilakukan pada</th>
           </tr>
         </thead>
         <tbody>
@@ -38,40 +37,19 @@ $this->params['breadcrumbs'] = [
               <th class="text-center" scope="row"><?= $item['code'] ?></th>
               <td>Pergi ke file dengan deskripsi: <?= $item['description'] ?></td>
               <td class="text-center">
-                <?php if($item['is_complete'] === 0): ?>
+                <?php if($item['status'] == 'NOT_COMPLETE'): ?>
                   <span class="badge text-bg-secondary text-light">Belum selesai</span></td>
-                <?php else: ?>
+                <?php elseif($item['status'] == 'PENDING'): ?>
+                  <span class="badge text-bg-warning text-light">Pending</span></td>
+                <?php elseif($item['status'] == 'COMPLETED'): ?>
                   <span class="badge text-bg-success text-light">Selesai</span></td>
                 <?php endif; ?>
-              <td><?= $item['completed_at'] ? date('j M Y H:i:s', strtotime($item['completed_at'])) : '-' ?></td>
-              <!-- <td class="text-center">
-                <button class="btn btn-primary btn-sm" data-coreui-toggle="modal" data-coreui-target="#staticBackdrop">
-                    Konfirmasi Selesai</button>
-              </td> -->
+              <td><?= $item['run_at'] ? date('j M Y H:i:s', strtotime($item['run_at'])) : '-' ?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>
       </table>
     <?php endif; ?>
 
-  </div>
-</div>
-
-<!-- Confirm Modal -->
-<div class="modal fade" id="staticBackdrop" data-coreui-backdrop="static" data-coreui-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <!-- <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5> -->
-        <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Konfirmasi tugas telah selesai?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Batal</button>
-        <button type="button" class="btn btn-primary">Konfirmasi</button>
-      </div>
-    </div>
   </div>
 </div>

@@ -84,6 +84,7 @@ class ItemController extends Controller
 
     $transaction = Log::getDb()->beginTransaction();
     try{
+      // store all log
       foreach($logs as $item) {
         $log = new Log();
         $log->action = $item['action'];
@@ -92,6 +93,13 @@ class ItemController extends Controller
         $log->task_item_id = $taskItemId;
         $log->save();
       }
+
+      // update task item status
+      $taskItem = Item::findOne($taskItemId);
+      $taskItem->status = 'PENDING';
+      $taskItem->run_at = date('Y-m-d H:i:s', time());
+      $taskItem->save();
+
       $transaction->commit();
     } catch (\Exception $e) {
       $transaction->commit();
@@ -113,16 +121,31 @@ class ItemController extends Controller
     $paramTaskItemId = $request->get('task_item_id');
     $res = 'success';
 
-    try {
+    $transaction = Log::getDb()->beginTransaction();
+    try{
+      // store log
       $log = new Log();
       $log->action = $paramAction;
       $log->object = $paramObject;
       $log->time = date('Y-m-d H:i:s', intval($paramTime));
       $log->task_item_id = $paramTaskItemId;
       $log->save();
+
+      // if action is END_TASK
+      // update task item status
+      if($paramAction == 'END_TASK') {
+        $taskItem = Item::findOne($taskItemId);
+        $taskItem->status = 'PENDING';
+        $taskItem->run_at = date('Y-m-d H:i:s', time());
+        $taskItem->save();
+      }
+
+      $transaction->commit();
     } catch (\Exception $e) {
+      $transaction->commit();
       $res = 'failed';
     } catch(\Throwable $e) {
+      $transaction->rollBack();
       $res = 'failed';
     }
 

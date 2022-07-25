@@ -42,7 +42,7 @@ const eventHandler = async (e) => {
     content.className = 'p-3';
     content.innerHTML = getHtml(
       res.taskItem.code,
-      res.taskItem.is_complete,
+      res.taskItem.status,
       (activeTask.status == "idle") ? 'Tidak dijalankan' : 'Sedang dijalankan',
       res.taskItem.description,
     );
@@ -193,7 +193,7 @@ const eventHandler = async (e) => {
     const btnCancel = document.createElement('button');
     btnCancel.className = 'd-inline-block btn btn-sm btn-secondary me-3';
     btnCancel.innerText = 'Batalkan Tugas';
-    btnCancel.addEventListener('click', () => {
+    btnCancel.addEventListener('click', async () => {
       // set task status idle
       await chrome.storage.local.set({
         activeTask: {

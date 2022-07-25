@@ -23,8 +23,8 @@ class m220722_102727_create_ut_task_item_table extends Migration
             'hint_visible' => $this->boolean()->notNull(),
             'description' => $this->text()->notNull(),
             'order' => $this->integer(),
-            'is_complete' => $this->boolean()->defaultValue(false),
-            'completed_at' => $this->timestamp(),
+            'status' => $this->string(),
+            'run_at' => $this->timestamp(),
             'task_id' => $this->integer()->notNull(),
         ]);
 

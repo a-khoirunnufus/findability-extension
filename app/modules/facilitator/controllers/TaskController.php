@@ -322,7 +322,8 @@ class TaskController extends Controller
     $pId = $request->get('participant_id');
     $drive = new DriveFileUt($pId);
 
-    try{
+    $transaction = UtTaskTarget::getDb()->beginTransaction();
+    try {
       // delete all items for this task
       Item::deleteAll(['task_id' => $taskId]);
       
@@ -360,13 +361,82 @@ class TaskController extends Controller
           $item->interface = $task->interface;
           $item->hint_visible = $task->hint_visible;
           $item->task_id = $taskId;
+          $item->status = 'NOT_COMPLETE';
+          $item->run_at = null;
           $item->save();
         }
       }
       
+      $transaction->commit();
       Yii::$app->session->setFlash('success', 'Berhasil generate item.');
-    } catch (\Exception $e) {
+    } catch(\Exception $e) {
+      $transaction->rollBack();
       Yii::$app->session->setFlash('failed', 'Gagal generate item.');
+    } catch(\Throwable $e) {
+      $transaction->rollBack();
+      Yii::$app->session->setFlash('failed', 'Gagal generate item.');
+    }
+
+    return $this->redirect(Yii::$app->request->referrer);
+  }
+
+  public function actionClearTarget()
+  {
+    $request = Yii::$app->request;
+    $taskId = $request->post('task_id');
+
+    $transaction = UtTaskTarget::getDb()->beginTransaction();
+    try {
+      UtTaskTarget::deleteAll(['task_id' => $taskId]);
+
+      $transaction->commit();
+      Yii::$app->session->setFlash('success', 'Target berhasil dikosongkan.');
+    } catch(\Exception $e) {
+      $transaction->rollBack();
+      Yii::$app->session->setFlash('failed', 'Target gagal dikosongkan.');
+    } catch(\Throwable $e) {
+      $transaction->rollBack();
+      Yii::$app->session->setFlash('failed', 'Target gagal dikosongkan.');
+    }
+
+    return $this->redirect(Yii::$app->request->referrer);
+  }
+
+  public function actionCopyTaskTarget()
+  {
+    $request = Yii::$app->request;
+    $sourceTaskId = $request->post('source_task_id');
+    $destTaskId = $request->post('dest_task_id');
+
+    $sourceTargets = UtTaskTarget::find()
+      ->where([
+        'task_id' => $sourceTaskId,
+        'status' => 'valid',
+      ])
+      ->all();
+
+    $transaction = UtTaskTarget::getDb()->beginTransaction();
+    try {
+      foreach($sourceTargets as $sourceTarget) {
+        $destTarget = new UtTaskTarget();
+        $destTarget->file_id = $sourceTarget->file_id;
+        $destTarget->file_depth = $sourceTarget->file_depth;
+        $destTarget->path_to_file = $sourceTarget->path_to_file;
+        $destTarget->description = $sourceTarget->description;
+        $destTarget->frequency = $sourceTarget->frequency;
+        $destTarget->status = $sourceTarget->status;
+        $destTarget->task_id = $destTaskId;
+        $destTarget->save();
+      }
+
+      $transaction->commit();
+      Yii::$app->session->setFlash('success', 'Berhasil copas target.');
+    } catch(\Exception $e) {
+      $transaction->rollBack();
+      Yii::$app->session->setFlash('failed', 'Gagal copas target.');
+    } catch(\Throwable $e) {
+      $transaction->rollBack();
+      Yii::$app->session->setFlash('failed', 'Gagal copas target.');
     }
 
     return $this->redirect(Yii::$app->request->referrer);
