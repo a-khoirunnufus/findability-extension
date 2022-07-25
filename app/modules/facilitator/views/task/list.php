@@ -73,8 +73,8 @@ $session = \Yii::$app->session;
                   >Hapus</button>
             </td>
             <td class="text-center">
-              <a href="#" class="btn btn-primary btn-sm">
-                  Buka</a>
+              <a href="<?= Url::toRoute(['item/index', 'participant_id' => $participant['id'], 'task_id' => $task['id']]) ?>" 
+                  class="btn btn-primary btn-sm">Buka</a>
             </td>
           </tr>
         <?php endforeach; ?>

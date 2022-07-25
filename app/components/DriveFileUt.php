@@ -131,6 +131,11 @@ class DriveFileUt {
 
   public function getFileById($id)
   {
+    if($id == 'root') {
+      return [
+        'name' => 'Drive Saya'
+      ];
+    }
     foreach($this->files as $file) {
       if($file['id'] == $id) {
         return $file;
