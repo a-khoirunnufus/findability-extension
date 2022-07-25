@@ -13,11 +13,15 @@ window.addEventListener('DOMContentLoaded', function() {
       const order = this.getAttribute('data-order');
       const code = this.getAttribute('data-code');
       const name = this.getAttribute('data-name');
+      const interface = this.getAttribute('data-interface');
+      const hintVisible = this.getAttribute('data-hint_visible');
       const taskId = this.getAttribute('data-task-id');
       
       document.querySelector('#form-update-task input[name="order"]').value = order;
       document.querySelector('#form-update-task input[name="code"]').value = code;
       document.querySelector('#form-update-task input[name="name"]').value = name;
+      document.querySelector('#form-update-task input[name="interface"]').value = interface;
+      document.querySelector('#form-update-task input[name="hint_visible"]').value = hintVisible;
       document.querySelector('#form-update-task input[name="task_id"]').value = taskId;
     });
   })

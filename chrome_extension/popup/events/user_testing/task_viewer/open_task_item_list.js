@@ -52,8 +52,8 @@ const eventHandler = async (e) => {
     
     const itemStatus = document.createElement('span');
     itemStatus.innerHTML = (item.is_complete == "0") 
-        ? '<span>Belum selesai</span>' 
-        : '<span>Selesai</span>';
+        ? '<span class="badge bg-secondary">belum selesai</span>' 
+        : '<span class="badge bg-selesai">selesai</span>';
 
     const btn = document.createElement('button');
     btn.innerText = 'Buka';

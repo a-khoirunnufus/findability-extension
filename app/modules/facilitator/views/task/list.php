@@ -55,6 +55,8 @@ $session = \Yii::$app->session;
                   data-order="<?= $task['order'] ?>"
                   data-code="<?= $task['code'] ?>"
                   data-name="<?= $task['name'] ?>"
+                  data-interface="<?= $task['interface'] ?>"
+                  data-hint_visible="<?= $task['hint_visible'] ?>"
                   data-task-id="<?= $task['id'] ?>" 
                   class="btn-open-edit-modal text-white btn btn-warning btn-sm"
                   >Edit</button>
@@ -105,6 +107,14 @@ $session = \Yii::$app->session;
             <label for="inputOrder" class="form-label">Urutan Tugas</label>
             <input type="number" class="form-control" name="order" id="inputOrder">
           </div>
+          <div class="mb-3">
+            <label for="inputOrder" class="form-label">Antarmuka</label>
+            <input type="text" class="form-control" name="interface" id="inputOrder">
+          </div>
+          <div class="mb-3">
+            <label for="inputOrder" class="form-label">Tampilkan Petunjuk</label>
+            <input type="number" class="form-control" name="hint_visible" id="inputOrder">
+          </div>
         </form>
       </div>
       <div class="modal-footer">
@@ -139,6 +149,14 @@ $session = \Yii::$app->session;
           <div class="mb-3">
             <label for="inputOrder" class="form-label">Urutan Tugas</label>
             <input type="number" class="form-control" name="order" id="inputOrder">
+          </div>
+          <div class="mb-3">
+            <label for="inputOrder" class="form-label">Antarmuka</label>
+            <input type="text" class="form-control" name="interface" id="inputOrder">
+          </div>
+          <div class="mb-3">
+            <label for="inputOrder" class="form-label">Tampilkan Petunjuk</label>
+            <input type="number" class="form-control" name="hint_visible" id="inputOrder">
           </div>
         </form>
       </div>

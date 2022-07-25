@@ -55,7 +55,7 @@ class TaskController extends Controller
       ->where(['id' => $pid])
       ->one();
     $tasks = (new \yii\db\Query())
-      ->select(['id', 'code', 'name', 'order'])
+      ->select(['id', 'code', 'name', 'order', 'interface', 'hint_visible'])
       ->from('ut_task')
       ->where(['participant_id' => $pid])
       ->orderBy(['order' => SORT_ASC])
@@ -151,6 +151,8 @@ class TaskController extends Controller
       $utTask->code = $postData['code'];
       $utTask->name = $postData['name'];
       $utTask->order = $postData['order'];
+      $utTask->interface = $postData['interface'];
+      $utTask->hint_visible = $postData['hint_visible'];
       $utTask->participant_id = $postData['participant_id'];
       $utTask->save();
       Yii::$app->session->setFlash('success', 'Tugas berhasil ditambahkan.');
@@ -170,6 +172,8 @@ class TaskController extends Controller
       $utTask->code = $postData['code'];
       $utTask->name = $postData['name'];
       $utTask->order = $postData['order'];
+      $utTask->interface = $postData['interface'];
+      $utTask->hint_visible = $postData['hint_visible'];
       $utTask->participant_id = $postData['participant_id'];
       $utTask->save();
       Yii::$app->session->setFlash('success', 'Tugas berhasil diupdate.');
@@ -200,7 +204,7 @@ class TaskController extends Controller
     $pId = \Yii::$app->request->post('participant_id');
 
     $defaultTasks = (new \yii\db\Query())
-      ->select(['code', 'name', 'order'])
+      ->select(['code', 'name', 'order', 'interface', 'hint_visible'])
       ->from('ut_task_ref')
       ->orderBy(['order' => SORT_ASC])
       ->all();
@@ -212,6 +216,8 @@ class TaskController extends Controller
         $utTask->code = $task['code'];
         $utTask->name = $task['name'];
         $utTask->order = $task['order'];
+        $utTask->interface = $task['interface'];
+        $utTask->hint_visible = $task['hint_visible'];
         $utTask->participant_id = $pId;
         $utTask->save();
       }
@@ -351,6 +357,8 @@ class TaskController extends Controller
           $item->path_to_file = $target->path_to_file;
           $item->description = $target->description;
           $item->order = $order;
+          $item->interface = $task->interface;
+          $item->hint_visible = $task->hint_visible;
           $item->task_id = $taskId;
           $item->save();
         }

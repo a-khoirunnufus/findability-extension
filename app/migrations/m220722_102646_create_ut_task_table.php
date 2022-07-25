@@ -14,9 +14,11 @@ class m220722_102646_create_ut_task_table extends Migration
     {
         $this->createTable('ut_task', [
             'id' => $this->primaryKey(),
+            'interface' => $this->string()->notNull(),
             'code' => $this->string(3)->notNull(),
             'name' => $this->string()->notNull(),
             'order' => $this->integer(),
+            'hint_visible' => $this->boolean()->notNull(),
             'participant_id' => $this->integer()->notNull(),
         ]);
 

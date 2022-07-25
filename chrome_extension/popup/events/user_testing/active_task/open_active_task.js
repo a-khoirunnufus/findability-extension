@@ -3,8 +3,11 @@ import {
     bodyUserTestingActiveTask as body, 
     spinner, 
   } from "../../../elements.js";
-import { getAccessToken, resetStackView } from "../../../utils.js";
+import { getAccessToken, resetStackView, getCurrentTab } from "../../../utils.js";
 import getHtml from "../../../templates/user_testing/active_task/active_task.js";
+import divHintInfo from "../../../templates/user_testing/active_task/hint_information.js";
+import divSetupInfo from "../../../templates/user_testing/active_task/setup_information.js";
+import divSelectFileInfo from "../../../templates/user_testing/active_task/select_file_info.js";
 
 const eventType = 'UT/ACTIVE_TASK/OPEN_ACTIVE_TASK';
 const eventCreator = (options) => {
@@ -39,22 +42,123 @@ const eventHandler = async (e) => {
     content.className = 'p-3';
     content.innerHTML = getHtml(
       res.taskItem.code,
+      res.taskItem.is_complete,
       (activeTask.status == "idle") ? 'Tidak dijalankan' : 'Sedang dijalankan',
       res.taskItem.description,
     );
 
-    // run task button
-    const btnBegin = document.createElement('button');
-    btnBegin.className = 'd-inline-block btn btn-sm btn-success';
-    btnBegin.innerText = 'Mulai Tugas';
-    btnBegin.addEventListener('click', () => {
-      if (window.confirm(`Petunjuk lokasi file: ${res.taskItem.path_to_file}`)) {
-        console.log('task item begin');
-        // update storage, item status
+    // button setup
+    const btnSetup = document.createElement('button');
+    btnSetup.className = 'd-inline-block btn btn-sm btn-info me-3';
+    btnSetup.innerText = 'Siapkan Tugas';
+    btnSetup.addEventListener('click', () => {
+
+      // check item task interface
+      const interfaceType = res.taskItem.interface;
+      if (interfaceType == 'GOOGLE_DRIVE') {
+        // unregister content script
+        chrome.storage.local.set({showQuicknav: false});
+      } else if(interfaceType == 'QUICKNAV') {
+        // register content script
+        chrome.storage.local.set({showQuicknav: true});
       }
+
+      // navigate to home url
+      getCurrentTab()
+        .then(tab => {
+          chrome.scripting.executeScript(
+            {
+              target: {tabId: tab.id},
+              func: () => {
+                window.location.href = 'https://drive.google.com/drive/my-drive';
+              },
+            },
+          );
+        });
+
     });
 
-    content.append(btnBegin);
+    // hint information
+    // divHintInfo available
+
+    // button show hint
+    const btnShowHint = document.createElement('button');
+    btnShowHint.className = 'd-inline-block btn btn-sm btn-warning me-3';
+    btnShowHint.innerText = 'Tampilkan Petunjuk';
+    btnShowHint.addEventListener('click', () => {
+      alert(`Petunjuk lokasi file: ${res.taskItem.path_to_file}`);
+    });
+
+
+    // run task button
+    const btnBegin = document.createElement('button');
+    btnBegin.className = 'd-inline-block btn btn-sm btn-primary';
+    btnBegin.innerText = 'Mulai Tugas';
+    btnBegin.addEventListener('click', () => {
+      // update storage task status
+      chrome.storage.local.set(
+        { 
+          activeTask: {
+            itemId: activeTask.itemId,
+            status: 'running',
+          }
+        },
+        () => {
+          window.close();
+        }
+      );
+    });
+
+    // end task button
+    const btnEnd = document.createElement('button');
+    btnEnd.className = 'd-inline-block btn btn-sm btn-success';
+    btnEnd.innerText = 'Tugas Selesai';
+    btnEnd.addEventListener('click', () => {
+      // update storage task status
+      chrome.storage.local.set(
+        {
+          activeTask: {
+            itemId: activeTask.itemId,
+            status: 'idle',
+          }
+        },
+        () => {
+          window.close();
+        }
+      );
+    });
+
+    // cancel task button
+    const btnCancel = document.createElement('button');
+    btnCancel.className = 'd-inline-block btn btn-sm btn-secondary me-3';
+    btnCancel.innerText = 'Batalkan Tugas';
+    btnCancel.addEventListener('click', () => {
+      // update storage task status
+      chrome.storage.local.set(
+        {
+          activeTask: {
+            itemId: activeTask.itemId,
+            status: 'idle',
+          }
+        },
+        () => {
+          window.close();
+        }
+      );
+    });
+
+    if (res.taskItem.hint_visible && activeTask.status == 'idle') {
+      content.append(divHintInfo);
+      content.append(divSetupInfo);
+      content.append(btnShowHint);
+      content.append(btnSetup);
+      content.append(btnBegin);
+    } else if (activeTask.status == 'running') {
+      content.append(divSelectFileInfo);
+      content.append(btnCancel);
+      content.append(btnEnd);
+    }
+
     body.innerHTML = '';
     body.append(content);  
   })

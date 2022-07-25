@@ -1,3 +1,5 @@
+import { headerUserTestingActiveTask } from './elements.js';
+
 import headerClickEventRegister from './events/stack_header_click.js';
 
 import { eventType as utotlType, eventHandler as utotlHandler } 
@@ -11,7 +13,6 @@ import {eventType as uaoatType, eventHandler as uaoatHandler }
 
 document.addEventListener('DOMContentLoaded', function() {
 
-  
   document.addEventListener(utotlType, utotlHandler);   // OPEN TASK LIST
   document.addEventListener(utotilType, utotilHandler); // OPEN TASK ITEM LIST
   document.addEventListener(utotidType, utotidHandler); // OPEN TASK ITEM DETAIL
@@ -20,6 +21,13 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // stack header toggle click event registering
   headerClickEventRegister();
+
+  // header active task notification
+  chrome.storage.local.get(['activeTask'], ({activeTask}) => {
+    if(activeTask.itemId && activeTask.status && activeTask.status == 'running') {
+      headerUserTestingActiveTask.innerHTML = '<p class="ps-3 m-0">Tugas Aktif <span class="ms-3 badge text-bg-success">berlangsung</span></p>';
+    }
+  });
 
   // automatically open last viewed page
   chrome.storage.local.get(['lastPopupEvent'], ({lastPopupEvent}) => {
