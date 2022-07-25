@@ -7,6 +7,7 @@ use yii\web\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use app\modules\facilitator\models\UtParticipant as Participant;
 use app\modules\facilitator\models\UtTaskItem as Item;
+use app\modules\facilitator\models\UtTaskItemLog as Log;
 
 class ItemController extends Controller
 {
@@ -70,6 +71,38 @@ class ItemController extends Controller
 
     return $this->asJson([
       'taskItem' => $taskItem,
+    ]);
+  }
+
+  public function actionLog()
+  {
+    $request = Yii::$app->request;
+    $taskItemId = $request->get('task_item_id');
+    $logs = $request->get('logs');
+    $logs = json_decode($logs, true);
+    $res = 'success';
+
+    $transaction = Log::getDb()->beginTransaction();
+    try{
+      foreach($logs as $item) {
+        $log = new Log();
+        $log->action = $item['action'];
+        $log->object = $item['object'];
+        $log->time = date('Y-m-d H:i:s', intval($item['time']));
+        $log->task_item_id = $taskItemId;
+        $log->save();
+      }
+      $transaction->commit();
+    } catch (\Exception $e) {
+      $transaction->commit();
+      $res = 'failed';
+    } catch(\Throwable $e) {
+      $transaction->rollBack();
+      $res = 'failed';
+    }
+
+    return $this->asJson([
+      'status' => $res
     ]);
   }
 }

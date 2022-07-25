@@ -61,7 +61,7 @@ const eventHandler = async (e) => {
     divNotif.classList.add('show');
   });
 
-  if(activeTask.itemId && activeTask.status != 'running') {
+  if(activeTask.itemId == null || activeTask.status != 'running') {
     if (showQuicknav) {
       divButtonWrapper.append(btnHide);
     } else {

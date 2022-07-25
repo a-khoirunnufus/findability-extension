@@ -94,37 +94,64 @@ const eventHandler = async (e) => {
     const btnBegin = document.createElement('button');
     btnBegin.className = 'd-inline-block btn btn-sm btn-primary';
     btnBegin.innerText = 'Mulai Tugas';
-    btnBegin.addEventListener('click', () => {
+    btnBegin.addEventListener('click', async () => {
+      const currentTab = await getCurrentTab();
+
       // update storage task status
       chrome.storage.local.set(
         { 
           activeTask: {
             itemId: activeTask.itemId,
             status: 'running',
-          }
+          },
+          taskLog: [
+            {
+              action: 'BEGIN_TASK',
+              object: currentTab.url,
+              time: Math.floor(new Date().getTime()/1000.0),
+            },
+          ]
         },
-        () => {
-          window.close();
-        }
+        () => { window.close() }
       );
+
+      // record log
+      // send message to background to record user log
+
     });
 
     // end task button
     const btnEnd = document.createElement('button');
     btnEnd.className = 'd-inline-block btn btn-sm btn-success';
     btnEnd.innerText = 'Tugas Selesai';
-    btnEnd.addEventListener('click', () => {
-      // update storage task status
+    btnEnd.addEventListener('click', async () => {
+      const currentTab = await getCurrentTab();
+      let {taskLog} = await chrome.storage.local.get(['taskLog']);
+
+      taskLog.push({
+        action: 'END_TASK',
+        object: currentTab.url,
+        time: Math.floor(new Date().getTime()/1000.0),
+      });
+
+      // send log to background
+      chrome.runtime.sendMessage({
+        code: "FINAL_TASK_LOG",
+        data: {
+          logs: taskLog,
+          taskItemId: activeTask.itemId,
+        },
+      });
+
       chrome.storage.local.set(
         {
           activeTask: {
             itemId: activeTask.itemId,
             status: 'idle',
-          }
+          },
+          taskLog: [],
         },
-        () => {
-          window.close();
-        }
+        () => { window.close() }
       );
     });
 
@@ -139,11 +166,10 @@ const eventHandler = async (e) => {
           activeTask: {
             itemId: activeTask.itemId,
             status: 'idle',
-          }
+          },
+          taskLog: [],
         },
-        () => {
-          window.close();
-        }
+        () => { window.close() }
       );
     });
 
