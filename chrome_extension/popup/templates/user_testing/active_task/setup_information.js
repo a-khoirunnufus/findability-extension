@@ -1,7 +1,7 @@
 const content = `
   <i class="bi bi-info-circle-fill"></i>
   <span class="ms-3" style="font-size: 12px;">
-    Anda hanya wajib menekan tombol <strong>Siapkan Tugas</strong> sekali sebelum memulai tugas.
+    Anda wajib menekan tombol <strong>Siapkan Tugas</strong> sebelum memulai tugas.
   </span>
 `;
 

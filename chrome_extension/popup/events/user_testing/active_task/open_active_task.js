@@ -217,10 +217,14 @@ const eventHandler = async (e) => {
       window.close();
     });
 
-    if (res.taskItem.hint_visible && activeTask.status == 'idle') {
-      content.append(divHintInfo);
-      content.append(divSetupInfo);
-      content.append(btnShowHint);
+    if (activeTask.status == 'idle') {
+      if(res.taskItem.hint_visible === 1) {
+        content.append(divHintInfo);
+        content.append(divSetupInfo);
+        content.append(btnShowHint);
+      } else if(res.taskItem.hint_visible === 0) {
+        content.append(divSetupInfo);
+      }
       content.append(btnSetup);
       content.append(btnBegin);
     } else if (activeTask.status == 'running') {

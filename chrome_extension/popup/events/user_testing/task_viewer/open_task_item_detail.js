@@ -46,9 +46,17 @@ const eventHandler = async (e) => {
   // content html
   const content = document.createElement('div');
   content.className = 'p-3';
+  let status = null;
+  if(res.taskItem.status == 'NOT_COMPLETE') {
+    status = 'belum selesai'; 
+  } else if(res.taskItem.status == 'PENDING') {
+    status = 'pending';
+  } else if(res.taskItem.status == 'COMPLETED') {
+    status = 'selesai';
+  }
   content.innerHTML = getHtml(
     res.taskItem.code,
-    (res.taskItem.is_complete == "0") ? 'Belum selesai' : 'Selesai',
+    status,
     res.taskItem.description,
   );
 
