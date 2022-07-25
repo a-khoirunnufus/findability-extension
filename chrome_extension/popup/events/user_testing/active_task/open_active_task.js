@@ -89,34 +89,48 @@ const eventHandler = async (e) => {
       alert(`Petunjuk lokasi file: ${res.taskItem.path_to_file}`);
     });
 
-
     // run task button
     const btnBegin = document.createElement('button');
     btnBegin.className = 'd-inline-block btn btn-sm btn-primary';
     btnBegin.innerText = 'Mulai Tugas';
     btnBegin.addEventListener('click', async () => {
-      const currentTab = await getCurrentTab();
+      const interfaceType = res.taskItem.interface;
 
-      // update storage task status
-      chrome.storage.local.set(
-        { 
-          activeTask: {
-            itemId: activeTask.itemId,
-            status: 'running',
-          },
-          taskLog: [
-            {
+      if(interfaceType == 'GOOGLE_DRIVE') {
+        const currentTab = await getCurrentTab();
+        // set active task
+        await chrome.storage.local.set({ 
+            activeTask: {
+              itemId: activeTask.itemId,
+              status: 'running',
+              interface: 'GOOGLE_DRIVE'
+            },
+            taskLog: [{
               action: 'BEGIN_TASK',
               object: currentTab.url,
               time: Math.floor(new Date().getTime()/1000.0),
-            },
-          ]
-        },
-        () => { window.close() }
-      );
+            }],
+        });
+        window.close();
+      } 
+      else if(interfaceType == 'QUICKNAV') {
+        // set active task
+        // also trigger re-register content script
+        await chrome.storage.local.set({
+          activeTask: {
+            itemId: activeTask.itemId,
+            status: 'running',
+            interface: 'QUICKNAV',
+          },
+          showQuicknav: false,
+        });
 
-      // record log
-      // send message to background to record user log
+        await chrome.storage.local.set({
+          showQuicknav: true,
+        });
+
+        window.close();
+      }
 
     });
 

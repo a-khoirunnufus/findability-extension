@@ -10,18 +10,13 @@ chrome.runtime.onInstalled.addListener(() => {
       'type': null,
       'detail': null,
     },
-    'showQuicknav': false,
+    'showQuicknav': null,
     'activeTask': {
       'itemId': null,
       'status': null,
+      'interface': null,
     },
     'taskLog': [],
-    // task log format:
-    // {
-    //   action: 'navigate',
-    //   object: 'https://drive.google.com/...',
-    //   time: new Date(),
-    // }
   });
 
   // register content script
@@ -78,7 +73,7 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
           runAt: 'document_end',
         },
       ]);
-    } else {
+    } else if(changes.showQuicknav.newValue === false) {
       chrome.scripting.unregisterContentScripts({
         ids: ['quicknav-main', 'gdcomponent-hide'],
       })
@@ -134,7 +129,7 @@ chrome.tabs.onUpdated.addListener(
     
     const {activeTask} = await chrome.storage.local.get(['activeTask']);
 
-    if (activeTask.itemId && activeTask.status == 'running') {
+    if (activeTask.itemId && activeTask.interface == 'GOOGLE_DRIVE' && activeTask.status == 'running') {
 
       if (tabId == tab.id && changeInfo.url) {
         let {taskLog} = await chrome.storage.local.get(['taskLog']);
@@ -165,14 +160,14 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
   }
 });
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if(request.type == 'BACKGROUND_LOG') {
-      const time = request.time;
-      const from = sender.tab ? `content_script(${sender.tab.url})` : 'extension';
-      const message = request.message;
-      console.log('LOG:', `[${time}]`, from, message);
-    }
-  }
-);
+// chrome.runtime.onMessage.addListener(
+//   function(request, sender, sendResponse) {
+//     if(request.type == 'BACKGROUND_LOG') {
+//       const time = request.time;
+//       const from = sender.tab ? `content_script(${sender.tab.url})` : 'extension';
+//       const message = request.message;
+//       console.log('LOG:', `[${time}]`, from, message);
+//     }
+//   }
+// );
 /* LOGGING END */

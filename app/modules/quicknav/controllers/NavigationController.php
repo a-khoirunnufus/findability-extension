@@ -7,6 +7,7 @@ use yii\web\Controller;
 use yii\filters\AccessControl;
 use app\components\BIGFile;
 use app\components\DriveFile;
+use app\modules\facilitator\models\UtTaskItemLog as Log;
 
 class NavigationController extends Controller
 {
@@ -39,6 +40,22 @@ class NavigationController extends Controller
     $paramSortKey = Yii::$app->request->get('sort_key'); 
     $paramSortDir = Yii::$app->request->get('sort_dir');
     $paramSortDir = intval($paramSortDir);
+
+    $request = Yii::$app->request;
+    $paramLog = $request->get('log');
+    $fullUrl = $request->absoluteUrl .'?'. $request->queryString;
+    if($paramLog) {
+      // TODO: CASE ACTION CANCEL
+
+      $logData = explode('@', $paramLog);
+      $log = new Log;
+      $log->action = $logData[0];
+      $log->object = $fullUrl;
+      $log->time = date('Y-m-d H:i:s', time());
+      $log->task_item_id = $logData[1];
+      $log->save();
+    }
+
 
     $bigfile = new BIGFile($paramFolderId, $paramKeyword);
     $drive = new DriveFile();
@@ -78,6 +95,7 @@ class NavigationController extends Controller
       'keyword' => $paramKeyword,
       'sort_key' => $paramSortKey,
       'sort_dir' => $paramSortDir,
+      'log' => $paramLog,
     ]);
   }
 

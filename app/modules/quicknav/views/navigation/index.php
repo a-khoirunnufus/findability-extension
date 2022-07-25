@@ -53,6 +53,8 @@ use yii\helpers\Url;
               'keyword' => $keyword,
               'sort_key' => $sort_key,
               'sort_dir' => $sort_dir,
+              'source' => 'adaptive',
+              'log' => $log,
             ], true) ?>')"
           >
             <?php if($file['mimeType'] == 'application/vnd.google-apps.folder'): ?>
@@ -89,6 +91,8 @@ use yii\helpers\Url;
                 'keyword' => $keyword,
                 'sort_key' => $sort_key,
                 'sort_dir' => $sort_dir,
+                'source' => 'breadcrumb',
+                'log' => $log,
               ], true) ?>')"
             >
               <?= $folder['name'] ?>
@@ -121,6 +125,8 @@ use yii\helpers\Url;
               'keyword' => $keyword,
               'sort_key' => 'name',
               'sort_dir' => SORT_ASC,
+              'source' => 'sort_name',
+              'log' => $log,
             ], true) ?>')">
               <img src="<?= Url::to('icons/caret-down-fill.svg', true) ?>">
             </span>
@@ -131,6 +137,8 @@ use yii\helpers\Url;
               'keyword' => $keyword,
               'sort_key' => 'name',
               'sort_dir' => SORT_DESC,
+              'source' => 'sort_name',
+              'log' => $log,
             ], true) ?>')">
               <img src="<?= Url::to('icons/caret-up-fill.svg', true) ?>">
             </span>
@@ -147,6 +155,8 @@ use yii\helpers\Url;
               'keyword' => $keyword,
               'sort_key' => 'modifiedByMeTime',
               'sort_dir' => SORT_ASC,
+              'source' => 'sort_date',
+              'log' => $log,
             ], true) ?>')">
               <img src="<?= Url::to('icons/caret-down-fill.svg', true) ?>">
             </a>
@@ -157,6 +167,8 @@ use yii\helpers\Url;
               'keyword' => $keyword,
               'sort_key' => 'modifiedByMeTime',
               'sort_dir' => SORT_DESC,
+              'source' => 'sort_date',
+              'log' => $log,
             ], true) ?>')">
               <img src="<?= Url::to('icons/caret-up-fill.svg', true) ?>">
             </a>
@@ -173,6 +185,8 @@ use yii\helpers\Url;
               'keyword' => $keyword,
               'sort_key' => 'size',
               'sort_dir' => SORT_ASC,
+              'source' => 'sort_size',
+              'log' => $log,
             ], true) ?>')">
               <img src="<?= Url::to('icons/caret-down-fill.svg', true) ?>">
             </a>
@@ -183,6 +197,8 @@ use yii\helpers\Url;
               'keyword' => $keyword,
               'sort_key' => 'size',
               'sort_dir' => SORT_DESC,
+              'source' => 'sort_size',
+              'log' => $log,
             ], true) ?>')">
               <img src="<?= Url::to('icons/caret-up-fill.svg', true) ?>">
             </a>
@@ -200,7 +216,9 @@ use yii\helpers\Url;
             'folder_id'=>$file['id'], 
             'keyword'=>$keyword, 
             'sort_key'=>$sort_key, 
-            'sort_dir'=>$sort_dir
+            'sort_dir'=>$sort_dir,
+            'source' => 'static',
+            'log' => $log,
           ],true) ?>"
           <?php if($file['mimeType'] != 'application/vnd.google-apps.folder'): ?>
             data-url-download="<?= Url::toRoute([
@@ -247,9 +265,10 @@ use yii\helpers\Url;
     function updateKeyword() {
       const keyword = document.querySelector('#input-keyword').value;
       const baseUrl = '<?= Url::base(true) ?>';
-      const params = '<?= "?folder_id=$folder_id&sort_key=$sort_key&sort_dir=$sort_dir" ?>';
+      const params = '<?= "?folder_id=$folder_id&sort_key=$sort_key&sort_dir=$sort_dir&source=keyword" ?>';
       const paramKeyword = '&keyword='+keyword;
-      const url = baseUrl + '/quicknav/navigation/index' + params + paramKeyword;
+      const paramLog = '<?= $log !== null ? '&log='.$log : '' ?>';
+      const url = baseUrl + '/quicknav/navigation/index' + params + paramKeyword + paramLog;
       window.location.href = url;
       document.querySelector('#loading-image').classList.add('show');
     }
