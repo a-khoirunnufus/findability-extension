@@ -43,7 +43,8 @@ const eventHandler = async (e) => {
     content.innerHTML = getHtml(
       res.taskItem.code,
       res.taskItem.status,
-      (activeTask.status == "idle") ? 'Tidak dijalankan' : 'Sedang dijalankan',
+      (activeTask.status == 'idle' || activeTask.status == 'end') 
+        ? 'Tidak dijalankan' : 'Sedang dijalankan',
       res.taskItem.description,
     );
 
@@ -60,12 +61,12 @@ const eventHandler = async (e) => {
       } 
       else if(activeTask.interface == 'QUICKNAV') {
         // trigger re-register content script
-        // set task status running
+        // set task status idle
         await chrome.storage.local.set({showQuicknav: false});
         await chrome.storage.local.set({
           activeTask: {
             itemId: activeTask.itemId,
-            status: 'running',
+            status: 'idle',
             interface: 'QUICKNAV',
           },
           showQuicknav: true,
@@ -122,11 +123,19 @@ const eventHandler = async (e) => {
             +'?action=BEGIN_TASK'
             +'&object=PREVIOUS'
             +'&time='+Math.floor(new Date().getTime()/1000.0)
-            +'&task_item_id'+activeTask.itemId,
+            +'&task_item_id='+activeTask.itemId,
           { headers: { 'Authorization': 'Basic ' + btoa(`${accessToken}:password`) }}
         );
         res = await res.json();
         console.log('log action result', res);
+
+        await chrome.storage.local.set({ 
+          activeTask: {
+            itemId: activeTask.itemId,
+            status: 'running',
+            interface: 'QUICKNAV',
+          }
+        });
         window.close();
       }
 
@@ -160,33 +169,47 @@ const eventHandler = async (e) => {
           },
           taskLog: [],
         });
-        window.close();
       }
 
       else if(activeTask.interface == 'QUICKNAV') {
-        // set task status idle
-        await chrome.storage.local.set({
-          activeTask: {
-            itemId: activeTask.itemId,
-            status: 'idle',
-            interface: res.taskItem.interface,
-          },
-          taskLog: [],
-        });
         // send to server, task is end
         let res = await fetch(
           'http://localhost:8080/api/item/log-action'
             +'?action=END_TASK'
             +'&object=PREVIOUS'
             +'&time='+Math.floor(new Date().getTime()/1000.0)
-            +'&task_item_id'+activeTask.itemId,
+            +'&task_item_id='+activeTask.itemId,
           { headers: { 'Authorization': 'Basic ' + btoa(`${accessToken}:password`) }}
         );
         res = await res.json();
         console.log('log action result', res);
-        window.close();
+        
+        
+        // set task status end
+        await chrome.storage.local.set({
+          activeTask: {
+            itemId: activeTask.itemId,
+            status: 'end',
+            interface: 'QUICKNAV',
+          },
+          taskLog: [],
+          showQuicknav: false,
+        });
+        // trigger re-register content script
+        await chrome.storage.local.set({showQuicknav: true});
       }
+      
+      // navigate to home url / refresh tab
+      // to take effect of new content script
+      const tab = await getCurrentTab();
+      chrome.scripting.executeScript({
+        target: {tabId: tab.id},
+        func: () => {
+          window.location.href = 'https://drive.google.com/drive/my-drive';
+        },
+      });
 
+      window.close();
     });
 
     // cancel task button
@@ -194,30 +217,60 @@ const eventHandler = async (e) => {
     btnCancel.className = 'd-inline-block btn btn-sm btn-secondary me-3';
     btnCancel.innerText = 'Batalkan Tugas';
     btnCancel.addEventListener('click', async () => {
-      // set task status idle
-      await chrome.storage.local.set({
-        activeTask: {
-          itemId: activeTask.itemId,
-          status: 'idle',
-          interface: activeTask.interface,
+      
+      if(activeTask.interface == 'GOOGLE_DRIVE') {
+        // set task status idle
+        await chrome.storage.local.set({
+          activeTask: {
+            itemId: activeTask.itemId,
+            status: 'idle',
+            interface: activeTask.interface,
+          },
+          taskLog: [],
+        });
+      }
+
+      else if(activeTask.interface == 'QUICKNAV') {
+        // send to server, task is cancel
+        let res = await fetch(
+          'http://localhost:8080/api/item/log-action'
+            +'?action=CANCEL_TASK'
+            +'&object=PREVIOUS'
+            +'&time='+Math.floor(new Date().getTime()/1000.0)
+            +'&task_item_id='+activeTask.itemId,
+          { headers: { 'Authorization': 'Basic ' + btoa(`${accessToken}:password`) }}
+        );
+        res = await res.json();
+        console.log('log action result', res);
+
+        // set task status end
+        await chrome.storage.local.set({
+          activeTask: {
+            itemId: activeTask.itemId,
+            status: 'end',
+            interface: activeTask.interface,
+          },
+          taskLog: [],
+          showQuicknav: false,
+        });
+        // trigger re-register content script
+        await chrome.storage.local.set({showQuicknav: true});
+      }
+      
+      // navigate to home url / refresh tab
+      // to take effect of new content script
+      const tab = await getCurrentTab();
+      chrome.scripting.executeScript({
+        target: {tabId: tab.id},
+        func: () => {
+          window.location.href = 'https://drive.google.com/drive/my-drive';
         },
-        taskLog: [],
       });
-      // send to server, task is cancel
-      let res = await fetch(
-        'http://localhost:8080/api/item/log-action'
-          +'?action=CANCEL_TASK'
-          +'&object=PREVIOUS'
-          +'&time='+Math.floor(new Date().getTime()/1000.0)
-          +'&task_item_id'+activeTask.itemId,
-        { headers: { 'Authorization': 'Basic ' + btoa(`${accessToken}:password`) }}
-      );
-      res = await res.json();
-      console.log('log action result', res);
+      
       window.close();
     });
 
-    if (activeTask.status == 'idle') {
+    if (activeTask.status == 'idle' || activeTask.status == 'end') {
       if(res.taskItem.hint_visible === 1) {
         content.append(divHintInfo);
         content.append(divSetupInfo);

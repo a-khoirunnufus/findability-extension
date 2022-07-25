@@ -12,11 +12,11 @@ async function main() {
   
   const { activeTask } = await chrome.storage.local.get(['activeTask']);
   if (
-    activeTask.itemId != null 
-    && activeTask.status == 'running' 
-    && activeTask.interface == 'quicknav'
+    activeTask.itemId !== null 
+    && activeTask.status == 'idle' 
+    && activeTask.interface == 'QUICKNAV'
   ) {
-    url += 'NAVIGATE@'+activeTask.itemId;
+    url += '&log=NAVIGATE-'+activeTask.itemId;
   }
 
   // create iframe element

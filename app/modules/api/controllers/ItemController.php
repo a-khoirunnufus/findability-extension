@@ -134,7 +134,7 @@ class ItemController extends Controller
       // if action is END_TASK
       // update task item status
       if($paramAction == 'END_TASK') {
-        $taskItem = Item::findOne($taskItemId);
+        $taskItem = Item::findOne(intval($paramTaskItemId));
         $taskItem->status = 'PENDING';
         $taskItem->run_at = date('Y-m-d H:i:s', time());
         $taskItem->save();

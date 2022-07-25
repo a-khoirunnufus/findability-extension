@@ -34,6 +34,8 @@ class NavigationController extends Controller
 
   public function actionIndex()
   {
+    $request = Yii::$app->request;
+
     $paramFolderId = Yii::$app->request->get('folder_id'); // parent folder currently viewed
     $paramKeyword = Yii::$app->request->get('keyword'); // NULL if not set
     if($paramKeyword === 'null') $paramKeyword = null;
@@ -42,13 +44,15 @@ class NavigationController extends Controller
     $paramSortDir = intval($paramSortDir);
 
     // task item logging
-    $paramLog = Yii::$app->request->get('log');
+    
+    $paramLog = $request->get('log');
     if($paramLog !== null) {
       $fullUrl = $request->absoluteUrl .'?'. $request->queryString;
-      $logData = explode('@', $paramLog);
+      $logData = explode('-', $paramLog);
       $log = new Log;
       $log->action = $logData[0];
-      $log->object = $fullUrl;
+      // $log->object = $fullUrl;
+      $log->object = $request->absoluteUrl;
       $log->time = date('Y-m-d H:i:s', time());
       $log->task_item_id = $logData[1];
       $log->save();

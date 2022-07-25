@@ -15,7 +15,7 @@ class m220722_102843_create_ut_task_item_log_table extends Migration
         $this->createTable('ut_task_item_log', [
             'id' => $this->primaryKey(),
             'action' => $this->string()->notNull(),
-            'object' => $this->string()->notNull(),
+            'object' => $this->text()->notNull(),
             'time' => $this->timestamp()->notNull(),
             'task_item_id' => $this->integer()->notNull(),
         ]);
