@@ -27,48 +27,51 @@ $this->params['breadcrumbs'] = [
     </ul>
     <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="validation-tab-pane" role="tabpanel" tabindex="0">
-      <table class="table" id="table-task-list" style="margin-top: 40px; font-size: .9rem">
-        <thead>
-          <tr class="table-light">
-            <th class="text-center" scope="col">Kode</th>
-            <th scope="col">File</th>
-            <th class="text-center" scope="col">Status</th>
-            <th scope="col">Dilakukan pada</th>
-            <th class="text-center" scope="col">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach($items as $item): ?>
-            <tr>
-              <th class="text-center" scope="row"><?= $item['code'] ?></th>
-              <td><?= $item['file_name'] ?></td>
-              <td class="text-center">
-                <?php if($item['status'] == 'NOT_COMPLETE'): ?>
-                  <span class="badge text-bg-secondary text-light">Belum selesai</span></td>
-                <?php elseif($item['status'] == 'PENDING'): ?>
-                  <span class="badge text-bg-warning text-light">Pending</span></td>
-                <?php elseif($item['status'] == 'COMPLETED'): ?>
-                  <span class="badge text-bg-success text-light">Selesai</span></td>
-                <?php endif; ?>
-              <td><?= $item['run_at'] ? date('j M Y H:i:s', strtotime($item['run_at'])) : '-' ?></td>
-              <td class="text-center">
-                <a class="btn btn-primary btn-sm <?= $item['status'] == 'NOT_COMPLETE' ? 'disabled' : '' ?>"
-                    href="<?= Url::toRoute(['item/validation', 
-                      'participant_id' => $participant['id'], 
-                      'task_id' => $task['id'],
-                      'task_item_id' => $item['id'],
-                    ]) ?>"
-                    aria-disabled="<?= $item['status'] == 'NOT_COMPLETE' ? 'true' : 'false' ?>"
-                    >Validasi</a>
-              </td>
+        <table class="table" id="table-task-list" style="margin-top: 40px; font-size: .9rem">
+          <thead>
+            <tr class="table-light">
+              <th class="text-center" scope="col">Kode</th>
+              <th scope="col">File</th>
+              <th class="text-center" scope="col">Status</th>
+              <th scope="col">Dilakukan pada</th>
+              <th class="text-center" scope="col">Aksi</th>
             </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <?php foreach($items as $item): ?>
+              <tr>
+                <th class="text-center" scope="row"><?= $item['code'] ?></th>
+                <td><?= $item['file_name'] ?></td>
+                <td class="text-center">
+                  <?php if($item['status'] == 'NOT_COMPLETE'): ?>
+                    <span class="badge text-bg-secondary text-light">Belum selesai</span></td>
+                  <?php elseif($item['status'] == 'PENDING'): ?>
+                    <span class="badge text-bg-warning text-light">Pending</span></td>
+                  <?php elseif($item['status'] == 'COMPLETED'): ?>
+                    <span class="badge text-bg-success text-light">Selesai</span></td>
+                  <?php endif; ?>
+                <td><?= $item['run_at'] ? date('j M Y H:i:s', strtotime($item['run_at'])) : '-' ?></td>
+                <td class="text-center">
+                  <a class="btn btn-primary btn-sm <?= $item['status'] == 'NOT_COMPLETE' ? 'disabled' : '' ?>"
+                      href="<?= Url::toRoute(['item/validation', 
+                        'participant_id' => $participant['id'], 
+                        'task_id' => $task['id'],
+                        'task_item_id' => $item['id'],
+                      ]) ?>"
+                      aria-disabled="<?= $item['status'] == 'NOT_COMPLETE' ? 'true' : 'false' ?>"
+                      >Validasi</a>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
       </div>
 
       <div class="tab-pane fade" id="report-tab-pane" role="tabpanel" tabindex="0">
-        <?= $this->render('_report') ?>
+        <?= $this->render('_report', [
+          'taskId' => $task['id'],
+          'itemReports' => $itemReports,
+        ]) ?>
       </div>
     </div>
   </div>

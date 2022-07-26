@@ -10,6 +10,7 @@ use app\components\DriveFileUt as Drive;
 use app\modules\facilitator\models\UtTaskItem as Item;
 use app\modules\facilitator\models\UtTaskItemLog as Log;
 use app\modules\facilitator\models\UtTaskItemLogFinal as LogFinal;
+use app\modules\facilitator\models\UtTaskItemReport as ItemReport;
 
 class ItemController extends Controller
 {
@@ -53,10 +54,17 @@ class ItemController extends Controller
       ->orderBy('order ASC')
       ->all();
 
+    // items report data
+    $itemReports = ItemReport::find()
+      ->where(['task_id' => $paramTaskId])
+      ->orderBy('order ASC')
+      ->all();
+
     return $this->render('index', [
       'participant' => $participant,
       'task' => $task,
       'items' => $items,
+      'itemReports' => $itemReports,
     ]);
   }
 
@@ -140,6 +148,74 @@ class ItemController extends Controller
     }
     
     return $this->redirect(Yii::$app->request->referrer);
+  }
+
+  public function actionGenerateReport()
+  {
+    $request = Yii::$app->request;
+    $paramTaskId = $request->get('task_id');
+
+    // foreach task item that have status COMPLETED
+    $items = Item::find()
+      ->where([
+        'task_id' => $paramTaskId,
+        'status' => 'COMPLETED',
+      ])->all();
+
+    $transaction = ItemReport::getDb()->beginTransaction();
+    try {
+      foreach($items as $item) {
+        // get item logs
+        $logs = (new \yii\db\Query())
+          ->select(['l.id', 'l.action', 'l.object', 'l.time'])
+          ->from('ut_task_item_log l')
+          ->join('RIGHT JOIN', 'ut_task_item_log_final lf', 'l.id = lf.task_item_log_id')
+          ->where(['l.task_item_id' => $item['id']])
+          ->orderBy('l.time ASC')
+          ->all();
+        
+        $totalTime = 0; // in seconds
+        $prevTime = strtotime($logs[0]['time']);
+        for ($i=1; $i < count($logs); $i++) { 
+          $time = strtotime($logs[$i]['time']);
+          $timeDif = $time - $prevTime;
+          $totalTime += $timeDif;
+          $prevTime = $time;
+        }
+  
+        $timeCompletion = $totalTime;
+        $numberOfStep = count($logs);
+  
+        $itemReport = new ItemReport();
+        $itemReport->interface = $item->interface;
+        $itemReport->code = $item->code;
+        $itemReport->file_id = $item->file_id;
+        $itemReport->file_name = $item->file_name;
+        $itemReport->file_depth = $item->file_depth;
+        $itemReport->path_to_file = $item->path_to_file;
+        $itemReport->hint_visible = $item->hint_visible;
+        $itemReport->description = $item->description;
+        $itemReport->order = $item->order;
+        $itemReport->task_item_id = $item->id;
+        $itemReport->task_id = $item->task_id;
+        $itemReport->time_completion = $timeCompletion;
+        $itemReport->number_of_step = $numberOfStep;
+        $itemReport->generate_at = date('Y-m-d H:i:s', time());
+        $itemReport->save();
+      }
+
+      $transaction->commit();
+      Yii::$app->session->setFlash('success', 'Berhasil generate report.');
+    } catch(\Exception $e) {
+      $transaction->rollBack();
+      Yii::$app->session->setFlash('failed', 'Gagal generate report.');
+    } catch(\Throwable $e) {
+      $transaction->rollBack();
+      Yii::$app->session->setFlash('failed', 'Gagal generate report.');
+    }
+    
+    return $this->redirect(Yii::$app->request->referrer);
+    
   }
 
 }
