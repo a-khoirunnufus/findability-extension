@@ -11,6 +11,8 @@ use app\modules\facilitator\models\UtTaskItem as Item;
 use app\modules\facilitator\models\UtTaskItemLog as Log;
 use app\modules\facilitator\models\UtTaskItemLogFinal as LogFinal;
 use app\modules\facilitator\models\UtTaskItemReport as ItemReport;
+use yii2tech\csvgrid\CsvGrid;
+use yii\data\ArrayDataProvider;
 
 class ItemController extends Controller
 {
@@ -216,6 +218,31 @@ class ItemController extends Controller
     
     return $this->redirect(Yii::$app->request->referrer);
     
+  }
+
+  public function actionDownloadReport()
+  {
+    $request = Yii::$app->request;
+    $paramTaskId = $request->get('task_id');
+
+    $task = Task::findOne($paramTaskId);
+
+    $itemReports = (new \yii\db\Query())
+      ->select(['t.code AS task_code', 'ir.code AS task_item_code', 'ir.file_name AS file_name', 'ir.time_completion AS time_completion', 'ir.number_of_step AS number_of_step', 'ir.generate_at AS generated_at'])
+      ->from('ut_task_item_report ir')
+      ->join('LEFT JOIN', 'ut_task t', 't.id = ir.task_id')
+      ->where(['ir.task_id' => $paramTaskId])
+      ->orderBy('ir.order ASC')
+      ->all();
+
+    $exporter = new CsvGrid([
+      'dataProvider' => new ArrayDataProvider([
+          'allModels' => $itemReports,
+      ]),
+    ]);
+
+    $filename = "task $task->code item report.csv";
+    return $exporter->export()->send($filename);
   }
 
 }

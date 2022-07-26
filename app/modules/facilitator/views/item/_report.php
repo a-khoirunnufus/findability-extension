@@ -2,7 +2,9 @@
 use yii\helpers\Url;
 ?>
 
+
 <a href="<?= Url::toRoute(['item/generate-report', 'task_id' => $taskId]) ?>" class="btn btn-primary btn-sm mt-3">Generate Report</a>
+<a href="<?= Url::toRoute(['item/download-report', 'task_id' => $taskId]) ?>" class="btn btn-success btn-sm mt-3 text-white">Download Report</a>
 
 <table class="table mt-3" id="table-task-list" style="font-size: .9rem">
   <thead>
