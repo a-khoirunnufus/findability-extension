@@ -11,15 +11,15 @@ use yii\helpers\Url;
         <svg class="nav-icon"><use xlink:href="<?= Url::to('@web/coreui/vendors/@coreui/icons/svg/free.svg#cil-speedometer', true) ?>"></use>
         </svg> Home</a></li>
     <li class="nav-title">Pengujian</li>
-    <li class="nav-item"><a class="nav-link" href="<?= Url::toRoute('user-testing/index', true) ?>">
+    <!-- <li class="nav-item"><a class="nav-link" href="<?= Url::toRoute('user-testing/index', true) ?>">
         <svg class="nav-icon"><use xlink:href="<?= Url::to('@web/coreui/vendors/@coreui/icons/svg/free.svg#cil-home', true) ?>"></use>
-        </svg> Permulaan</a></li>
+        </svg> Permulaan</a></li> -->
     <li class="nav-item"><a class="nav-link" href="<?= Url::toRoute('task/index', true) ?>">
         <svg class="nav-icon"><use xlink:href="<?= Url::to('@web/coreui/vendors/@coreui/icons/svg/free.svg#cil-task', true) ?>"></use>
         </svg> Tugas</a></li>
-    <li class="nav-item"><a class="nav-link" href="<?= Url::toRoute('user-testing/help', true) ?>">
+    <!-- <li class="nav-item"><a class="nav-link" href="<?= Url::toRoute('user-testing/help', true) ?>">
         <svg class="nav-icon"><use xlink:href="<?= Url::to('@web/coreui/vendors/@coreui/icons/svg/free.svg#cil-book', true) ?>"></use>
-        </svg> Panduan</a></li>
+        </svg> Panduan</a></li> -->
   </ul>
   <!-- <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button> -->
 </div>
