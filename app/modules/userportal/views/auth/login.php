@@ -14,7 +14,7 @@ $clientId = \Yii::$app->params['googleCloudClientId'];
     <link rel="stylesheet" href="<?= Url::to('@web/coreui/vendors/simplebar/css/simplebar.css', true) ?>">
     <link rel="stylesheet" href="<?= Url::to('@web/coreui/css/vendors/simplebar.css', true) ?>">
     <!-- Main styles for this application-->
-    <link href="<?= Url::to('@web/coreui/css/style.css') ?>" rel="stylesheet">
+    <link href="<?= Url::to('@web/coreui/css/style.css', true) ?>" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
@@ -47,7 +47,7 @@ $clientId = \Yii::$app->params['googleCloudClientId'];
     </div>
 
     <!-- CoreUI and necessary plugins-->
-    <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
-    <script src="vendors/simplebar/js/simplebar.min.js"></script>
+    <script src="<?= Url::to('@web/vendors/@coreui/coreui/js/coreui.bundle.min.js', true) ?>"></script>
+    <script src="<?= Url::to('@web/vendors/simplebar/js/simplebar.min.js', true) ?>"></script>
   </body>
 </html>

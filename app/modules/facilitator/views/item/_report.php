@@ -15,7 +15,7 @@ use yii\helpers\Url;
       <th scope="col">Waktu Penyelesaian</th>
       <th scope="col">Jumlah Langkah</th>
       <th scope="col">Laporan digenerate pada</th>
-      <th scope="col">Aksi</th>
+      <!-- <th scope="col">Aksi</th> -->
     </tr>
   </thead>
   <tbody>
@@ -27,7 +27,7 @@ use yii\helpers\Url;
         <td><?= $item['time_completion'] ?></td>
         <td><?= $item['number_of_step'] ?></td>
         <td><?= $item['generate_at'] ?></td>
-        <td></td>
+        <!-- <td></td> -->
       </tr>
     <?php endforeach; ?>
   </tbody>

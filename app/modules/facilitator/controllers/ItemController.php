@@ -166,6 +166,8 @@ class ItemController extends Controller
 
     $transaction = ItemReport::getDb()->beginTransaction();
     try {
+      ItemReport::deleteAll(['task_id' => $paramTaskId]);
+
       foreach($items as $item) {
         // get item logs
         $logs = (new \yii\db\Query())
