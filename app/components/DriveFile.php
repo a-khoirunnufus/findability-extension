@@ -58,6 +58,7 @@ class DriveFile {
       'corpora' => 'user',
       'fields' => 'nextPageToken,files(id,name,mimeType,parents,viewedByMeTime,modifiedByMeTime,size)',
       'pageSize' => 100,
+      'q' => 'trashed = false',
       'orderBy' => 'viewedByMeTime desc'
     ];
 
@@ -126,7 +127,7 @@ class DriveFile {
     // Sorting is not supported for queries with fullText terms.
     $res = $this->drive->files->listFiles([
       'fields' => 'files(id,viewedByMeTime)',
-      'q' => "name contains '$keyword' or fullText contains '$keyword'",
+      'q' => "trashed = false and (name contains '$keyword' or fullText contains '$keyword')",
     ]);
     
     $files = array_map(

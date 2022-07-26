@@ -3,6 +3,12 @@ use yii\helpers\Url;
 
 $this->title = 'Profil';
 $identity = Yii::$app->user->identity;
+
+$this->params['breadcrumbs'] = [
+  [ 'label' => 'Home', 'link' => Url::toRoute('home/index'), 'active' => false ],
+  [ 'label' => 'Profil', 'link' => null, 'active' => true ],
+];
+
 ?>
 
 <style>
