@@ -225,16 +225,12 @@ $session = \Yii::$app->session;
 
     <div class="alert alert-info" role="alert">
       <!-- 5, 3, 2, 2, 2, 2, 1, 1, 1, 1 -->
+      <!-- 4, 2, 2, 1, 1 -->
       Distribusi Default:&nbsp;&nbsp;
       <p class="mb-0 fs-5 d-inline">
-        <span class="badge text-bg-primary text-white">5</span>
-        <span class="badge text-bg-primary text-white">3</span>
+        <span class="badge text-bg-primary text-white">4</span>
         <span class="badge text-bg-primary text-white">2</span>
         <span class="badge text-bg-primary text-white">2</span>
-        <span class="badge text-bg-primary text-white">2</span>
-        <span class="badge text-bg-primary text-white">2</span>
-        <span class="badge text-bg-primary text-white">1</span>
-        <span class="badge text-bg-primary text-white">1</span>
         <span class="badge text-bg-primary text-white">1</span>
         <span class="badge text-bg-primary text-white">1</span>
       </p>

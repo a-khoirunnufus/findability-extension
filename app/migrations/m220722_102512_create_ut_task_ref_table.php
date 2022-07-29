@@ -20,13 +20,16 @@ class m220722_102512_create_ut_task_ref_table extends Migration
             'order' => $this->integer(),
         ]);
 
+        // 10 items
         $this->insert('ut_task_ref', [
             'interface' => 'GOOGLE_DRIVE',
-            'code' => 'GH',
-            'name' => 'Antarmuka Google Drive dengan Petunjuk',
+            'code' => 'GH1',
+            'name' => 'Antarmuka Google Drive dengan Petunjuk 1',
             'hint_visible' => true,
             'order' => 1,
         ]);
+
+        // 10 items
         $this->insert('ut_task_ref', [
             'interface' => 'GOOGLE_DRIVE',
             'code' => 'G',
@@ -34,19 +37,32 @@ class m220722_102512_create_ut_task_ref_table extends Migration
             'hint_visible' => false,
             'order' => 2,
         ]);
+
+        // 5 items
+        $this->insert('ut_task_ref', [
+            'interface' => 'GOOGLE_DRIVE',
+            'code' => 'GH2',
+            'name' => 'Antarmuka Google Drive dengan Petunjuk 2',
+            'hint_visible' => true,
+            'order' => 3,
+        ]);
+
+        // 10 items
         $this->insert('ut_task_ref', [
             'interface' => 'QUICKNAV',
             'code' => 'QH',
             'name' => 'Antarmuka QuickNav dengan Petunjuk',
             'hint_visible' => true,
-            'order' => 3,
+            'order' => 4,
         ]);
+
+        // 10 items
         $this->insert('ut_task_ref', [
             'interface' => 'QUICKNAV',
             'code' => 'Q',
             'name' => 'Antarmuka QuickNav tanpa Petunjuk',
             'hint_visible' => false,
-            'order' => 4,
+            'order' => 5,
         ]);
     }
 

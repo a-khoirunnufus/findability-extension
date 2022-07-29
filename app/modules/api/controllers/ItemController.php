@@ -140,6 +140,15 @@ class ItemController extends Controller
         $taskItem->save();
       }
 
+      // if action is CANCEL
+      // update task item status
+      if($paramAction == 'CANCEL') {
+        $taskItem = Item::findOne(intval($paramTaskItemId));
+        $taskItem->status = 'NOT_COMPLETE';
+        $taskItem->run_at = date('Y-m-d H:i:s', time());
+        $taskItem->save();
+      }
+
       $transaction->commit();
     } catch (\Exception $e) {
       $transaction->commit();

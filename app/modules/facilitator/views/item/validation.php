@@ -32,6 +32,7 @@ $csrfToken = \Yii::$app->request->csrfToken;
             <th scope="col">Pilih</th>
             <th scope="col">Aksi</th>
             <th scope="col">Objek</th>
+            <th scope="col">Sumber</th>
             <th scope="col">Waktu</th>
           </tr>
         </thead>
@@ -44,13 +45,33 @@ $csrfToken = \Yii::$app->request->csrfToken;
               <td>
                 <?php 
                 if($item['interface'] == 'GOOGLE_DRIVE') {
-                  // $tempArr = explode('/', $log['object']);
-                  // $folder_id = end($tempArr);
                   $path = parse_url($log['object'], PHP_URL_PATH);
                   $path = explode('/', $path);
                   $folder_id = end($path);
+                  $file = $drive->getFileById($folder_id);
+                  echo $file['name'];
                 }
                 elseif($item['interface'] == 'QUICKNAV') {
+                  $url = $log['object'];
+                  if($log['object'] == 'PREVIOUS') {
+                    echo 'PREVIOUS';
+                  } else {
+                    $url = parse_url($url, PHP_URL_QUERY);
+                    $output;
+                    parse_str($url, $output);
+                    $folder_id = $output['folder_id'];
+                    $file = $drive->getFileById($folder_id);
+                    echo $file['name'];
+                  }
+                }
+                
+                ?>
+              </td>
+              <td>
+                <?php
+                if($item['interface'] == 'GOOGLE_DRIVE') {
+                  echo "STATIC";
+                } elseif($item['interface'] == 'QUICKNAV') {
                   $url = $log['object'];
                   if($log['object'] == 'PREVIOUS') {
                     $url = $logs[$key-1]['object'];
@@ -58,10 +79,8 @@ $csrfToken = \Yii::$app->request->csrfToken;
                   $url = parse_url($url, PHP_URL_QUERY);
                   $output;
                   parse_str($url, $output);
-                  $folder_id = $output['folder_id'];
+                  echo strtoupper($output['source']);
                 }
-                $file = $drive->getFileById($folder_id);
-                echo $file['name'];
                 ?>
               </td>
               <td><?= $log['time'] ?></td>

@@ -323,8 +323,8 @@ class TaskController extends Controller
     $pId = $request->get('participant_id');
     $drive = new DriveFileUt($pId);
 
-    // $transaction = UtTaskTarget::getDb()->beginTransaction();
-    // try {
+    $transaction = UtTaskTarget::getDb()->beginTransaction();
+    try {
       // delete all items for this task
       Item::deleteAll(['task_id' => $taskId]);
       
@@ -368,15 +368,15 @@ class TaskController extends Controller
         }
       }
       
-    //   $transaction->commit();
-    //   Yii::$app->session->setFlash('success', 'Berhasil generate item.');
-    // } catch(\Exception $e) {
-    //   $transaction->rollBack();
-    //   Yii::$app->session->setFlash('failed', 'Gagal generate item.');
-    // } catch(\Throwable $e) {
-    //   $transaction->rollBack();
-    //   Yii::$app->session->setFlash('failed', 'Gagal generate item.');
-    // }
+      $transaction->commit();
+      Yii::$app->session->setFlash('success', 'Berhasil generate item.');
+    } catch(\Exception $e) {
+      $transaction->rollBack();
+      Yii::$app->session->setFlash('failed', 'Gagal generate item.');
+    } catch(\Throwable $e) {
+      $transaction->rollBack();
+      Yii::$app->session->setFlash('failed', 'Gagal generate item.');
+    }
 
     return $this->redirect(Yii::$app->request->referrer);
   }

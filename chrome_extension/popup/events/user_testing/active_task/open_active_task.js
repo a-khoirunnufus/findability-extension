@@ -249,7 +249,7 @@ const eventHandler = async (e) => {
         await chrome.storage.local.set({
           activeTask: {
             itemId: activeTask.itemId,
-            status: 'end',
+            status: 'idle',
             interface: activeTask.interface,
           },
           taskLog: [],
