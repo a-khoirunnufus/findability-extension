@@ -26,6 +26,7 @@ class m220725_232920_create_ut_task_item_report_table extends Migration
             'is_success' => $this->boolean(),
             'time_completion' => $this->integer()->notNull(),
             'number_of_step' => $this->integer()->notNull(),
+            'use_adaptive_interface' => $this->boolean(),
             'details' => $this->text(),
             'generate_at' => $this->timestamp()->notNull(),
             'task_item_id' => $this->integer()->notNull(),

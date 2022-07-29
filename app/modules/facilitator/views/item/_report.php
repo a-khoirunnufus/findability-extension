@@ -30,7 +30,12 @@ use yii\helpers\Url;
         <td><?= $item['number_of_step'] ?></td>
         <td><?= $item['generate_at'] ?></td>
         <td>
-          <button class="btn btn-info btn-sm">Detail</button>
+          <a href="<?= Url::toRoute([
+              'item/report-details', 
+              'task_id' => $taskId, 
+              'details' => $item['details']
+            ]) ?>"
+            class="btn btn-info btn-sm">Detail</a>
         </td>
       </tr>
     <?php endforeach; ?>

@@ -67,7 +67,7 @@ class NavigationController extends Controller
         $taskItem->status = 'PENDING';
         $taskItem->run_at = date('Y-m-d H:i:s', time());
         $taskItem->save();
-        $paramLog = '';
+        $paramLog = null;
       }
 
       if($logData[0] == 'CANCEL_TASK') {
@@ -75,7 +75,7 @@ class NavigationController extends Controller
         $taskItem->status = 'NOT_COMPLETE';
         $taskItem->run_at = date('Y-m-d H:i:s', time());
         $taskItem->save();
-        $paramLog = '';
+        $paramLog = null;
       }
     }
 

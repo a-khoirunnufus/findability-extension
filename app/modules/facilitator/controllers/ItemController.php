@@ -181,6 +181,7 @@ class ItemController extends Controller
           ->orderBy('l.time ASC')
           ->all();
 
+        $useAdaptiveInterface = false;
         $details = '';
         
         $totalTime = 0; // in seconds
@@ -206,13 +207,17 @@ class ItemController extends Controller
             $output;
             parse_str($url, $output);
             $file_id = $output['folder_id'];
-            $source = $output['source'];
+            $source = strtoupper($output['source']);
+          }
+
+          if($source == 'ADAPTIVE') {
+            $useAdaptiveInterface = true;
           }
 
           if($i < 1) {
-            $details .= $timeDif.':'.$file_id.'@'.$source;
+            $details .= $timeDif.';'.$file_id.';'.$source;
           } else {
-            $details .= '/'.$timeDif.':'.$file_id.'@'.$source;
+            $details .= '/'.$timeDif.';'.$file_id.';'.$source;
           }
         }
 
@@ -245,6 +250,7 @@ class ItemController extends Controller
         $itemReport->is_success = $isSuccess;
         $itemReport->time_completion = $timeCompletion;
         $itemReport->number_of_step = $numberOfStep;
+        $itemReport->use_adaptive_interface = $useAdaptiveInterface;
         $itemReport->details = $details;
         $itemReport->generate_at = date('Y-m-d H:i:s', time());
         $itemReport->save();
@@ -287,6 +293,27 @@ class ItemController extends Controller
 
     $filename = "task $task->code item report.csv";
     return $exporter->export()->send($filename);
+  }
+
+  public function actionReportDetails()
+  {
+    $paramTaskId = Yii::$app->request->get('task_id');
+    $paramDetails = Yii::$app->request->get('details');
+    $details = explode('/', $paramDetails);
+    $data = [];
+    foreach ($details as $item) {
+      $temp = explode(';', $item);
+      $data[] = [
+        'time' => $temp[0],
+        'file_id' => $temp[1],
+        'source' => $temp[2],
+      ];
+    }
+
+    return $this->render('report-details', [
+      'taskId' => $paramTaskId,
+      'data' => $data,
+    ]);
   }
 
 }
