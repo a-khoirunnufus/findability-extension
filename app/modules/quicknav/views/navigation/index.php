@@ -248,10 +248,22 @@ use yii\helpers\Url;
             </td>
             
             <!-- FILE VIEWED DATE -->
-            <td><?= date('j M Y', strtotime($file['viewedByMeTime'])) ?></td>
+            <td>
+              <?php
+              $time = strtotime($file['viewedByMeTime']);
+              if($time > 0) { echo date('j M Y', $time); } 
+              else { echo '-'; }
+              ?>
+            </td>
 
             <!-- FILE MODIFIED DATE -->
-            <td><?= date('j M Y', strtotime($file['modifiedByMeTime'])) ?></td>
+            <td>
+              <?php
+              $time = strtotime($file['modifiedByMeTime']);
+              if($time > 0) { echo date('j M Y', $time); } 
+              else { echo '-'; }
+              ?>
+            </td>
             
             <!-- FILE SIZE -->
             <td>

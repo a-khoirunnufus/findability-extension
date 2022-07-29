@@ -1,4 +1,4 @@
-const getHtml = (code, itemStatus, appStatus, description) => {
+const getHtml = (code, itemStatus, appStatus, fileName) => {
   let html = `
     <h6 id="task-item-code" class="d-block fs-6 fw-semibold mb-3">
       ${code}&nbsp;&nbsp;`;
@@ -17,8 +17,11 @@ const getHtml = (code, itemStatus, appStatus, description) => {
     <span class="d-block text-black-50" style="font-size: 12px;">Status</span>
     <span id="task-item-status" class="d-block mb-3">${appStatus}</span>
   
-    <span class="d-block text-black-50" style="font-size: 12px;">Deskripsi</span>
-    <span id="task-item-description" class="d-block mb-3">Pergi ke file dengan deskripsi: ${description}</span>
+    <span class="d-block text-black-50" style="font-size: 12px;">Perintah</span>
+    <span id="task-item-filename" class="d-block mb-1">Pergi ke file dengan nama berikut :</span>
+    <div class="alert alert-primary mb-3 py-2 px-3">
+      <span>${fileName}</span>
+    </div>
   `;
 
   return html;

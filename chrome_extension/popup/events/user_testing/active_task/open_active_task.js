@@ -6,7 +6,7 @@ import {
 import { getAccessToken, resetStackView, getCurrentTab } from "../../../utils.js";
 import getHtml from "../../../templates/user_testing/active_task/active_task.js";
 import divHintInfo from "../../../templates/user_testing/active_task/hint_information.js";
-import divSetupInfo from "../../../templates/user_testing/active_task/setup_information.js";
+// import divSetupInfo from "../../../templates/user_testing/active_task/setup_information.js";
 import divSelectFileInfo from "../../../templates/user_testing/active_task/select_file_info.js";
 
 const eventType = 'UT/ACTIVE_TASK/OPEN_ACTIVE_TASK';
@@ -45,10 +45,11 @@ const eventHandler = async (e) => {
       res.taskItem.status,
       (activeTask.status == 'idle' || activeTask.status == 'end') 
         ? 'Tidak dijalankan' : 'Sedang dijalankan',
-      res.taskItem.description,
+      res.taskItem.file_name,
     );
 
     // button setup
+    /*
     const btnSetup = document.createElement('button');
     btnSetup.className = 'd-inline-block btn btn-sm btn-info me-3';
     btnSetup.innerText = 'Siapkan Tugas';
@@ -83,13 +84,14 @@ const eventHandler = async (e) => {
       });
 
     });
+    */
 
     // button show hint
     const btnShowHint = document.createElement('button');
     btnShowHint.className = 'd-inline-block btn btn-sm btn-warning me-3';
     btnShowHint.innerText = 'Tampilkan Petunjuk';
     btnShowHint.addEventListener('click', () => {
-      alert(`Petunjuk lokasi file: ${res.taskItem.path_to_file}`);
+      alert(`Petunjuk lokasi file :\n${res.taskItem.path_to_file}`);
     });
 
     // run task button
@@ -273,12 +275,8 @@ const eventHandler = async (e) => {
     if (activeTask.status == 'idle' || activeTask.status == 'end') {
       if(res.taskItem.hint_visible === 1) {
         content.append(divHintInfo);
-        content.append(divSetupInfo);
         content.append(btnShowHint);
-      } else if(res.taskItem.hint_visible === 0) {
-        content.append(divSetupInfo);
       }
-      content.append(btnSetup);
       content.append(btnBegin);
     } else if (activeTask.status == 'running') {
       content.append(divSelectFileInfo);

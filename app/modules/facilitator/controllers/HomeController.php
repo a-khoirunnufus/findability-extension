@@ -30,4 +30,15 @@ class HomeController extends Controller
   {
     return $this->render('index');
   }
+
+  public function actionFlushCache()
+  {
+    if( Yii::$app->cache->flush() ) {
+      Yii::$app->session->setFlash('success', 'Berhasil membersihkan cache.');
+    } else {
+      Yii::$app->session->setFlash('false', 'Gagal membersihkan cache.');
+    }
+
+    return $this->redirect(Yii::$app->request->referrer);
+  }
 }

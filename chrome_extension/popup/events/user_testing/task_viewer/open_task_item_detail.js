@@ -3,7 +3,7 @@ import {
     bodyUserTestingTaskViewer as body, 
     spinner, 
   } from "../../../elements.js";
-import { getAccessToken, resetStackView } from "../../../utils.js";
+import { getAccessToken, resetStackView, getCurrentTab } from "../../../utils.js";
 import { eventCreator as openTaskItemListEventCreator } from './open_task_item_list.js';
 import { eventCreator as openActiveTaskEventCreator } from '../active_task/open_active_task.js';
 import getHtml from "../../../templates/user_testing/task_viewer/task_item_detail.js";
@@ -57,7 +57,7 @@ const eventHandler = async (e) => {
   content.innerHTML = getHtml(
     res.taskItem.code,
     status,
-    res.taskItem.description,
+    res.taskItem.file_name,
   );
 
   const { activeTask } = await chrome.storage.local.get(['activeTask']);
@@ -78,9 +78,16 @@ const eventHandler = async (e) => {
         status: 'idle',
         interface: res.taskItem.interface,
       }
-    }, () => { 
+    }, async () => { 
       // open active task stack
       document.dispatchEvent(openActiveTaskEventCreator({}));
+      const tab = await getCurrentTab();
+      chrome.scripting.executeScript({
+        target: {tabId: tab.id},
+        func: () => {
+          window.location.href = 'https://drive.google.com/drive/my-drive';
+        },
+      });
     });
   })
 
