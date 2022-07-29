@@ -37,8 +37,8 @@ class NavigationController extends Controller
     $request = Yii::$app->request;
 
     $paramFolderId = Yii::$app->request->get('folder_id'); // parent folder currently viewed
-    $paramKeyword = Yii::$app->request->get('keyword'); // NULL if not set
-    if($paramKeyword === 'null') $paramKeyword = null;
+    // $paramKeyword = Yii::$app->request->get('keyword'); // NULL if not set
+    // if($paramKeyword === 'null') $paramKeyword = null;
     $paramSortKey = Yii::$app->request->get('sort_key'); 
     $paramSortDir = Yii::$app->request->get('sort_dir');
     $paramSortDir = intval($paramSortDir);
@@ -47,7 +47,7 @@ class NavigationController extends Controller
     
     $paramLog = $request->get('log');
     if($paramLog !== null) {
-      $fullUrl = $request->absoluteUrl .'?'. $request->queryString;
+      // $fullUrl = $request->absoluteUrl .'?'. $request->queryString;
       $logData = explode('-', $paramLog);
       $log = new Log;
       $log->action = $logData[0];
@@ -58,7 +58,7 @@ class NavigationController extends Controller
       $log->save();
     }
 
-    $bigfile = new BIGFile($paramFolderId, $paramKeyword);
+    $bigfile = new BIGFile($paramFolderId);
     $drive = new DriveFile();
 
     // shortcut data
@@ -93,7 +93,7 @@ class NavigationController extends Controller
       'pathToFolder' => $pathToFolder,
       'files' => $staticView,
       'folder_id' => $paramFolderId,
-      'keyword' => $paramKeyword,
+      // 'keyword' => $paramKeyword,
       'sort_key' => $paramSortKey,
       'sort_dir' => $paramSortDir,
       'log' => $paramLog,

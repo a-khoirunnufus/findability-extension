@@ -66,31 +66,32 @@ class BIGFile{
     }
 
     // set files
-    $files = null;
-    $this->convertTreeToArray($this->fileHierarchy, $files);
-    ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
+    $files = [];
+    if($this->fileHierarchy) {
+      $this->convertTreeToArray($this->fileHierarchy, $files);
+      ArrayHelper::multisort($files, ['viewedByMeTime'], [SORT_DESC]);
+    }
     $this->files = $files;
 
     // set targets, compressedTargetHierarchy
     $this->setTargets($files);
     
-    $probableTargetIds = null;
-    if ($keyword) {
-      $key = $userId.'_probabletarget_'.$keyword;
-      $probableTargetIds = $cache->get($key);
-      if ($probableTargetIds === false) {
-        $probableTargets = $this->drive->listFilesByKeyword($keyword);
-        $probableTargetIds = $this->getIdsFromArray($probableTargets);
-        $cache->set($key, $probableTargetIds, 3600);
-      }
-    } else {
-      $key = $userId.'_probabletarget_allfilesearch';
-      $probableTargetIds = $cache->get($key);
-      if ($probableTargetIds === false) {
-        $probableTargets = $this->drive->listFiles(false);
-        $probableTargetIds = $this->getIdsFromArray($probableTargets);
-        $cache->set($key, $probableTargetIds, 3600);
-      }
+    // if ($keyword) {
+    //   $key = $userId.'_probabletarget_'.$keyword;
+    //   $probableTargetIds = $cache->get($key);
+    //   if ($probableTargetIds === false) {
+    //     $probableTargets = $this->drive->listFilesByKeyword($keyword);
+    //     $probableTargetIds = $this->getIdsFromArray($probableTargets);
+    //     $cache->set($key, $probableTargetIds, 3600);
+    //   }
+    // }
+
+    $key = $userId.'_probabletarget_allfilesearch';
+    $probableTargetIds = $cache->get($key);
+    if ($probableTargetIds === false) {
+      $probableTargets = $this->drive->listFiles(false);
+      $probableTargetIds = $this->getIdsFromArray($probableTargets);
+      $cache->set($key, $probableTargetIds, 3600);
     }
     
     $this->setCompressedTargetHierarchy([
@@ -146,7 +147,7 @@ class BIGFile{
     $targetsMarked = array_map(function ($item) use ($probableTargetIds) {
       $item['selectedTarget'] = false;
       if (
-        $this->_QN_MARKED_COUNT < 6
+        $this->_QN_MARKED_COUNT < 10
         and in_array($item['id'], $probableTargetIds)
       ) {
         $item['selectedTarget'] = true;

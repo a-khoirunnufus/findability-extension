@@ -8,7 +8,7 @@ async function main() {
   const qnElm = document.createElement('div');
   qnElm.id = 'qn-root';
 
-  let url = "http://localhost:8080/quicknav/navigation/index?folder_id=root&keyword=&sort_key=name&sort_dir=4";
+  let url = "http://localhost:8080/quicknav/navigation/index?folder_id=root&sort_key=name&sort_dir=4";
   
   const { activeTask } = await chrome.storage.local.get(['activeTask']);
   if (

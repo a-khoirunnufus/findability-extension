@@ -28,7 +28,7 @@ use yii\helpers\Url;
 
   <!-- INPUT KEYWORD -->
   <!-- <div class="input-group input-group-sm mb-3" style="width: 50%">
-    <input id="input-keyword" value="<?= $keyword ?>" type="text" class="form-control" placeholder="Masukkan kata kunci" aria-describedby="button-addon">
+    <input id="input-keyword" value="<?php // echo $keyword ?>" type="text" class="form-control" placeholder="Masukkan kata kunci" aria-describedby="button-addon">
     <button 
       class="btn btn-outline-primary fw-bolder" 
       type="button" 
@@ -52,7 +52,7 @@ use yii\helpers\Url;
                   'navigation/index',
                   'folder_id' => $file['mimeType'] == 'application/vnd.google-apps.folder' 
                       ? $file['id'] : $file['parent'],
-                  'keyword' => $keyword,
+                  // 'keyword' => $keyword,
                   'sort_key' => $sort_key,
                   'sort_dir' => $sort_dir,
                   'source' => 'adaptive',
@@ -92,7 +92,7 @@ use yii\helpers\Url;
               onclick="navigateToUrl('<?= Url::toRoute([
                 'navigation/index',
                 'folder_id' => $folder['id'],
-                'keyword' => $keyword,
+                // 'keyword' => $keyword,
                 'sort_key' => $sort_key,
                 'sort_dir' => $sort_dir,
                 'source' => 'breadcrumb',
@@ -121,13 +121,13 @@ use yii\helpers\Url;
       <thead>
         <tr>
           <!-- COLUMN HEADER NAME -->
-          <th style="width: 70%">
+          <th style="width: 55%">
             Nama&nbsp;&nbsp;
             <?php if($sort_key == 'name' and $sort_dir === SORT_DESC): ?>
               <span onclick="navigateToUrl('<?= Url::toRoute([
                 'navigation/index',
                 'folder_id' => $folder_id,
-                'keyword' => $keyword,
+                // 'keyword' => $keyword,
                 'sort_key' => 'name',
                 'sort_dir' => SORT_ASC,
                 'source' => 'sort_name',
@@ -139,7 +139,7 @@ use yii\helpers\Url;
               <span onclick="navigateToUrl('<?= Url::toRoute([
                 'navigation/index',
                 'folder_id' => $folder_id,
-                'keyword' => $keyword,
+                // 'keyword' => $keyword,
                 'sort_key' => 'name',
                 'sort_dir' => SORT_DESC,
                 'source' => 'sort_name',
@@ -149,7 +149,10 @@ use yii\helpers\Url;
               </span>
             <?php endif; ?>
           </th>
-          
+
+          <!-- COLUMN HEADER VIEWED DATE -->
+          <th style="width: 15%">Terakhir dibuka</th>
+
           <!-- COLUMN HEADER MODIFIED DATE -->
           <th style="width: 15%">
             Terakhir diubah&nbsp;&nbsp;
@@ -157,7 +160,7 @@ use yii\helpers\Url;
               <span onclick="navigateToUrl('<?= Url::toRoute([
                 'navigation/index',
                 'folder_id' => $folder_id,
-                'keyword' => $keyword,
+                // 'keyword' => $keyword,
                 'sort_key' => 'modifiedByMeTime',
                 'sort_dir' => SORT_ASC,
                 'source' => 'sort_date',
@@ -169,7 +172,7 @@ use yii\helpers\Url;
               <span onclick="navigateToUrl('<?= Url::toRoute([
                 'navigation/index',
                 'folder_id' => $folder_id,
-                'keyword' => $keyword,
+                // 'keyword' => $keyword,
                 'sort_key' => 'modifiedByMeTime',
                 'sort_dir' => SORT_DESC,
                 'source' => 'sort_date',
@@ -187,7 +190,7 @@ use yii\helpers\Url;
               <span onclick="navigateToUrl('<?= Url::toRoute([
                 'navigation/index',
                 'folder_id' => $folder_id,
-                'keyword' => $keyword,
+                // 'keyword' => $keyword,
                 'sort_key' => 'size',
                 'sort_dir' => SORT_ASC,
                 'source' => 'sort_size',
@@ -199,7 +202,7 @@ use yii\helpers\Url;
               <span onclick="navigateToUrl('<?= Url::toRoute([
                 'navigation/index',
                 'folder_id' => $folder_id,
-                'keyword' => $keyword,
+                // 'keyword' => $keyword,
                 'sort_key' => 'size',
                 'sort_dir' => SORT_DESC,
                 'source' => 'sort_size',
@@ -219,7 +222,7 @@ use yii\helpers\Url;
             data-url="<?= Url::toRoute([
               'navigation/index', 
               'folder_id'=>$file['id'], 
-              'keyword'=>$keyword, 
+              // 'keyword'=>$keyword, 
               'sort_key'=>$sort_key, 
               'sort_dir'=>$sort_dir,
               'source' => 'static',
@@ -243,7 +246,10 @@ use yii\helpers\Url;
               <?php endif; ?>
               &nbsp;&nbsp;<?= $file['name'] ?>
             </td>
-  
+            
+            <!-- FILE VIEWED DATE -->
+            <td><?= date('j M Y', strtotime($file['viewedByMeTime'])) ?></td>
+
             <!-- FILE MODIFIED DATE -->
             <td><?= date('j M Y', strtotime($file['modifiedByMeTime'])) ?></td>
             
@@ -272,9 +278,9 @@ use yii\helpers\Url;
       const keyword = document.querySelector('#input-keyword').value;
       const baseUrl = '<?= Url::base(true) ?>';
       const params = '<?= "?folder_id=$folder_id&sort_key=$sort_key&sort_dir=$sort_dir&source=keyword" ?>';
-      const paramKeyword = '&keyword='+keyword;
+      // const paramKeyword = '&keyword='+keyword;
       const paramLog = '<?= $log !== null ? '&log='.$log : '' ?>';
-      const url = baseUrl + '/quicknav/navigation/index' + params + paramKeyword + paramLog;
+      const url = baseUrl + '/quicknav/navigation/index' + params + paramLog;
       window.location.href = url;
       document.querySelector('#loading-image').classList.add('show');
     }
