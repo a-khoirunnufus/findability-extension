@@ -44,8 +44,11 @@ $csrfToken = \Yii::$app->request->csrfToken;
               <td>
                 <?php 
                 if($item['interface'] == 'GOOGLE_DRIVE') {
-                  $tempArr = explode('/', $log['object']);
-                  $folder_id = end($tempArr);
+                  // $tempArr = explode('/', $log['object']);
+                  // $folder_id = end($tempArr);
+                  $path = parse_url($log['object'], PHP_URL_PATH);
+                  $path = explode('/', $path);
+                  $folder_id = end($path);
                 }
                 elseif($item['interface'] == 'QUICKNAV') {
                   $url = $log['object'];
