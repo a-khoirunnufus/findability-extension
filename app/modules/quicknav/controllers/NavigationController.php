@@ -7,6 +7,7 @@ use yii\web\Controller;
 use yii\filters\AccessControl;
 use app\components\BIGFile;
 use app\components\DriveFile;
+use app\modules\facilitator\models\UtTaskItem as Item;
 use app\modules\facilitator\models\UtTaskItemLog as Log;
 
 class NavigationController extends Controller
@@ -56,6 +57,26 @@ class NavigationController extends Controller
       $log->time = date('Y-m-d H:i:s', time());
       $log->task_item_id = $logData[1];
       $log->save();
+      
+      if($logData[0] == 'BEGIN_TASK') {
+        $paramLog = 'NAVIGATE-'.$logData[1];
+      }
+      
+      if($logData[0] == 'END_TASK') {
+        $taskItem = Item::findOne(intval($logData[1]));
+        $taskItem->status = 'PENDING';
+        $taskItem->run_at = date('Y-m-d H:i:s', time());
+        $taskItem->save();
+        $paramLog = '';
+      }
+
+      if($logData[0] == 'CANCEL_TASK') {
+        $taskItem = Item::findOne(intval($logData[1]));
+        $taskItem->status = 'NOT_COMPLETE';
+        $taskItem->run_at = date('Y-m-d H:i:s', time());
+        $taskItem->save();
+        $paramLog = '';
+      }
     }
 
     $bigfile = new BIGFile($paramFolderId);

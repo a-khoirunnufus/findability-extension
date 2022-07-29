@@ -29,34 +29,69 @@ chrome.runtime.onInstalled.addListener(() => {
 
 setup();
 
+const gdScriptObj = {
+  id: 'gdcomponent-hide',
+  js: [ 
+    'content_scripts/googledrive/filelist_hide.js',
+    'content_scripts/googledrive/searchbar_hide.js' 
+  ],
+  matches: [ 'https://drive.google.com/*' ],
+  runAt: 'document_end',
+};
+const qnScriptObj = {
+  id: 'quicknav-main',
+  css: [ 'content_scripts/quicknav/main.css' ],
+  js: [ 'content_scripts/quicknav/main.js' ],
+  matches: [ 'https://drive.google.com/*' ],
+  runAt: 'document_end',
+};
+
 // storage change event
 chrome.storage.onChanged.addListener(function (changes, namespace) {
+  
+  // logging
+  for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+    console.log(
+      `Storage key "${key}" in namespace "${namespace}" changed.`
+      ,`Old value was "${oldValue}", new value is "${newValue}".`
+    );
+  }
+
   if (changes.showQuicknav) {
     if (changes.showQuicknav.newValue === true) {
-      chrome.scripting.registerContentScripts([
-        {
-          id: 'gdcomponent-hide',
-          js: [ 
-            'content_scripts/googledrive/filelist_hide.js',
-            'content_scripts/googledrive/searchbar_hide.js' 
-          ],
-          matches: [ 'https://drive.google.com/*' ],
-          runAt: 'document_end',
-        },
-        {
-          id: 'quicknav-main',
-          css: [ 'content_scripts/quicknav/main.css' ],
-          js: [ 'content_scripts/quicknav/main.js' ],
-          matches: [ 'https://drive.google.com/*' ],
-          runAt: 'document_end',
-        },
-      ]);
+      // check is content script exists
+      // if exist, dont register
+      // if dont exist, register
+      chrome.scripting.getRegisteredContentScripts(
+        { ids: ['quicknav-main', 'gdcomponent-hide'] },
+        async (scripts) => {
+          const ids = scripts.map((item) => item.id);
+          if(!ids.includes('quicknav-main')) {
+            await chrome.scripting.registerContentScripts([qnScriptObj]);
+          }
+          if(!ids.includes('gdcomponent-hide')) {
+            await chrome.scripting.registerContentScripts([gdScriptObj]);
+          }
+        }
+      );
     } else if(changes.showQuicknav.newValue === false) {
-      chrome.scripting.unregisterContentScripts({
-        ids: ['quicknav-main', 'gdcomponent-hide'],
-      })
+      // check is content script exists
+      // if exist, unregister
+      // if dont exist, do nothing
+      chrome.scripting.getRegisteredContentScripts(
+        { ids: ['quicknav-main', 'gdcomponent-hide'] },
+        (scripts) => {
+          const ids = scripts.map((item) => item.id);
+          if(ids.length > 0) {
+            chrome.scripting.unregisterContentScripts({
+              ids: ids,
+            })
+          }
+        }
+      );
     }
   }
+  
 })
 
 // LISTEN MESSAGE
@@ -120,16 +155,6 @@ chrome.tabs.onUpdated.addListener(
 )
 // DETECT URL CHANGES END
 
-
-/* LOGGING START */
-chrome.storage.onChanged.addListener(function (changes, namespace) {
-  for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-    console.log(
-      `Storage key "${key}" in namespace "${namespace}" changed.`
-      ,`Old value was "${oldValue}", new value is "${newValue}".`
-    );
-  }
-});
 
 // chrome.runtime.onMessage.addListener(
 //   function(request, sender, sendResponse) {

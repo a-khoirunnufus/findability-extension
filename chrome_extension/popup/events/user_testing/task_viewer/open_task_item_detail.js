@@ -69,40 +69,20 @@ const eventHandler = async (e) => {
   }
   btnRun.className = 'd-inline-block btn btn-sm btn-primary';
   btnRun.innerText = 'Jalankan Tugas';
-  btnRun.addEventListener('click', () => {
+  btnRun.addEventListener('click', async () => {
 
     // initialize active task with status idle
-    chrome.storage.local.set({
+    await chrome.storage.local.set({
       activeTask: {
         itemId: e.detail.itemId,
         status: 'idle',
         interface: res.taskItem.interface,
       }
-    }, async function() {
-      // check item task interface
-      if (res.taskItem.interface == 'GOOGLE_DRIVE') {
-        // unregister content script
-        await chrome.storage.local.set({showQuicknav: false});
-      } 
-      else if(res.taskItem.interface == 'QUICKNAV') {
-        // trigger re-register content script
-        // set task status idle
-        await chrome.storage.local.set({showQuicknav: false});
-        await chrome.storage.local.set({showQuicknav: true});
-      }
-
-      // open active task stack
-      document.dispatchEvent(openActiveTaskEventCreator({}));
-
-      // redirect to home
-      const tab = await getCurrentTab();
-      chrome.scripting.executeScript({
-        target: {tabId: tab.id},
-        func: () => {
-          window.location.href = 'https://drive.google.com/drive/my-drive';
-        },
-      });
     });
+
+    // open active task stack
+    document.dispatchEvent(openActiveTaskEventCreator({}));
+
   })
 
   content.prepend(btnBack);
