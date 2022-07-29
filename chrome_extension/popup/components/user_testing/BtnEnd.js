@@ -15,7 +15,6 @@ function getBtnEnd(currentTab, activeTask, taskLog) {
         code: "FINAL_TASK_LOG",
         data: { logs: taskLog, taskItemId: activeTask.itemId },
       });
-      
     }
 
     else if(activeTask.interface == 'QUICKNAV') {

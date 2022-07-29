@@ -11,7 +11,7 @@ function getBtnBegin(currentTab, activeTask,) {
       // checking environment ready
       let ready = true;
   
-      const {showQuicknav} = chrome.storage.local.get(['showQuicknav']);
+      const {showQuicknav} = await chrome.storage.local.get(['showQuicknav']);
       if(showQuicknav) {
         // not ready
         ready = false;
@@ -26,7 +26,7 @@ function getBtnBegin(currentTab, activeTask,) {
       }
   
       if(!ready) {
-        chrome.scripting.executeScript({
+        await chrome.scripting.executeScript({
           target: {tabId: currentTab.id},
           func: () => {
             window.location.href = 'https://drive.google.com/drive/my-drive';
@@ -55,10 +55,10 @@ function getBtnBegin(currentTab, activeTask,) {
     else if(activeTask.interface == 'QUICKNAV') {
       // checking environment ready
       const {showQuicknav} = await chrome.storage.local.get(['showQuicknav']);
-      if(!showQuicknav) {
+      if(showQuicknav === false) {
         await chrome.storage.local.set({showQuicknav: true});  
         // refresh page
-        chrome.scripting.executeScript({
+        await chrome.scripting.executeScript({
           target: {tabId: currentTab.id},
           func: () => {
             window.location.href = 'https://drive.google.com/drive/my-drive';

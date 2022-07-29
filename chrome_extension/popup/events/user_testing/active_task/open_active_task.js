@@ -28,10 +28,10 @@ const eventHandler = async (e) => {
   body.innerHTML = '';
   body.append(spinner);
 
-  const {activeTask} = await chrome.storage.local.get(['activeTask']);
+  const {activeTask, showQuicknav} = await chrome.storage.local.get(['activeTask']);
   const currentTab = await getCurrentTab();
 
-  if(activeTask.interface == 'QUICKNAV' && activeTask.status == 'idle') {
+  if(activeTask.interface == 'QUICKNAV' && activeTask.status == 'idle' && showQuicknav === true) {
     await chrome.scripting.executeScript({
       target: {tabId: currentTab.id},
       func: resetQuicknav,

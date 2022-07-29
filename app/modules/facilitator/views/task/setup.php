@@ -388,6 +388,8 @@ $session = \Yii::$app->session;
             $allTask = (new \yii\db\Query())
               ->select(['id', 'code', 'name', 'interface'])
               ->from('ut_task')
+              ->where(['participant_id' => $participant['id']])
+              ->orderBy('order ASC')
               ->all();
           ?>
           <?php foreach($allTask as $sourceTask): ?>

@@ -223,13 +223,23 @@ class ItemController extends Controller
 
         // check task success
         $isSuccess = false;
-        $url = $logs[count($logs)-2]['object'];
-        $url = parse_url($url, PHP_URL_QUERY);
-        $output; parse_str($url, $output);
-        $folder_id = $output['folder_id'];
-        $file = $drive->getFileById($item['file_id']);
-        if($file['parent'] == $folder_id) {
-          $isSuccess = true;
+        if($item['interface'] == 'QUICKNAV') {
+          $url = $logs[count($logs)-2]['object'];
+          $url = parse_url($url, PHP_URL_QUERY);
+          $output; parse_str($url, $output);
+          $folder_id = $output['folder_id'];
+          $file = $drive->getFileById($item['file_id']);
+          if($file['parent'] == $folder_id) {
+            $isSuccess = true;
+          }
+        } elseif($item['interface'] == 'GOOGLE_DRIVE') {
+          $path = parse_url($logs[count($logs)-2]['object'], PHP_URL_PATH);
+          $path = explode('/', $path);
+          $folder_id = end($path);
+          $file = $drive->getFileById($item['file_id']);
+          if($file['parent'] == $folder_id) {
+            $isSuccess = true;
+          }
         }
   
         $timeCompletion = $totalTime;
