@@ -229,9 +229,9 @@ class BIGFile{
     switch ($y) {
       case 'select':
         if (in_array($t, $x)) {
-          return 0.95;
+          return 0.94;
         }
-        return 0.05;
+        return 0.06;
 
       case 'back':
         if (!in_array($t, $x)) {

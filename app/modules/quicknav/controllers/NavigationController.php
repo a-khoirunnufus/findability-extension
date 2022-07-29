@@ -100,14 +100,12 @@ class NavigationController extends Controller
     ]);
   }
 
-  private function limitPathItem($path, $limit = 3) {
-    $newPath = $path;
-    if(count($path) > $limit) {
-      $newPath = [];
-      $newPath[] = $path[0];
-      $newPath[] = $path[1];
-      $newPath[] = $path[count($path)-1];
+  private function limitPathItem($path, $limit = 99) {
+    $newPath = [];
+    while (count($path) > 1 and count($newPath) <= $limit ) {
+      $newPath[] = array_shift($path);
     }
+    $newPath[] = array_pop($path);
     return $newPath;
   }
 }

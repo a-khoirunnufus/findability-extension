@@ -47,7 +47,7 @@ $clientId = \Yii::$app->params['googleCloudClientId'];
     </div>
 
     <!-- CoreUI and necessary plugins-->
-    <script src="<?= Url::to('@web/vendors/@coreui/coreui/js/coreui.bundle.min.js', true) ?>"></script>
-    <script src="<?= Url::to('@web/vendors/simplebar/js/simplebar.min.js', true) ?>"></script>
+    <script src="<?= Url::to('@web/coreui/vendors/@coreui/coreui/js/coreui.bundle.min.js', true) ?>"></script>
+    <script src="<?= Url::to('@web/coreui/vendors/simplebar/js/simplebar.min.js', true) ?>"></script>
   </body>
 </html>
