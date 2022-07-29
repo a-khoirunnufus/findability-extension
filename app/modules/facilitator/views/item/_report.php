@@ -12,10 +12,11 @@ use yii\helpers\Url;
       <th scope="col">#</th>
       <th scope="col">Kode</th>
       <th scope="col">Nama File</th>
+      <th scope="col">Status Tugas</th>
       <th scope="col">Waktu Penyelesaian</th>
       <th scope="col">Jumlah Langkah</th>
       <th scope="col">Laporan digenerate pada</th>
-      <!-- <th scope="col">Aksi</th> -->
+      <th scope="col"></th>
     </tr>
   </thead>
   <tbody>
@@ -24,10 +25,13 @@ use yii\helpers\Url;
         <th scope="row"><?= $item['order'] ?></th>
         <td scope="row"><?= $item['code'] ?></td>
         <td><?= $item['file_name'] ?></td>
+        <td><?= $item['is_success'] === 1 ? 'berhasil' : 'gagal' ?></td> 
         <td><?= $item['time_completion'] ?></td>
         <td><?= $item['number_of_step'] ?></td>
         <td><?= $item['generate_at'] ?></td>
-        <!-- <td></td> -->
+        <td>
+          <button class="btn btn-info btn-sm">Detail</button>
+        </td>
       </tr>
     <?php endforeach; ?>
   </tbody>

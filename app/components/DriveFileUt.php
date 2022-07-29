@@ -133,7 +133,8 @@ class DriveFileUt {
   {
     if($id == 'root' or $id == 'my-drive') {
       return [
-        'name' => 'Drive Saya'
+        'name' => 'Drive Saya',
+        'parent' => null,
       ];
     }
     foreach($this->files as $file) {

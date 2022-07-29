@@ -157,6 +157,9 @@ class ItemController extends Controller
     $request = Yii::$app->request;
     $paramTaskId = $request->get('task_id');
 
+    $task = Task::findOne($paramTaskId);
+    $drive = new Drive($task->participant_id);
+
     // foreach task item that have status COMPLETED
     $items = Item::find()
       ->where([
@@ -177,14 +180,51 @@ class ItemController extends Controller
           ->where(['l.task_item_id' => $item['id']])
           ->orderBy('l.time ASC')
           ->all();
+
+        $details = '';
         
         $totalTime = 0; // in seconds
         $prevTime = strtotime($logs[0]['time']);
-        for ($i=1; $i < count($logs); $i++) { 
-          $time = strtotime($logs[$i]['time']);
-          $timeDif = $time - $prevTime;
-          $totalTime += $timeDif;
-          $prevTime = $time;
+        for ($i=0; $i < count($logs); $i++) { 
+          $timeDif = 0;
+          if($i >= 1) {
+            $time = strtotime($logs[$i]['time']);
+            $timeDif = $time - $prevTime;
+            $totalTime += $timeDif;
+            $prevTime = $time;
+          }
+
+          if($item['interface'] == 'GOOGLE_DRIVE') {
+            $path = parse_url($logs[$i]['object'], PHP_URL_PATH);
+            $path = explode('/', $path);
+            $file_id = end($path);
+            $source = 'STATIC';
+          }
+          elseif($item['interface'] == 'QUICKNAV') {
+            $url = $logs[$i]['object'];
+            $url = parse_url($url, PHP_URL_QUERY);
+            $output;
+            parse_str($url, $output);
+            $file_id = $output['folder_id'];
+            $source = $output['source'];
+          }
+
+          if($i < 1) {
+            $details .= $timeDif.':'.$file_id.'@'.$source;
+          } else {
+            $details .= '/'.$timeDif.':'.$file_id.'@'.$source;
+          }
+        }
+
+        // check task success
+        $isSuccess = false;
+        $url = $logs[count($logs)-2]['object'];
+        $url = parse_url($url, PHP_URL_QUERY);
+        $output; parse_str($url, $output);
+        $folder_id = $output['folder_id'];
+        $file = $drive->getFileById($item['file_id']);
+        if($file['parent'] == $folder_id) {
+          $isSuccess = true;
         }
   
         $timeCompletion = $totalTime;
@@ -202,8 +242,10 @@ class ItemController extends Controller
         $itemReport->order = $item->order;
         $itemReport->task_item_id = $item->id;
         $itemReport->task_id = $item->task_id;
+        $itemReport->is_success = $isSuccess;
         $itemReport->time_completion = $timeCompletion;
         $itemReport->number_of_step = $numberOfStep;
+        $itemReport->details = $details;
         $itemReport->generate_at = date('Y-m-d H:i:s', time());
         $itemReport->save();
       }
