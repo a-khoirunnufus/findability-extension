@@ -45,14 +45,14 @@ class TaskController extends Controller
       ->all();
 
     // if there is target that not describe yet
-    foreach($tasks as $task) {
-      if(!Target::isDescribeComplete($task['id'])) {
-        return $this->redirect(Url::toRoute([
-          'task/describe-target', 
-          'task_id' => $task['id']
-        ]));
-      }
-    }
+    // foreach($tasks as $task) {
+    //   if(!Target::isDescribeComplete($task['id'])) {
+    //     return $this->redirect(Url::toRoute([
+    //       'task/describe-target', 
+    //       'task_id' => $task['id']
+    //     ]));
+    //   }
+    // }
     
     return $this->render('index', [
       'tasks' => $tasks,

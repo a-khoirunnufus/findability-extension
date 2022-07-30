@@ -19,6 +19,7 @@ class m220722_102646_create_ut_task_table extends Migration
             'name' => $this->string()->notNull(),
             'order' => $this->integer(),
             'hint_visible' => $this->boolean()->notNull(),
+            'is_lock' => $this->boolean()->defaultValue(true),
             'participant_id' => $this->integer()->notNull(),
         ]);
 

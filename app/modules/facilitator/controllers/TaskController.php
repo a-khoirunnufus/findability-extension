@@ -55,7 +55,7 @@ class TaskController extends Controller
       ->where(['id' => $pid])
       ->one();
     $tasks = (new \yii\db\Query())
-      ->select(['id', 'code', 'name', 'order', 'interface', 'hint_visible'])
+      ->select(['id', 'code', 'name', 'order', 'interface', 'hint_visible', 'is_lock'])
       ->from('ut_task')
       ->where(['participant_id' => $pid])
       ->orderBy(['order' => SORT_ASC])
@@ -153,6 +153,7 @@ class TaskController extends Controller
       $utTask->order = $postData['order'];
       $utTask->interface = $postData['interface'];
       $utTask->hint_visible = $postData['hint_visible'];
+      $utTask->is_lock = $postData['is_lock'];
       $utTask->participant_id = $postData['participant_id'];
       $utTask->save();
       Yii::$app->session->setFlash('success', 'Tugas berhasil ditambahkan.');
@@ -174,6 +175,7 @@ class TaskController extends Controller
       $utTask->order = $postData['order'];
       $utTask->interface = $postData['interface'];
       $utTask->hint_visible = $postData['hint_visible'];
+      $utTask->is_lock = $postData['is_lock'];
       $utTask->participant_id = $postData['participant_id'];
       $utTask->save();
       Yii::$app->session->setFlash('success', 'Tugas berhasil diupdate.');

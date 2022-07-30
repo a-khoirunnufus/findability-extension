@@ -15,6 +15,7 @@ window.addEventListener('DOMContentLoaded', function() {
       const name = this.getAttribute('data-name');
       const interface = this.getAttribute('data-interface');
       const hintVisible = this.getAttribute('data-hint_visible');
+      const isLock = this.getAttribute('data-is_lock');
       const taskId = this.getAttribute('data-task-id');
       
       document.querySelector('#form-update-task input[name="order"]').value = order;
@@ -22,6 +23,7 @@ window.addEventListener('DOMContentLoaded', function() {
       document.querySelector('#form-update-task input[name="name"]').value = name;
       document.querySelector('#form-update-task input[name="interface"]').value = interface;
       document.querySelector('#form-update-task input[name="hint_visible"]').value = hintVisible;
+      document.querySelector('#form-update-task input[name="is_lock"]').value = isLock;
       document.querySelector('#form-update-task input[name="task_id"]').value = taskId;
     });
   })

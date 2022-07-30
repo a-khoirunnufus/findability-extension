@@ -69,7 +69,7 @@ const eventHandler = async (e) => {
   });
 
   // run task button
-  const btnBegin = getBtnBegin(currentTab, activeTask);
+  const btnBegin = await getBtnBegin(currentTab, activeTask);
 
   // end task button
   let {taskLog} = await chrome.storage.local.get(['taskLog']);

@@ -41,6 +41,7 @@ const eventHandler = async (e) => {
     const btn = document.createElement('button');
     btn.innerText = 'Buka';
     btn.className = 'btn btn-primary btn-sm';
+    if(task.is_lock == '1') btn.setAttribute('disabled', true);
     btn.addEventListener('click', () => {
       document.dispatchEvent(openTaskItemListEventCreator({
         detail: {
