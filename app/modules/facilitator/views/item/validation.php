@@ -23,7 +23,7 @@ $csrfToken = \Yii::$app->request->csrfToken;
 
 <div class="card shadow-sm mb-4">
   <div class="card-body">    
-    <form action="<?= Url::toRoute('item/validate') ?>" method="post">
+    <form action="<?= Url::toRoute(['item/validate', 'participant_id' => $participant['id'], 'task_id' => $task['id']]) ?>" method="post">
       <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
       <input type="hidden" name="task_item_id" value="<?= $item['id'] ?>">
       <table class="table">
@@ -91,7 +91,7 @@ $csrfToken = \Yii::$app->request->csrfToken;
 
       <button type="submit" class="btn btn-success btn-lg text-white mt-3">Tandai selesai</button>
     </form>
-    <form  action="<?= Url::toRoute('item/unvalidate') ?>" method="post">
+    <form action="<?= Url::toRoute(['item/unvalidate', 'participant_id' => $participant['id'], 'task_id' => $task['id']]) ?>" method="post">
       <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
       <input type="hidden" name="task_item_id" value="<?= $item['id'] ?>">
       <button type="submit" class="btn btn-secondary btn-lg text-white mt-3">Tandai belum selesai</button>

@@ -11,7 +11,7 @@ function getBtnEnd(currentTab, activeTask, taskLog) {
         time: Math.floor(new Date().getTime()/1000.0),
       });
       // send log to background
-      chrome.runtime.sendMessage({
+      await chrome.runtime.sendMessage({
         code: "FINAL_TASK_LOG",
         data: { logs: taskLog, taskItemId: activeTask.itemId },
       });

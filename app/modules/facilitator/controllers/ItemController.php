@@ -5,6 +5,8 @@ namespace app\modules\facilitator\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\filters\AccessControl;
+use yii\helpers\Url;
+use app\modules\facilitator\models\UtParticipant as Participant;
 use app\modules\facilitator\models\UtTask as Task;
 use app\components\DriveFileUt as Drive;
 use app\modules\facilitator\models\UtTaskItem as Item;
@@ -102,6 +104,8 @@ class ItemController extends Controller
   public function actionValidate()
   {
     $request = Yii::$app->request;
+    $participantId = $request->get('participant_id');
+    $taskId = $request->get('task_id');
     $taskItemId = $request->post('task_item_id');
     $taskItemLogIds = $request->post('task_item_log_id');
 
@@ -132,12 +136,18 @@ class ItemController extends Controller
       Yii::$app->session->setFlash('failed', 'Gagal menyimpan data.');
     }
     
-    return $this->redirect(Yii::$app->request->referrer);
+    return $this->redirect(Url::toRoute([
+      'item/index', 
+      'participant_id' => $participantId,
+      'task_id' => $taskId,
+    ]));
   }
 
   public function actionUnvalidate()
   {
     $request = Yii::$app->request;
+    $participantId = $request->get('participant_id');
+    $taskId = $request->get('task_id');
     $taskItemId = $request->post('task_item_id');
 
     try {
@@ -149,7 +159,11 @@ class ItemController extends Controller
       Yii::$app->session->setFlash('failed', 'Gagal mengupdate data.');
     }
     
-    return $this->redirect(Yii::$app->request->referrer);
+    return $this->redirect(Url::toRoute([
+      'item/index', 
+      'participant_id' => $participantId,
+      'task_id' => $taskId,
+    ]));
   }
 
   public function actionGenerateReport()
@@ -236,6 +250,7 @@ class ItemController extends Controller
           $path = parse_url($logs[count($logs)-2]['object'], PHP_URL_PATH);
           $path = explode('/', $path);
           $folder_id = end($path);
+          if($folder_id == 'my-drive') $folder_id = $drive->driveRootId;
           $file = $drive->getFileById($item['file_id']);
           if($file['parent'] == $folder_id) {
             $isSuccess = true;
@@ -286,9 +301,20 @@ class ItemController extends Controller
     $paramTaskId = $request->get('task_id');
 
     $task = Task::findOne($paramTaskId);
+    $participant = Participant::findOne($task->participant_id);
 
     $itemReports = (new \yii\db\Query())
-      ->select(['t.code AS task_code', 'ir.code AS task_item_code', 'ir.file_name AS file_name', 'ir.time_completion AS time_completion', 'ir.number_of_step AS number_of_step', 'ir.generate_at AS generated_at'])
+      ->select([
+        't.code AS task_code', 
+        'ir.code AS task_item_code', 
+        'ir.file_name AS file_name',
+        'ir.file_depth AS file_depth',
+        'ir.is_success AS success', 
+        'ir.time_completion AS time_completion',
+        'ir.number_of_step AS number_of_step', 
+        'ir.use_adaptive_interface AS use_adaptive_interface', 
+        'ir.generate_at AS generated_at'
+      ])
       ->from('ut_task_item_report ir')
       ->join('LEFT JOIN', 'ut_task t', 't.id = ir.task_id')
       ->where(['ir.task_id' => $paramTaskId])
@@ -301,7 +327,7 @@ class ItemController extends Controller
       ]),
     ]);
 
-    $filename = "task $task->code item report.csv";
+    $filename = "User $participant->name Task $task->code Report.csv";
     return $exporter->export()->send($filename);
   }
 

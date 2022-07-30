@@ -1,12 +1,15 @@
 import { parseURL } from "../../utils.js";
 
-function getBtnBegin(currentTab, activeTask) {
+function getBtnBegin(currentTab, activeTask, status) {
   return new Promise(async (resolve, reject) => {
     const btnBegin = document.createElement('button');
     btnBegin.className = 'd-inline-block btn btn-sm btn-primary';
-  
-    const envReady = await checkEnvReady(activeTask.interface, currentTab);
     
+    if(status === 'PENDING' || status === 'COMPLETED') {
+      btnBegin.setAttribute('disabled', true);
+    }
+
+    const envReady = await checkEnvReady(activeTask.interface, currentTab);
     if(envReady.status) {
       btnBegin.innerText = 'Mulai Tugas';
       btnBegin.classList.add('btn-primary');

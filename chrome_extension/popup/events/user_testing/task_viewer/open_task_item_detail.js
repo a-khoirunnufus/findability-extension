@@ -64,9 +64,14 @@ const eventHandler = async (e) => {
 
   // run task button
   const btnRun = document.createElement('button');
-  if(activeTask.itemId && activeTask.status && activeTask.status == 'running') {
+  
+  if(
+    (activeTask.itemId && activeTask.status && activeTask.status == 'running')
+    || (status === 'pending' || status === 'selesai')
+  ) {
     btnRun.setAttribute('disabled', true);
   }
+
   btnRun.className = 'd-inline-block btn btn-sm btn-primary';
   btnRun.innerText = 'Jalankan Tugas';
   btnRun.addEventListener('click', async () => {
