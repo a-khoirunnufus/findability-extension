@@ -25,7 +25,7 @@ use yii\helpers\Url;
         <th scope="row"><?= $item['order'] ?></th>
         <td scope="row"><?= $item['code'] ?></td>
         <td><?= $item['file_name'] ?></td>
-        <td><?= $item['is_success'] === 1 ? 'berhasil' : 'gagal' ?></td> 
+        <td><?= intval($item['is_success']) === 1 ? 'berhasil' : 'gagal' ?></td> 
         <td><?= $item['time_completion'] ?></td>
         <td><?= $item['number_of_step'] ?></td>
         <td><?= $item['generate_at'] ?></td>

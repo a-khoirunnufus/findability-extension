@@ -147,7 +147,7 @@ class BIGFile{
     $targetsMarked = array_map(function ($item) use ($probableTargetIds) {
       $item['selectedTarget'] = false;
       if (
-        $this->_QN_MARKED_COUNT < 10
+        $this->_QN_MARKED_COUNT < 6
         and in_array($item['id'], $probableTargetIds)
       ) {
         $item['selectedTarget'] = true;

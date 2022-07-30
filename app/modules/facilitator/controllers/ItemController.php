@@ -242,6 +242,7 @@ class ItemController extends Controller
           $url = parse_url($url, PHP_URL_QUERY);
           $output; parse_str($url, $output);
           $folder_id = $output['folder_id'];
+          if($folder_id == 'my-drive' || $folder_id == 'root') $folder_id = $drive->driveRootId;
           $file = $drive->getFileById($item['file_id']);
           if($file['parent'] == $folder_id) {
             $isSuccess = true;
