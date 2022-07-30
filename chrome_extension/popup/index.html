@@ -10,16 +10,6 @@
       <strong>QuickNav</strong>
     </div>
     <div class="stack__body">
-      <div class="notification bg-warning w-100 p-2 text-left">
-        Silahkan refresh halaman ini untuk melihat perubahan.
-      </div>
-      <div class="d-flex flex-column h-100">
-        <p class="fs-5 fw-bold my-3 text-center" id="status-text">-</p>
-        <div class="toggle-qn-container show d-flex justify-content-center">
-          <button type="button" id="btn-show" class="btn btn-sm btn-primary fw-bold me-3">Aktifkan</button>
-          <button type="button" id="btn-hide" class="btn btn-sm btn-secondary fw-bold">Matikan</button>
-        </div>
-      </div>
     </div>
 
     <div id="user-testing" class="stack__header-toggler bg-light bg-gradient py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
@@ -27,119 +17,14 @@
     </div>
     <div class="stack__body">
       <div id="active-task" class="stack__header-toggler bg-light bg-gradient py-2 px-3 border-bottom">
-        <p class="ps-3 m-0">
-          Tugas Aktif
-        </p>
+        <p class="ps-3 m-0">Tugas Aktif</p>
       </div>
       <div class="stack__body">
-        <div id="wrapper-current-task" class="p-3">
-          <div class="card">
-            <div class="card-body p-3">
-              <span class="d-block fs-6 fw-semibold mb-3">QH-01</span>
-              <span class="d-block text-black-50" style="font-size: 12px;">Status</span>
-              <span class="d-block mb-3">Tugas belum dimulai</span>
-              <!-- <span class="d-block mb-3">Tugas sedang dilakukan</span> -->
-              <!-- <span class="d-block mb-3">Tugas selesai</span> -->
-
-              <span class="d-block text-black-50" style="font-size: 12px;">Deskripsi</span>
-              <span class="d-block mb-3">Laporan tugas desain interaksi minggu ke 6</span>
-
-              <div class="alert alert-warning d-flex align-items-center mb-3 py-2 px-3" role="alert">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <span class="ms-3" style="font-size: 12px;">
-                  Petujuk hanya dapat ditampilkan satu kali, pastikan anda mengingatnya.
-                </span>
-              </div>
-              <!-- <div class="alert alert-primary d-flex align-items-center mb-3 py-2 px-3" role="alert">
-                  <i class="bi bi-info-circle-fill"></i> 
-                  <span class="ms-3" style="font-size: 12px;">
-                    Silahkan pilih file yang dimaksud kemudian tekan tombol selesai.
-                  </span>
-              </div> -->
-
-              <button class="d-inline-block btn btn-sm btn-warning">Lihat Petujuk</button>
-              <button class="d-inline-block btn btn-sm btn-primary">Mulai Tugas</button>
-              <!-- <button class="d-inline-block btn btn-sm btn-success">Selesai</button> -->
-            </div>
-          </div>
-        </div>
       </div>
       <div id="task-viewer" class="stack__header-toggler bg-light bg-gradient py-2 px-3 border-bottom">
-        <p class="ps-3 m-0">
-          List Tugas
-        </p>
+        <p class="ps-3 m-0">List Tugas</p>
       </div>
       <div class="stack__body" style="border: none;">
-        <div id="wrapper-task-list" class="p-3">
-
-          <!-- list tugas -->
-          <!-- <ul class="list-group">
-            <li class="list-group-item d-flex align-items-center justify-content-between" style="cursor: pointer;">
-              <div class="d-flex flex-row align-items-center">
-                <div style="height: 12px; width: 12px; border-radius: 50%; background-color: green; margin-right: 1rem;"></div>
-                <span>GH - Antarmuka Google Drive dengan Petujuk</span>
-              </div>
-              <img src="../resources/icons/arrow-right.svg">
-            </li>
-            <li class="list-group-item d-flex align-items-center" style="cursor: not-allowed;">
-              <div class="d-flex flex-row align-items-center">
-                <div style="height: 12px; width: 12px; border-radius: 50%; background-color: gainsboro; margin-right: 1rem;"></div>
-                <span class="text-black-50">G - Antarmuka Google Drive tanpa Petujuk</span>
-              </div>
-            </li>
-            <li class="list-group-item d-flex align-items-center" style="cursor: not-allowed;">
-              <div class="d-flex flex-row align-items-center">
-                <div style="height: 12px; width: 12px; border-radius: 50%; background-color: gainsboro; margin-right: 1rem;"></div>
-                <span class="text-black-50">QH - Antarmuka QuickNav dengan Petujuk</span>
-              </div>
-            </li>
-            <li class="list-group-item d-flex align-items-center" style="cursor: not-allowed;">
-              <div class="d-flex flex-row align-items-center">
-                <div style="height: 12px; width: 12px; border-radius: 50%; background-color: gainsboro; margin-right: 1rem;"></div>
-                <span class="text-black-50">Q - Antarmuka QuickNav dengan Petujuk</span>
-              </div>
-            </li>
-          </ul> -->
-
-          <!-- list item tugas -->
-          <!-- <div class="d-flex flex-row align-items-center">
-            <button class="btn btn-sm">
-              <img src="../resources/icons/arrow-left.svg">
-            </button>
-            <p class="text-black-50 mb-0 ms-3">Detail Tugas - QH</p>
-          </div>
-          <ul class="list-group mt-3">
-            <li class="list-group-item d-flex align-items-center justify-content-between">
-              <div class="d-flex flex-row align-items-center">
-                <div style="height: 12px; width: 12px; border-radius: 50%; background-color: green; margin-right: 1rem;"></div>
-                <span>GH-01</span>
-              </div>
-              <button class="btn btn-sm btn-primary">Pilih</button>
-            </li>
-            <li class="list-group-item d-flex align-items-center justify-content-between">
-              <div class="d-flex flex-row align-items-center">
-                <div style="height: 12px; width: 12px; border-radius: 50%; background-color: green; margin-right: 1rem;"></div>
-                <span>GH-02</span>
-              </div>
-              <button class="btn btn-sm btn-primary">Pilih</button>
-            </li>
-            <li class="list-group-item d-flex align-items-center justify-content-between">
-              <div class="d-flex flex-row align-items-center">
-                <div style="height: 12px; width: 12px; border-radius: 50%; background-color: green; margin-right: 1rem;"></div>
-                <span>GH-03</span>
-              </div>
-              <button class="btn btn-sm btn-primary">Pilih</button>
-            </li>
-            <li class="list-group-item d-flex align-items-center justify-content-between">
-              <div class="d-flex flex-row align-items-center">
-                <div style="height: 12px; width: 12px; border-radius: 50%; background-color: green; margin-right: 1rem;"></div>
-                <span>GH-04</span>
-              </div>
-              <button class="btn btn-sm btn-primary">Pilih</button>
-            </li>
-          </ul> -->
-
-        </div>
       </div>
     </div>
 
