@@ -1,4 +1,4 @@
-(function () {
+(() => {
 
 const elm = document.querySelector('.g3Fmkb');
 elm.innerHTML = '';
