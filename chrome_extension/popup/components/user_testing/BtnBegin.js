@@ -18,7 +18,8 @@ function getBtnBegin(currentTab, activeTask) {
     btnBegin.addEventListener('click', async () => {
       if(envReady.interface == 'GOOGLE_DRIVE') {
         if(!envReady.status) {
-          // env not ready
+          await chrome.runtime.sendMessage({code: "SETUP_GD_INTERFACE_TESTING_SCRIPT"});
+          await chrome.storage.local.set({showQuicknav: false});
           await chrome.scripting.executeScript({
             target: {tabId: currentTab.id},
             func: () => {
@@ -29,8 +30,6 @@ function getBtnBegin(currentTab, activeTask) {
           return window.close();
         }
   
-        // env ready
-        // set task status running
         await chrome.storage.local.set({ 
           activeTask: {
             itemId: activeTask.itemId,
@@ -48,9 +47,7 @@ function getBtnBegin(currentTab, activeTask) {
       }
       else if(envReady.interface == 'QUICKNAV') {
         if(!envReady.status) {
-          // env not ready
           await chrome.storage.local.set({showQuicknav: true});  
-          // refresh page
           await chrome.scripting.executeScript({
             target: {tabId: currentTab.id},
             func: () => {
@@ -61,7 +58,6 @@ function getBtnBegin(currentTab, activeTask) {
           return window.close();
         }
   
-        // env ready
         await chrome.scripting.executeScript({
           target: {tabId: currentTab.id},
           func: beginTaskQuicknav,
@@ -87,23 +83,29 @@ function getBtnBegin(currentTab, activeTask) {
 async function checkEnvReady(viewInterface, currentTab) {
   let ready = true;
 
-  if(viewInterface == 'GOOGLE_DRIVE') {
-    // checking environment ready
+  if(viewInterface == 'GOOGLE_DRIVE') {    
+    // check is testing script exists
+    const scripts = await chrome.scripting.getRegisteredContentScripts(
+      { ids: ['gd-interface-testing-script'] },
+    );
+    const scriptIds = scripts.map((item) => item.id);
+    if(!scriptIds.includes('gd-interface-testing-script')) {
+      ready = false;
+    }
+    
+    // check is quicknav showing
     const {showQuicknav} = await chrome.storage.local.get(['showQuicknav']);
     if(showQuicknav) {
-      // not ready
       ready = false;
-      await chrome.storage.local.set({showQuicknav: false});
     }
+
     const path = parseURL(currentTab.url).path;
     const pathArr = path.split('/');
     if(pathArr.pop() != 'my-drive') {
-      // not ready
       ready = false;
     }
   }
   else if(viewInterface == 'QUICKNAV') {
-    // checking environment ready
     const {showQuicknav} = await chrome.storage.local.get(['showQuicknav']);
     if(showQuicknav === false) {
       ready = false;

@@ -38,10 +38,21 @@ const gdScriptObj = {
   matches: [ 'https://drive.google.com/*' ],
   runAt: 'document_end',
 };
+
 const qnScriptObj = {
   id: 'quicknav-main',
   css: [ 'content_scripts/quicknav/main.css' ],
   js: [ 'content_scripts/quicknav/main.js' ],
+  matches: [ 'https://drive.google.com/*' ],
+  runAt: 'document_end',
+};
+
+const gdInterfaceTestingScriptObj = {
+  id: 'gd-interface-testing-script',
+  js: [ 
+    'content_scripts/googledrive/searchbar_hide.js', 
+    'content_scripts/googledrive/suggested_hide.js',
+  ],
   matches: [ 'https://drive.google.com/*' ],
   runAt: 'document_end',
 };
@@ -96,28 +107,52 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
 
 // LISTEN MESSAGE
 chrome.runtime.onMessage.addListener(
-  async function(request, sender, sendResponse) {
+  (request, sender, sendResponse) => {
     if(request.code === 'FINAL_TASK_LOG') {
-      console.log('final task log', request.data);
-
-      const logs = request.data.logs;
-      const taskItemId = request.data.taskItemId;
-      
-      // send log to server as json
-      const accessToken = await getAccessToken();
-      let res = await fetch(
-        'http://localhost:8080/api/item/submit-log?task_item_id='+taskItemId
-          +'&logs='+JSON.stringify(logs),
-        {
-          method: 'GET',
-          headers: { 'Authorization': 'Basic ' + btoa(`${accessToken}:password`) },
-        },
-      );
-      res = await res.json();
-      console.log('submit log result', res);
+      handleRequestFinalTaskLog(request, sender, sendResponse);
     }
+    if(request.code === 'SETUP_GD_INTERFACE_TESTING_SCRIPT') {
+      handleRequestSetupTestingScript(request, sender, sendResponse);
+    }
+
+    return true;
   }
 );
+
+// messaging functions begin
+
+async function handleRequestFinalTaskLog(request, sender, sendResponse) {
+  console.log('final task log', request.data);
+
+  const logs = request.data.logs;
+  const taskItemId = request.data.taskItemId;
+  
+  // send log to server as json
+  const accessToken = await getAccessToken();
+  let res = await fetch(
+    'http://localhost:8080/api/item/submit-log?task_item_id='+taskItemId
+      +'&logs='+JSON.stringify(logs),
+    {
+      method: 'GET',
+      headers: { 'Authorization': 'Basic ' + btoa(`${accessToken}:password`) },
+    },
+  );
+  res = await res.json();
+  console.log('submit log result', res);
+  sendResponse({success: true});
+}
+
+async function handleRequestSetupTestingScript(request, sender, sendResponse) {
+  const scripts = await chrome.scripting.getRegisteredContentScripts(
+    { ids: ['gd-interface-testing-script'] },
+  );
+  if(scripts.length == 0) {
+    await chrome.scripting.registerContentScripts([gdInterfaceTestingScriptObj]);
+  }
+  sendResponse({success: true});
+}
+
+// messaging functions end
 
 function getAccessToken() {
   return new Promise((resolve, reject) => {
