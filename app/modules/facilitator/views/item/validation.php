@@ -22,8 +22,12 @@ $csrfToken = \Yii::$app->request->csrfToken;
 </div>
 
 <div class="card shadow-sm mb-4">
-  <div class="card-body">    
-    <form action="<?= Url::toRoute(['item/validate', 'participant_id' => $participant['id'], 'task_id' => $task['id']]) ?>" method="post">
+  <div class="card-body">
+    <div class="d-flex mb-3">
+      <button id="btn-check-all" class="btn btn-primary me-2">Pilih Semua</button>
+      <button id="btn-uncheck-all" class="btn btn-secondary mb">Hapus Semua</button>    
+    </div>
+    <form id="form-validate" action="<?= Url::toRoute(['item/validate', 'participant_id' => $participant['id'], 'task_id' => $task['id']]) ?>" method="post">
       <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
       <input type="hidden" name="task_item_id" value="<?= $item['id'] ?>">
       <table class="table">
@@ -49,7 +53,11 @@ $csrfToken = \Yii::$app->request->csrfToken;
                   $path = explode('/', $path);
                   $folder_id = end($path);
                   $file = $drive->getFileById($folder_id);
-                  echo $file['name'];
+                  if(isset($file['name'])) {
+                    echo $file['name'];
+                  } else {
+                    echo 'NOT_FOUND';
+                  }
                 }
                 elseif($item['interface'] == 'QUICKNAV') {
                   $url = $log['object'];
@@ -61,7 +69,11 @@ $csrfToken = \Yii::$app->request->csrfToken;
                     parse_str($url, $output);
                     $folder_id = $output['folder_id'];
                     $file = $drive->getFileById($folder_id);
-                    echo $file['name'];
+                    if(isset($file['name'])) {
+                      echo $file['name'];
+                    } else {
+                      echo 'NOT_FOUND';
+                    }
                   }
                 }
                 
@@ -89,12 +101,25 @@ $csrfToken = \Yii::$app->request->csrfToken;
         </tbody>
       </table>
 
-      <button type="submit" class="btn btn-success btn-lg text-white mt-3">Tandai selesai</button>
+      <button type="submit" class="btn btn-success text-white mt-3">Tandai selesai</button>
     </form>
     <form action="<?= Url::toRoute(['item/unvalidate', 'participant_id' => $participant['id'], 'task_id' => $task['id']]) ?>" method="post">
       <input type="hidden" name="_csrf" value="<?= $csrfToken ?>">
       <input type="hidden" name="task_item_id" value="<?= $item['id'] ?>">
-      <button type="submit" class="btn btn-secondary btn-lg text-white mt-3">Tandai belum selesai</button>
+      <button type="submit" class="btn btn-secondary text-white mt-3">Tandai belum selesai</button>
     </form>
   </div>
 </div>
+
+<script>
+  document.querySelector('#btn-check-all').addEventListener('click', () => {
+    document.querySelectorAll('#form-validate input[name="task_item_log_id[]"]').forEach((elm) => {
+      elm.checked = true;
+    })
+  });
+  document.querySelector('#btn-uncheck-all').addEventListener('click', () => {
+    document.querySelectorAll('#form-validate input[name="task_item_log_id[]"]').forEach((elm) => {
+      elm.checked = false;
+    })
+  });
+</script>

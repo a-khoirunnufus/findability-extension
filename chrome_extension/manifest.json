@@ -8,6 +8,7 @@
     "type": "module"
   },
   "action": {
+    "default_icon": "resources/icons/quicknav-icon-16x16.png",
     "default_title": "Quick Navigation",
     "default_popup": "popup/index.html"
   },

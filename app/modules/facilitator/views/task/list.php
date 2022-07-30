@@ -38,8 +38,8 @@ $session = \Yii::$app->session;
           <th scope="col">#</th>
           <th scope="col">Kode</th>
           <th scope="col">Nama</th>
-          <th scope="col">Jumlah Item</th>
-          <th scope="col">Terkunci</th>
+          <th class="text-center" scope="col">Selesai/Pending/Semua</th>
+          <th class="text-center" scope="col">Terkunci</th>
           <th class="text-center" scope="col">Aksi</th>
           <th class="text-center" scope="col"></th>
         </tr>
@@ -50,13 +50,20 @@ $session = \Yii::$app->session;
             <td><?= $task['order'] ?></td>
             <td><?= $task['code'] ?></td>
             <td><?= $task['name'] ?></td>
-            <td><?php
-              $count = app\modules\facilitator\models\UtTaskItem::find()
-                        ->where(['task_id' => $task['id']])
-                        ->count();
-              if($count !== null) echo $count;
+            <td class="text-center"><?php
+              $allCount = app\modules\facilitator\models\UtTaskItem::find()
+                ->where(['task_id' => $task['id']])
+                ->count();
+              $pendingCount = app\modules\facilitator\models\UtTaskItem::find()
+                ->where(['task_id' => $task['id'], 'status' => 'PENDING'])
+                ->count();  
+              $completedCount = app\modules\facilitator\models\UtTaskItem::find()
+                ->where(['task_id' => $task['id'], 'status' => 'COMPLETED'])
+                ->count();
+              if($allCount != null and $pendingCount != null and $completedCount != null) 
+                echo $completedCount.'/'.$pendingCount.'/'.$allCount;
             ?></td>
-            <td>
+            <td class="text-center">
               <?php if(intval($task['is_lock']) === 1): ?> 
                 <span class="badge text-bg-secondary">terkunci</span>
               <?php elseif(intval($task['is_lock']) === 0): ?>

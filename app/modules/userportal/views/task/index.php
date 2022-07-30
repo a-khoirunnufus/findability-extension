@@ -17,7 +17,7 @@ $this->params['breadcrumbs'] = [
           <th class="text-center" scope="col">#</th>
           <th class="text-center" scope="col">Kode</th>
           <th scope="col">Nama Tugas</th>
-          <th scope="col">Jumlah Item</th>
+          <th class="text-center" scope="col">Selesai/Pending/Semua</th>
           <th class="text-center" scope="col">Aksi</th>
         </tr>
       </thead>
@@ -27,11 +27,18 @@ $this->params['breadcrumbs'] = [
             <td class="text-center"><?= $task['order'] ?></td>
             <td class="text-center"><?= $task['code'] ?></td>
             <td><?= $task['name'] ?></td>
-            <td><?php
-              $count = app\modules\facilitator\models\UtTaskItem::find()
-                        ->where(['task_id' => $task['id']])
-                        ->count();
-              if($count !== null) echo $count;
+            <td class="text-center"><?php
+              $allCount = app\modules\facilitator\models\UtTaskItem::find()
+                ->where(['task_id' => $task['id']])
+                ->count();
+              $pendingCount = app\modules\facilitator\models\UtTaskItem::find()
+                ->where(['task_id' => $task['id'], 'status' => 'PENDING'])
+                ->count();  
+              $completedCount = app\modules\facilitator\models\UtTaskItem::find()
+                ->where(['task_id' => $task['id'], 'status' => 'COMPLETED'])
+                ->count();
+              if($allCount != null and $pendingCount != null and $completedCount != null) 
+                echo $completedCount.'/'.$pendingCount.'/'.$allCount;
             ?></td>
             <td class="text-center">   
               <a href="<?= Url::toRoute([

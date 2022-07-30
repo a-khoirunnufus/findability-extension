@@ -18,8 +18,15 @@ $this->params['breadcrumbs'] = [
       <?php foreach($data as $item): ?>
         <li class="list-group-item" style="white-space: nowrap">
           <span style="max-width: 300px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-              <?php $file = $drive->getFileById($item['file_id']);
-              echo $file['name'];?></span><br>
+            <?php 
+            $file = $drive->getFileById($item['file_id']);
+            if(isset($file['name'])) {
+              echo $file['name'];
+            } else {
+              echo 'NOT_FOUND';
+            }
+            ?>
+          </span><br>
           <span><?= $item['time'] ?> Detik</span><br>
           <span class="badge text-bg-light"><?= strtolower($item['source']) ?></span>
         </li>

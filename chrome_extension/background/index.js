@@ -102,8 +102,25 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
       );
     }
   }
+
+  if (changes.activeTask) {
+    activeTaskChangeEventHandler(changes.activeTask.newValue);
+  }
   
 })
+
+async function activeTaskChangeEventHandler(newValue) {
+  if (newValue.status === 'idle') {
+    await chrome.action.setBadgeText({text: 't'})
+    await chrome.action.setBadgeBackgroundColor({color: '#8a93a2'});
+  } else if (newValue.status === 'running') {
+    await chrome.action.setBadgeText({text: 't'})
+    await chrome.action.setBadgeBackgroundColor({color: '#198754'});
+  } else {
+    await chrome.action.setBadgeText({text: ''})
+    await chrome.action.setBadgeBackgroundColor({color: '#8a93a2'});
+  }
+}
 
 // LISTEN MESSAGE
 chrome.runtime.onMessage.addListener(

@@ -55,7 +55,7 @@ const eventHandler = async (e) => {
   content.innerHTML = getHtml(
     res.taskItem.code,
     res.taskItem.status,
-    (activeTask.status == 'idle' || activeTask.status == 'end') 
+    (activeTask.status == 'idle') 
       ? 'Tidak dijalankan' : 'Sedang dijalankan',
     res.taskItem.file_name,
   );
@@ -78,7 +78,7 @@ const eventHandler = async (e) => {
   // cancel task button
   const btnCancel = getBtnCancel(currentTab, activeTask);
 
-  if (activeTask.status == 'idle' || activeTask.status == 'end') {
+  if (activeTask.status == 'idle') {
     if(res.taskItem.hint_visible === 1) {
       content.append(divHintInfo);
       content.append(btnShowHint);
